@@ -4,3 +4,7 @@
   flex-flow: column wrap;
   align-items: center;
 }
+
+.loginLogo {
+  margin: var(--size-1) 0 var(--size-7);
+}
