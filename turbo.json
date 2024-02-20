@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "dev:next": {
+      "cache": false,
+      "persistent": true
+    },
+    "build:next": {
+      "dependsOn": [],
+      "inputs": ["package.json", "src/**/*"],
+      "outputs": ["dist/**/*", ".next/**/*", "!.next/cache/**/*", ".turbo/**/*"]
+    }
+  }
+}
