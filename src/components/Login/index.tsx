@@ -8,7 +8,7 @@ import {
 } from 'evergreen-ui';
 import { FormEvent } from 'react';
 
-export default function Login() {
+export const Login = () => {
   const handleLogin = (event: FormEvent) => {
     event.preventDefault();
     console.log('login');
@@ -21,11 +21,11 @@ export default function Login() {
       padding={majorScale(5)}
       minWidth="40%"
     >
-      <form onSubmit={handleLogin} className={styles.loginForm}>
+      <form method="post" onSubmit={handleLogin} className={styles.loginForm}>
         <Heading
+          id="logo"
           is="h1"
           textAlign="center"
-          className="project-name"
           marginTop={majorScale(2)}
           marginBottom={majorScale(4)}
         >
@@ -39,4 +39,4 @@ export default function Login() {
       </form>
     </Card>
   );
-}
+};
