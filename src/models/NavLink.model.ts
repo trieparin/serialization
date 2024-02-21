@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-export interface ICombineLink {
+export interface INavLink {
   children: ReactNode;
   href: string;
 }

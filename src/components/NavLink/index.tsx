@@ -1,18 +1,18 @@
-import { ICombineLink } from '@/models/CombineLink.model';
-import { Link as UiLink, minorScale } from 'evergreen-ui';
+import { INavLink } from '@/models/NavLink.model';
+import { Link as UiLink } from 'evergreen-ui';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export const CombineLink = ({ children, href }: ICombineLink) => {
+export const NavLink = ({ children, href }: INavLink) => {
   const path = usePathname();
   return (
     <Link href={href}>
       <UiLink
         is="span"
-        color={path === href ? 'default' : 'neutral'}
+        color={path.includes(href) ? 'default' : 'neutral'}
+        fontWeight={path.includes(href) ? 500 : 400}
         textTransform="uppercase"
         letterSpacing="1px"
-        padding={minorScale(3)}
       >
         {children}
       </UiLink>
