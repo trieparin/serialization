@@ -1,6 +1,7 @@
 import { PageTitle } from '@/components';
 import { BaseLayout } from '@/layouts';
 import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
+import Link from 'next/link';
 
 const mockUsers = [
   {
@@ -40,7 +41,9 @@ export default function UserPage() {
               <Table.TextCell>{role}</Table.TextCell>
               <Table.TextCell>
                 <Pane display="flex" columnGap={minorScale(3)}>
-                  <EditIcon cursor="pointer" />
+                  <Link href="/user/info">
+                    <EditIcon color="dark" cursor="pointer" />
+                  </Link>
                   <TrashIcon color="red" cursor="pointer" />
                 </Pane>
               </Table.TextCell>
