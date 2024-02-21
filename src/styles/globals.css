@@ -2,18 +2,11 @@
 
 :root {
   --font-barcode: 'Libre Barcode 39 Text', system-ui;
-  --size-1: 0.4rem;
-  --size-2: 0.8rem;
-  --size-3: 1.2rem;
-  --size-4: 1.6rem;
-  --size-5: 2rem;
-  --size-6: 2.4rem;
-  --size-7: 2.8rem;
-  --size-8: 3.2rem;
-  --size-9: 3.6rem;
-  --size-10: 4rem;
-  --size-11: 4.4rem;
-  --size-12: 4.8rem;
+  --size-1: 0.8rem;
+  --size-2: 1.6rem;
+  --size-3: 2.4rem;
+  --size-4: 3.2rem;
+  --size-5: 4rem;
 }
 
 html {
@@ -22,7 +15,7 @@ html {
 }
 
 body {
-  font-size: var(--size-4);
+  font-size: var(--size-2);
   font-weight: 400;
   font-style: normal;
   max-width: 100vw;
@@ -46,25 +39,25 @@ a:visited {
 
 .container {
   width: 100%;
-  padding-left: var(--size-4);
-  padding-right: var(--size-4);
+  padding-left: var(--size-2);
+  padding-right: var(--size-2);
 }
 
 #logo {
   font-family: var(--font-barcode) !important;
-  font-size: var(--size-6) !important;
+  font-size: var(--size-3) !important;
   line-height: 1;
 }
 
 @media only screen and (min-width: 1024px) {
   .container {
     max-width: 128rem;
+    padding-left: var(--size-4);
+    padding-right: var(--size-4);
     margin: 0 auto;
-    padding-left: var(--size-8);
-    padding-right: var(--size-8);
   }
 
   #logo {
-    font-size: var(--size-9) !important;
+    font-size: 3.6rem !important;
   }
 }
