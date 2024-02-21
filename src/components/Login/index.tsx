@@ -1,6 +1,12 @@
 import { Logo } from '@/components';
-import styles from '@/styles/components/Login.module.css';
-import { Button, Card, TextInputField, majorScale } from 'evergreen-ui';
+import {
+  Button,
+  Card,
+  Pane,
+  TextInputField,
+  majorScale,
+  minorScale,
+} from 'evergreen-ui';
 import { FormEvent } from 'react';
 
 export const Login = () => {
@@ -16,16 +22,38 @@ export const Login = () => {
       padding={majorScale(5)}
       minWidth="40%"
     >
-      <form method="post" onSubmit={handleLogin} className={styles.loginForm}>
-        <div className={styles.loginLogo}>
+      <Pane
+        is="form"
+        method="post"
+        onSubmit={handleLogin}
+        width="100%"
+        display="flex"
+        alignItems="center"
+        flexFlow="column"
+      >
+        <Pane marginBottom={minorScale(7)}>
           <Logo />
-        </div>
-        <TextInputField label="Username" type="text" width="70%" />
-        <TextInputField label="Password" type="password" width="70%" />
+        </Pane>
+        <TextInputField
+          label="Email"
+          name="loginEmail"
+          id="loginEmail"
+          type="text"
+          width="70%"
+          required
+        />
+        <TextInputField
+          label="Password"
+          name="loginPassword"
+          id="loginPassword"
+          type="password"
+          width="70%"
+          required
+        />
         <Button appearance="primary" size="large">
           Login
         </Button>
-      </form>
+      </Pane>
     </Card>
   );
 };
