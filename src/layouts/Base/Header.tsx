@@ -24,7 +24,7 @@ export const Header = () => {
           alignItems="center"
           columnGap={minorScale(3)}
         >
-          <NavLink href="/batch">All Batches</NavLink>
+          <NavLink href="/product">All Products</NavLink>
           <Text color="muted">|</Text>
           <NavLink href="/serial">All Serials</NavLink>
           <Text color="muted">|</Text>
