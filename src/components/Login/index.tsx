@@ -1,14 +1,9 @@
+import { Logo } from '@/components';
 import styles from '@/styles/components/Login.module.css';
-import {
-  Button,
-  Card,
-  Heading,
-  TextInputField,
-  majorScale,
-} from 'evergreen-ui';
+import { Button, Card, TextInputField, majorScale } from 'evergreen-ui';
 import { FormEvent } from 'react';
 
-export default function Login() {
+export const Login = () => {
   const handleLogin = (event: FormEvent) => {
     event.preventDefault();
     console.log('login');
@@ -21,16 +16,10 @@ export default function Login() {
       padding={majorScale(5)}
       minWidth="40%"
     >
-      <form onSubmit={handleLogin} className={styles.loginForm}>
-        <Heading
-          is="h1"
-          textAlign="center"
-          className="project-name"
-          marginTop={majorScale(2)}
-          marginBottom={majorScale(4)}
-        >
-          Serialization
-        </Heading>
+      <form method="post" onSubmit={handleLogin} className={styles.loginForm}>
+        <div className={styles.loginLogo}>
+          <Logo />
+        </div>
         <TextInputField label="Username" type="text" width="70%" />
         <TextInputField label="Password" type="password" width="70%" />
         <Button appearance="primary" size="large">
@@ -39,4 +28,4 @@ export default function Login() {
       </form>
     </Card>
   );
-}
+};

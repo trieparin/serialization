@@ -1,17 +1,10 @@
-import Login from '@/components/Login';
-import { Pane } from 'evergreen-ui';
+import { Login } from '@/components';
+import { BlankLayout } from '@/layouts';
 
 export default function Home() {
   return (
-    <main>
-      <Pane
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-      >
-        <Login />
-      </Pane>
-    </main>
+    <BlankLayout>
+      <Login />
+    </BlankLayout>
   );
 }
