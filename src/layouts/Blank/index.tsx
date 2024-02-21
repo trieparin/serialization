@@ -8,6 +8,7 @@ export const BlankLayout = ({ children }: ILayout) => {
       display="flex"
       alignItems="center"
       justifyContent="center"
+      background="dark"
       minHeight="100vh"
     >
       {children}
