@@ -1,3 +1,5 @@
+export * from './ActiveIngredient';
+export * from './BatchInformation';
 export * from './Login';
 export * from './Logo';
 export * from './NavLink';
