@@ -23,7 +23,7 @@ const mockUsers = [
 export default function UserPage() {
   return (
     <BaseLayout>
-      <PageTitle title="Manage Users" link="/user/new" hasAddButton />
+      <PageTitle title="Manage Users" link="/user/create" hasAddButton />
       <Table>
         <Table.Head paddingRight="0">
           <Table.TextHeaderCell>No.</Table.TextHeaderCell>
@@ -41,7 +41,7 @@ export default function UserPage() {
               <Table.TextCell>{role}</Table.TextCell>
               <Table.TextCell>
                 <Pane display="flex" columnGap={minorScale(3)}>
-                  <Link href="/user/info">
+                  <Link href="/user/edit">
                     <EditIcon color="dark" cursor="pointer" />
                   </Link>
                   <TrashIcon color="red" cursor="pointer" />

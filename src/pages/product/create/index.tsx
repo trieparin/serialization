@@ -17,7 +17,7 @@ export default function ProductCreate() {
 
   return (
     <BaseLayout>
-      <PageTitle title="New Product" />
+      <PageTitle title="Create New Product" />
       <Pane is="form" onSubmit={handleSubmit}>
         <Pane is="fieldset" border="none">
           <BatchInformation />
