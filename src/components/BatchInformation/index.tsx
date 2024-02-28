@@ -1,3 +1,4 @@
+import { ProductType } from '@/models/product.model';
 import {
   Heading,
   Pane,
@@ -7,6 +8,8 @@ import {
 } from 'evergreen-ui';
 
 export const BatchInformation = () => {
+  const productTypes = Object.values(ProductType);
+
   return (
     <Pane display="flex" flexFlow="column">
       <Heading marginBottom={majorScale(2)}>Batch Information</Heading>
@@ -35,11 +38,9 @@ export const BatchInformation = () => {
           id="productType"
           required
         >
-          <option value="1">Type 1</option>
-          <option value="2">Type 2</option>
-          <option value="3">Type 3</option>
-          <option value="4">Type 4</option>
-          <option value="Non-Drug">Non-Drug</option>
+          {productTypes.map((type) => (
+            <option value={type}>{type}</option>
+          ))}
         </SelectField>
         <TextInputField
           label="Batch"
