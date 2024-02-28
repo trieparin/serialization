@@ -1,8 +1,13 @@
-import { IPageTitle } from '@/models/PageTitle.model';
 import { Button, Heading, Pane, PlusIcon, majorScale } from 'evergreen-ui';
 import Link from 'next/link';
 
-export const PageTitle = ({ title, link, hasAddButton }: IPageTitle) => {
+interface PageTitleProps {
+  title: string;
+  link?: string;
+  hasAddButton?: boolean;
+}
+
+export const PageTitle = ({ title, link, hasAddButton }: PageTitleProps) => {
   return (
     <Pane
       is="section"

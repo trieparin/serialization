@@ -1,5 +1,5 @@
 import { BaseLayout } from '@/layouts';
 
-export default function BatchPage() {
+export default function ProductEdit() {
   return <BaseLayout></BaseLayout>;
 }
