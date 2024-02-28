@@ -1,9 +1,14 @@
-import { INavLink } from '@/models/NavLink.model';
 import { Link as UiLink } from 'evergreen-ui';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ReactNode } from 'react';
 
-export const NavLink = ({ children, href }: INavLink) => {
+interface NavLinkProps {
+  children: ReactNode;
+  href: string;
+}
+
+export const NavLink = ({ children, href }: NavLinkProps) => {
   const path = usePathname();
   return (
     <Link href={href}>

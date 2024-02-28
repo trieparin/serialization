@@ -1,5 +1,5 @@
 import { BaseLayout } from '@/layouts';
 
-export default function UserNew() {
+export default function UserEdit() {
   return <BaseLayout></BaseLayout>;
 }

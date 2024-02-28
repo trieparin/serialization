@@ -1,7 +1,7 @@
-import { ILayout } from '@/models/Layout.model';
 import { Pane } from 'evergreen-ui';
+import { ReactNode } from 'react';
 
-export const BlankLayout = ({ children }: ILayout) => {
+export const BlankLayout = ({ children }: { children?: ReactNode }) => {
   return (
     <Pane
       is="main"
