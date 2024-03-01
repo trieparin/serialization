@@ -1,9 +1,13 @@
 import { Button, Pane, minorScale } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 
-export const SaveCancel = ({ loading }: { loading: boolean }) => {
-  const router = useRouter();
+interface SaveCancelProps {
+  loading: boolean;
+  disabled: boolean;
+}
 
+export const SaveCancel = ({ loading, disabled }: SaveCancelProps) => {
+  const router = useRouter();
   return (
     <Pane
       display="flex"
@@ -18,6 +22,7 @@ export const SaveCancel = ({ loading }: { loading: boolean }) => {
         type="submit"
         appearance="primary"
         size="large"
+        disabled={disabled}
         isLoading={loading}
       >
         Save

@@ -8,7 +8,8 @@ export const Header = () => {
       elevation={1}
       background="tint1"
       position="sticky"
-      top="0"
+      top={0}
+      zIndex={1}
     >
       <Pane
         display="flex"

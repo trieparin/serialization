@@ -18,13 +18,6 @@ export const Login = () => {
   const { isLoading, startLoading } = useContext(LoadingContext);
   const { role } = useContext(UserInfoContext);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    startLoading();
-    const target = e.currentTarget;
-    signIn(target.email.value, target.password.value);
-  };
-
   useEffect(() => {
     switch (role) {
       case Role.ADMIN:
@@ -40,6 +33,13 @@ export const Login = () => {
         break;
     }
   }, [role]);
+
+  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    startLoading();
+    const target = e.currentTarget;
+    signIn(target.email.value, target.password.value);
+  };
 
   return (
     <Card

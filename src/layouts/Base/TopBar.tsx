@@ -1,4 +1,4 @@
-import { Logout } from '@/components/Logout';
+import { Logout } from '@/components';
 import { UserInfoContext } from '@/contexts/UserInfoContext';
 import {
   Avatar,
@@ -20,7 +20,7 @@ export const TopBar = () => {
   const { displayName } = useContext(UserInfoContext);
 
   useEffect(() => {
-    if (!displayName) {
+    if (!displayName || displayName === '') {
       router.replace('/');
     }
   }, [displayName]);
