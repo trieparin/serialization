@@ -1,3 +1,5 @@
+import { Logout } from '@/components/Logout';
+import { UserInfoContext } from '@/contexts/UserInfoContext';
 import {
   Avatar,
   CaretDownIcon,
@@ -10,8 +12,19 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
 
 export const TopBar = () => {
+  const router = useRouter();
+  const { displayName } = useContext(UserInfoContext);
+
+  useEffect(() => {
+    if (!displayName) {
+      router.replace('/');
+    }
+  }, [displayName]);
+
   return (
     <Pane background="dark">
       <Pane
@@ -21,13 +34,13 @@ export const TopBar = () => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Avatar name="Hello World" size={minorScale(5)} />
+        <Avatar name={displayName} size={minorScale(5)} />
         <Popover
           position={Position.BOTTOM_RIGHT}
           content={
             <Menu>
               <Menu.Group>
-                <Link href="/user/info">
+                <Link href="/user/edit">
                   <Menu.Item>Edit Info</Menu.Item>
                 </Link>
                 <Link href="/user/change-password">
@@ -36,7 +49,7 @@ export const TopBar = () => {
               </Menu.Group>
               <Menu.Divider />
               <Menu.Group>
-                <Menu.Item>Logout</Menu.Item>
+                <Logout />
               </Menu.Group>
             </Menu>
           }
@@ -47,7 +60,7 @@ export const TopBar = () => {
             icon={<CaretDownIcon fill="white" />}
             marginLeft={minorScale(1)}
           >
-            Hello World
+            {displayName}
           </TextDropdownButton>
         </Popover>
       </Pane>
