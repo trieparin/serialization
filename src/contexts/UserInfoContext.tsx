@@ -1,5 +1,6 @@
 import { auth } from '@/firebase/config';
 import { getUser } from '@/firebase/users';
+import { IsEmptyObject } from '@/helpers/validate.helper';
 import { IUser } from '@/models/user.model';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { ReactNode, createContext, useMemo, useState } from 'react';
@@ -20,7 +21,7 @@ export const UserInfoProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const setInfo = async () => {
-      if (loginUser) {
+      if (loginUser && IsEmptyObject(userInfo)) {
         const data = await getUser(loginUser.uid);
         if (data) {
           setUserInfo({
