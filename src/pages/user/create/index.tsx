@@ -1,22 +1,48 @@
 import { PageTitle, SaveCancel } from '@/components';
+import { LoadingContext } from '@/contexts/LoadingContext';
+import { signUp } from '@/firebase/auth';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
-import { Pane, SelectField, TextInputField, majorScale } from 'evergreen-ui';
-import { FormEvent, useState } from 'react';
+import {
+  Pane,
+  SelectField,
+  TextInputField,
+  majorScale,
+  toaster,
+} from 'evergreen-ui';
+import { useRouter } from 'next/router';
+import { FormEvent, useContext, useEffect } from 'react';
 
 export default function UserCreate() {
   const userRoles = Object.values(Role);
-  const [isLoading, setIsLoading] = useState(false);
-  const handleSubmit = (e: FormEvent) => {
+  const router = useRouter();
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
+    startLoading();
+    const target = e.currentTarget;
+    const user = {
+      email: target.email.value,
+      password: target.password.value,
+      firstName: target.firstName.value,
+      lastName: target.lastName.value,
+      role: target.userRole.value,
+    };
+    const { message } = await signUp(user);
+    toaster.success(message);
+    router.replace('/user');
   };
+
+  useEffect(() => {
+    stopLoading();
+  }, []);
 
   return (
     <BaseLayout>
       <PageTitle title="Create New User" />
       <Pane is="form" onSubmit={handleSubmit}>
-        <Pane is="fieldset" border="none">
+        <Pane is="fieldset" border="none" disabled={isLoading}>
           <Pane
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -38,8 +64,8 @@ export default function UserCreate() {
             />
             <TextInputField
               label="Confirm Password"
-              name="confirmPassword"
-              id="confirmPassword"
+              name="cfmPassword"
+              id="cfmPassword"
               type="password"
               required
             />
@@ -57,9 +83,11 @@ export default function UserCreate() {
               type="text"
               required
             />
-            <SelectField label="Role" name="role" id="role" required>
+            <SelectField label="Role" name="userRole" id="userRole" required>
               {userRoles.map((role) => (
-                <option value={role}>{role}</option>
+                <option key={role} value={role}>
+                  {role}
+                </option>
               ))}
             </SelectField>
           </Pane>
