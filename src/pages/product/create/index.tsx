@@ -4,15 +4,22 @@ import {
   PageTitle,
   SaveCancel,
 } from '@/components';
+import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { Pane } from 'evergreen-ui';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 
 export default function ProductCreate() {
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const [isValidate, setIsValidate] = useState(false);
+
+  useEffect(() => {
+    stopLoading();
+  }, []);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    startLoading();
   };
 
   return (
@@ -23,7 +30,7 @@ export default function ProductCreate() {
           <BatchInformation />
           <ActiveIngredient />
         </Pane>
-        <SaveCancel loading={isLoading} />
+        <SaveCancel loading={isLoading} disabled={!isValidate} />
       </Pane>
     </BaseLayout>
   );
