@@ -12,10 +12,16 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useContext } from 'react';
+import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
 
 export const TopBar = () => {
+  const router = useRouter();
   const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    if (!user) router.replace('/');
+  }, [user]);
 
   return (
     <Pane background="dark">

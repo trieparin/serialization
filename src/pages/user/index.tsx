@@ -1,11 +1,27 @@
 import { PageTitle } from '@/components';
+import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser } from '@/models/user.model';
 import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const users: IUser[] = [];
+  const [users, setUsers] = useState<IUser[]>([]);
+
+  useEffect(() => {
+    const allUsers = async () => {
+      try {
+        const fch = customFetch();
+        const { data }: any = await fch.get('/api/users/list');
+        setUsers(data);
+      } catch (err) {
+        throw err;
+      }
+    };
+    allUsers();
+  }, []);
+
   return (
     <BaseLayout>
       <PageTitle title="Manage Users" link="/user/create" hasAddButton />
@@ -27,7 +43,7 @@ export default function UserPage() {
                 <Table.TextCell>{role}</Table.TextCell>
                 <Table.TextCell>
                   <Pane display="flex" columnGap={minorScale(3)}>
-                    <Link href="/user/edit">
+                    <Link href={`/user/edit/${uid}`}>
                       <EditIcon color="dark" cursor="pointer" />
                     </Link>
                     <TrashIcon color="red" cursor="pointer" />

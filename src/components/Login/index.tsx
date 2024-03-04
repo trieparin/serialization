@@ -1,6 +1,7 @@
 import { Logo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
+import customFetch from '@/helpers/fetch.helper';
 import { Role } from '@/models/user.model';
 import {
   Button,
@@ -11,13 +12,12 @@ import {
   minorScale,
   toaster,
 } from 'evergreen-ui';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import router from 'next/router';
 import { FormEvent, useContext, useEffect } from 'react';
 
 export const Login = () => {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { auth, role } = useContext(UserContext);
+  const { role, setUserInfo } = useContext(UserContext);
 
   useEffect(() => {
     switch (role) {
@@ -40,11 +40,12 @@ export const Login = () => {
     startLoading();
     const target = e.currentTarget;
     try {
-      await signInWithEmailAndPassword(
-        auth,
-        target.email.value,
-        target.password.value
-      );
+      const fch = customFetch();
+      const { user, snap }: any = await fch.post('/api/auth/login', {
+        email: target.email.value,
+        password: target.password.value,
+      });
+      setUserInfo(user, snap.role);
     } catch (err) {
       toaster.danger('Invalid Email or Password');
       stopLoading();
