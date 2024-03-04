@@ -1,16 +1,6 @@
 import { db } from '@/firebase/config';
 import { IUser } from '@/models/user.model';
-import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
-
-export const createUser = async ({ uid, firstName, lastName, role }: IUser) => {
-  try {
-    await setDoc(doc(db, 'users', uid as string), {
-      firstName,
-      lastName,
-      role,
-    });
-  } catch (error) {}
-};
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 
 export const getUser = async (uid: string) => {
   try {

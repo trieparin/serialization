@@ -1,11 +1,12 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
-import { auth } from '@/firebase/config';
+import { UserContext } from '@/contexts/UserContext';
 import { Button, Menu } from 'evergreen-ui';
 import { signOut } from 'firebase/auth';
 import { useContext, useEffect } from 'react';
 
 export const Logout = () => {
   const { stopLoading } = useContext(LoadingContext);
+  const { auth } = useContext(UserContext);
 
   useEffect(() => {
     stopLoading();

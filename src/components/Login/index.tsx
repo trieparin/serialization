@@ -1,7 +1,6 @@
 import { Logo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
-import { UserInfoContext } from '@/contexts/UserInfoContext';
-import { signIn } from '@/firebase/auth';
+import { UserContext } from '@/contexts/UserContext';
 import { Role } from '@/models/user.model';
 import {
   Button,
@@ -10,13 +9,15 @@ import {
   TextInputField,
   majorScale,
   minorScale,
+  toaster,
 } from 'evergreen-ui';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import router from 'next/router';
 import { FormEvent, useContext, useEffect } from 'react';
 
 export const Login = () => {
-  const { isLoading, startLoading } = useContext(LoadingContext);
-  const { role } = useContext(UserInfoContext);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { auth, role } = useContext(UserContext);
 
   useEffect(() => {
     switch (role) {
@@ -34,11 +35,20 @@ export const Login = () => {
     }
   }, [role]);
 
-  const handleLogin = (e: FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     startLoading();
     const target = e.currentTarget;
-    signIn(target.email.value, target.password.value);
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        target.email.value,
+        target.password.value
+      );
+    } catch (err) {
+      toaster.danger('Invalid Email or Password');
+      stopLoading();
+    }
   };
 
   return (

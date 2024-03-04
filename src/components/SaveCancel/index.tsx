@@ -3,9 +3,10 @@ import { useRouter } from 'next/router';
 
 interface SaveCancelProps {
   loading: boolean;
+  disabled: boolean;
 }
 
-export const SaveCancel = ({ loading }: SaveCancelProps) => {
+export const SaveCancel = ({ loading, disabled }: SaveCancelProps) => {
   const router = useRouter();
   return (
     <Pane
@@ -21,6 +22,7 @@ export const SaveCancel = ({ loading }: SaveCancelProps) => {
         type="submit"
         appearance="primary"
         size="large"
+        disabled={disabled}
         isLoading={loading}
       >
         Save
