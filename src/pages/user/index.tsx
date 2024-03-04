@@ -2,25 +2,47 @@ import { PageTitle } from '@/components';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser } from '@/models/user.model';
-import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
+import {
+  EditIcon,
+  Pane,
+  Table,
+  TrashIcon,
+  minorScale,
+  toaster,
+} from 'evergreen-ui';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { MouseEvent, useEffect, useState } from 'react';
 
 export default function UserPage() {
+  const router = useRouter();
   const [users, setUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
-    const allUsers = async () => {
-      try {
-        const fch = customFetch();
-        const { data }: any = await fch.get('/api/users/list');
-        setUsers(data);
-      } catch (err) {
-        throw err;
-      }
-    };
     allUsers();
   }, []);
+
+  const allUsers = async () => {
+    try {
+      const fch = customFetch();
+      const { data }: any = await fch.get('/api/users/list');
+      setUsers(data);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const handleDelete = async (e: MouseEvent<SVGSVGElement>) => {
+    try {
+      const fch = customFetch();
+      const { message }: any = await fch.put('/api/users/delete', {
+        id: e.currentTarget.id,
+      });
+      toaster.success(message);
+    } catch (err) {
+      toaster.danger('An Error Occurred');
+    }
+  };
 
   return (
     <BaseLayout>
@@ -46,7 +68,12 @@ export default function UserPage() {
                     <Link href={`/user/edit/${uid}`}>
                       <EditIcon color="dark" cursor="pointer" />
                     </Link>
-                    <TrashIcon color="red" cursor="pointer" />
+                    <TrashIcon
+                      id={uid}
+                      color="red"
+                      cursor="pointer"
+                      onClick={handleDelete}
+                    />
                   </Pane>
                 </Table.TextCell>
               </Table.Row>

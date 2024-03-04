@@ -56,18 +56,19 @@ export default function UserEdit() {
   const [state, dispatch] = useReducer(formReducer, {});
 
   useEffect(() => {
-    const userInfo = async () => {
-      try {
-        const fch = customFetch();
-        const { data }: any = await fch.get(`/api/users/${router.query.id}`);
-        dispatch({ type: 'initial', payload: JSON.stringify(data) });
-      } catch (err) {
-        throw err;
-      }
-    };
     userInfo();
     stopLoading();
   }, []);
+
+  const userInfo = async () => {
+    try {
+      const fch = customFetch();
+      const { data }: any = await fch.get(`/api/users/${router.query.id}`);
+      dispatch({ type: 'initial', payload: JSON.stringify(data) });
+    } catch (err) {
+      throw err;
+    }
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
