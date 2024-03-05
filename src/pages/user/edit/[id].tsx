@@ -125,7 +125,7 @@ export default function UserEdit() {
               label="Role"
               name="userRole"
               id="userRole"
-              defaultValue={state.role}
+              value={state.role}
               onChange={(e: ChangeEvent<HTMLSelectElement>) => {
                 dispatch({
                   type: 'set_role',
@@ -135,7 +135,7 @@ export default function UserEdit() {
               required
             >
               {Object.values(Role).map((role) => (
-                <option key={role} value={role} selected={role === state.role}>
+                <option key={role} value={role}>
                   {role}
                 </option>
               ))}
