@@ -37,8 +37,8 @@ export const Login = () => {
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    startLoading();
     try {
+      startLoading();
       const target = e.currentTarget;
       const fch = customFetch();
       const { data }: any = await fch.post('/auth/login', {
@@ -50,8 +50,8 @@ export const Login = () => {
       document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
       checkLogin(true);
     } catch (err) {
-      toaster.danger('Invalid Email or Password');
       stopLoading();
+      toaster.danger('Invalid Email or Password');
     }
   };
 
