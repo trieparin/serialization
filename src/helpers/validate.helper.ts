@@ -3,10 +3,11 @@ export const ValidatePassword = (password: string) => {
 };
 
 export const ValidateCookie = (name: string) => {
-  const cookie: any = {};
-  document.cookie.split(';').map((item) => {
-    const [key, value] = item.split('=');
-    cookie[key.trim()] = value.trim();
-  });
-  return cookie[name];
+  return document.cookie
+    .split(';')
+    .map((item) => {
+      const [key, value] = item.split('=');
+      return name === key.trim() && value;
+    })
+    .toString();
 };
