@@ -12,16 +12,10 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 
 export const TopBar = () => {
-  const router = useRouter();
-  const { user } = useContext(UserContext);
-
-  useEffect(() => {
-    if (!user) router.replace('/');
-  }, [user]);
+  const { profile } = useContext(UserContext);
 
   return (
     <Pane background="dark">
@@ -32,13 +26,13 @@ export const TopBar = () => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Avatar name={user?.displayName} size={minorScale(5)} />
+        <Avatar name={profile.displayName} size={minorScale(5)} />
         <Popover
           position={Position.BOTTOM_RIGHT}
           content={
             <Menu>
               <Menu.Group>
-                <Link href={`/user/edit/${user?.uid}`}>
+                <Link href={`/user/edit/${profile.uid}`}>
                   <Menu.Item>Edit Info</Menu.Item>
                 </Link>
                 <Link href="/user/change-password">
@@ -58,7 +52,7 @@ export const TopBar = () => {
             icon={<CaretDownIcon fill="white" />}
             marginLeft={minorScale(1)}
           >
-            {user?.displayName}
+            {profile.displayName}
           </TextDropdownButton>
         </Popover>
       </Pane>

@@ -63,7 +63,7 @@ export default function UserEdit() {
   const userInfo = async () => {
     try {
       const fch = customFetch();
-      const { data }: any = await fch.get(`/api/users/${router.query.id}`);
+      const { data }: any = await fch.get(`/users/${router.query.id}`);
       dispatch({ type: 'initial', payload: JSON.stringify(data) });
     } catch (err) {
       throw err;

@@ -84,7 +84,7 @@ export default function UserCreate() {
     if (!hasEmpty && passwordValue === state.password) {
       startLoading();
       const fch = customFetch();
-      const { message }: any = await fch.post('/api/users/create', state);
+      const { message }: any = await fch.post('/users/create', state);
       toaster.success(message);
       router.push('/user');
     } else {

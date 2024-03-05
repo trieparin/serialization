@@ -10,7 +10,7 @@ export default async function handler(
   try {
     const { email, password } = req.body;
     const { user } = await signInWithEmailAndPassword(auth, email, password);
-    res.status(200).json({ data: user });
+    res.status(200).json({ data: user.refreshToken });
   } catch (err) {
     throw err;
   }

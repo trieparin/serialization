@@ -23,7 +23,7 @@ export default function UserPage() {
   const allUsers = async () => {
     try {
       const fch = customFetch();
-      const { data }: any = await fch.get('/api/users/list');
+      const { data }: any = await fch.get('/users/list');
       setUsers(data);
     } catch (err) {
       throw err;
@@ -33,7 +33,7 @@ export default function UserPage() {
   const handleDelete = async (e: MouseEvent<SVGSVGElement>) => {
     try {
       const fch = customFetch();
-      const { message }: any = await fch.put('/api/users/delete', {
+      const { message }: any = await fch.put('/users/delete', {
         id: e.currentTarget.id,
       });
       toaster.success(message);

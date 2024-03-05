@@ -17,10 +17,10 @@ import { FormEvent, useContext, useEffect } from 'react';
 
 export const Login = () => {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { role } = useContext(UserContext);
+  const { profile, checkLogin } = useContext(UserContext);
 
   useEffect(() => {
-    switch (role) {
+    switch (profile.role) {
       case Role.ADMIN:
         router.replace('/user');
         break;
@@ -33,7 +33,7 @@ export const Login = () => {
       default:
         break;
     }
-  }, [role]);
+  }, [profile]);
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,10 +41,14 @@ export const Login = () => {
     try {
       const target = e.currentTarget;
       const fch = customFetch();
-      await fch.post('/api/auth/login', {
+      const { data }: any = await fch.post('/auth/login', {
         email: target.email.value,
         password: target.password.value,
       });
+      const date = new Date();
+      date.setTime(date.getTime() + 1000 * 60 * 59);
+      document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
+      checkLogin(true);
     } catch (err) {
       toaster.danger('Invalid Email or Password');
       stopLoading();

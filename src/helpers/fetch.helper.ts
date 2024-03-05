@@ -12,7 +12,7 @@ export default function customFetch() {
       headers,
       body: JSON.stringify(body),
     };
-    const res = await fetch(url, options);
+    const res = await fetch(`/api${url}`, options);
     return res.ok && res.json();
   }
 

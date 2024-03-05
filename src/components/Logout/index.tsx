@@ -1,12 +1,12 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
+import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu } from 'evergreen-ui';
-import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 export const Logout = () => {
-  const router = useRouter();
   const { stopLoading } = useContext(LoadingContext);
+  const { checkLogin } = useContext(UserContext);
 
   useEffect(() => {
     stopLoading();
@@ -15,7 +15,10 @@ export const Logout = () => {
   const handleLogout = async () => {
     try {
       const fch = customFetch();
-      await fch.get('/api/auth/logout');
+      await fch.get('/auth/logout');
+      const date = new Date();
+      document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
+      checkLogin(false);
     } catch (err) {
       throw err;
     }
