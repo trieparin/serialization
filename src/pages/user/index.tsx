@@ -1,8 +1,10 @@
 import { PageTitle } from '@/components';
+import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser } from '@/models/user.model';
 import {
+  Dialog,
   EditIcon,
   Pane,
   Table,
@@ -11,14 +13,21 @@ import {
   toaster,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { MouseEvent, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 export default function UserPage() {
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [users, setUsers] = useState<IUser[]>([]);
+  const [dialogOption, setDialogOption] = useState({
+    open: false,
+    message: '',
+    uid: '',
+  });
 
   useEffect(() => {
     allUsers();
-  }, []);
+    stopLoading();
+  }, [isLoading]);
 
   const allUsers = async () => {
     try {
@@ -30,16 +39,18 @@ export default function UserPage() {
     }
   };
 
-  const handleDelete = async (e: MouseEvent<SVGSVGElement>) => {
+  const handleDelete = async (close: () => void) => {
     try {
+      startLoading();
       const fch = customFetch();
       const { message }: any = await fch.put('/users/delete', {
-        id: e.currentTarget.id,
+        id: dialogOption.uid,
       });
       toaster.success(message);
     } catch (err) {
       toaster.danger('An Error Occurred');
     }
+    close();
   };
 
   return (
@@ -67,10 +78,15 @@ export default function UserPage() {
                       <EditIcon color="dark" cursor="pointer" />
                     </Link>
                     <TrashIcon
-                      id={uid}
                       color="red"
                       cursor="pointer"
-                      onClick={handleDelete}
+                      onClick={() =>
+                        setDialogOption({
+                          open: true,
+                          message: `Confirm delete "${firstName} ${lastName}"?`,
+                          uid,
+                        })
+                      }
                     />
                   </Pane>
                 </Table.TextCell>
@@ -79,6 +95,23 @@ export default function UserPage() {
           )}
         </Table.Body>
       </Table>
+      <Dialog
+        isShown={dialogOption.open}
+        hasClose={false}
+        title="Confirmation"
+        intent="danger"
+        confirmLabel="Delete"
+        onConfirm={(close) => handleDelete(close)}
+        onCloseComplete={() =>
+          setDialogOption({
+            open: false,
+            message: '',
+            uid: '',
+          })
+        }
+      >
+        {dialogOption.message}
+      </Dialog>
     </BaseLayout>
   );
 }
