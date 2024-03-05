@@ -7,15 +7,11 @@ import {
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { Pane } from 'evergreen-ui';
-import { FormEvent, useContext, useEffect, useState } from 'react';
+import { FormEvent, useContext, useState } from 'react';
 
 export default function ProductCreate() {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [isValidate, setIsValidate] = useState(false);
-
-  useEffect(() => {
-    stopLoading();
-  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();

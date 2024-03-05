@@ -57,7 +57,6 @@ export default function UserEdit() {
 
   useEffect(() => {
     userInfo();
-    stopLoading();
   }, []);
 
   const userInfo = async () => {

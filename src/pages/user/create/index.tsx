@@ -1,6 +1,6 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
-import customFetch from '@/helpers/fetch.helper';
+import { db, temp } from '@/firebase/config';
 import { ValidatePassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
@@ -12,13 +12,18 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
+import {
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import {
   ChangeEvent,
   FocusEvent,
   FormEvent,
   useContext,
-  useEffect,
   useReducer,
   useState,
 } from 'react';
@@ -73,21 +78,31 @@ export default function UserCreate() {
     role: 'Admin',
   });
 
-  useEffect(() => {
-    stopLoading();
-  }, []);
-
   const hasEmpty = Object.values(state).some((value) => value === '');
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!hasEmpty && passwordValue === state.password) {
       startLoading();
-      const fch = customFetch();
-      const { message }: any = await fch.post('/users/create', state);
-      toaster.success(message);
+      const { user } = await createUserWithEmailAndPassword(
+        temp,
+        state.email,
+        state.password
+      );
+      await updateProfile(user, {
+        displayName: `${state.firstName} ${state.lastName.charAt(0)}.`,
+      });
+      await setDoc(doc(db, 'users', user.uid), {
+        email: state.email,
+        firstName: state.firstName,
+        lastName: state.lastName,
+        role: state.role,
+      });
+      await signOut(temp);
+      toaster.success('Create New User Successfully');
       router.push('/user');
     } else {
+      stopLoading();
       toaster.danger('An Error Occurred');
     }
   };
