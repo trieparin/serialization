@@ -1,12 +1,12 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
-import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 
 export const Logout = () => {
+  const router = useRouter();
   const { stopLoading } = useContext(LoadingContext);
-  const { setUserInfo } = useContext(UserContext);
 
   useEffect(() => {
     stopLoading();
@@ -15,8 +15,7 @@ export const Logout = () => {
   const handleLogout = async () => {
     try {
       const fch = customFetch();
-      const { data }: any = await fch.get('/api/auth/logout');
-      setUserInfo(data, data);
+      await fch.get('/api/auth/logout');
     } catch (err) {
       throw err;
     }

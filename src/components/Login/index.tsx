@@ -17,7 +17,7 @@ import { FormEvent, useContext, useEffect } from 'react';
 
 export const Login = () => {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { role, setUserInfo } = useContext(UserContext);
+  const { role } = useContext(UserContext);
 
   useEffect(() => {
     switch (role) {
@@ -38,14 +38,13 @@ export const Login = () => {
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     startLoading();
-    const target = e.currentTarget;
     try {
+      const target = e.currentTarget;
       const fch = customFetch();
-      const { user, snap }: any = await fch.post('/api/auth/login', {
+      await fch.post('/api/auth/login', {
         email: target.email.value,
         password: target.password.value,
       });
-      setUserInfo(user, snap.role);
     } catch (err) {
       toaster.danger('Invalid Email or Password');
       stopLoading();

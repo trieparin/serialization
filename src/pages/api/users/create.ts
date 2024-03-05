@@ -1,4 +1,4 @@
-import { db, tempAuth } from '@/firebase/config';
+import { db, temp } from '@/firebase/config';
 import {
   createUserWithEmailAndPassword,
   signOut,
@@ -15,7 +15,7 @@ export default async function handler(
   try {
     const { email, password, firstName, lastName, role } = req.body;
     const { user } = await createUserWithEmailAndPassword(
-      tempAuth,
+      temp,
       email,
       password
     );
@@ -28,7 +28,7 @@ export default async function handler(
       lastName,
       role,
     });
-    await signOut(tempAuth);
+    await signOut(temp);
     res.status(200).json({ message: 'Create New User Successfully' });
   } catch (err) {
     throw err;

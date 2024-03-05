@@ -11,11 +11,9 @@ import {
   toaster,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { MouseEvent, useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const router = useRouter();
   const [users, setUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export default function UserPage() {
           <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
-          {users.map(
+          {users?.map(
             ({ uid, firstName, lastName, email, role }: any, index: number) => (
               <Table.Row key={uid}>
                 <Table.TextCell>{index + 1}</Table.TextCell>
