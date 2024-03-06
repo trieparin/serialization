@@ -69,7 +69,7 @@ const formReducer = (state: any, action: FormAction) => {
 
 export default function UserCreate() {
   const router = useRouter();
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading } = useContext(LoadingContext);
   const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {
     email: '',
@@ -79,8 +79,10 @@ export default function UserCreate() {
     role: 'Admin',
   });
 
-  const hasEmpty = Object.values(state).some((value) => value === '');
-  const isValidate = !hasEmpty && password === state.password;
+  const isValidate =
+    !Object.values(state).some((value) => value === '') &&
+    ValidatePassword(password) &&
+    password === state.password;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -148,9 +150,7 @@ export default function UserCreate() {
                 )
               }
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                if (ValidatePassword(password)) {
-                  setPassword(event.currentTarget.value);
-                }
+                setPassword(event.currentTarget.value);
               }}
               required
             />

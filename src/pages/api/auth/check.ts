@@ -1,4 +1,5 @@
 import { auth, db } from '@/firebase/config';
+import { deleteUser, updateProfile } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,12 +11,27 @@ export default async function handler(
   try {
     if (auth.currentUser) {
       const snapshot = await getDoc(doc(db, 'users', auth.currentUser.uid));
-      const role = snapshot.exists() && snapshot.get('role');
-      res.status(200).json({
-        uid: auth.currentUser.uid,
-        displayName: auth.currentUser.displayName,
-        role: role,
-      });
+      if (snapshot.exists()) {
+        const { uid, email, displayName } = auth.currentUser;
+        const { firstName, lastName, role }: any = snapshot.data();
+        const updateName = `${firstName} ${lastName.charAt(0)}.`;
+        if (displayName !== updateName) {
+          await updateProfile(auth.currentUser, {
+            displayName: updateName,
+          });
+        }
+        res.status(200).json({
+          displayName: updateName,
+          uid,
+          email,
+          firstName,
+          lastName,
+          role,
+        });
+      } else {
+        await deleteUser(auth.currentUser);
+        res.status(400);
+      }
     } else {
       res.status(200).json({ data: null });
     }
