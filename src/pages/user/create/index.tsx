@@ -80,10 +80,11 @@ export default function UserCreate() {
   });
 
   const hasEmpty = Object.values(state).some((value) => value === '');
+  const isValidate = !hasEmpty && password === state.password;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!hasEmpty && password === state.password) {
+    try {
       startLoading();
       const { user } = await createUserWithEmailAndPassword(
         temp,
@@ -100,11 +101,10 @@ export default function UserCreate() {
         role: state.role,
       });
       await signOut(temp);
-      toaster.success('Create New User Successfully');
+      toaster.success('Create new user successfully');
       router.push('/user');
-    } else {
-      stopLoading();
-      toaster.danger('An Error Occurred');
+    } catch (error) {
+      toaster.danger('An error occurred');
     }
   };
 
@@ -123,10 +123,11 @@ export default function UserCreate() {
               name="email"
               id="email"
               type="email"
+              defaultValue={state.email}
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_email',
-                  payload: event.currentTarget.value,
+                  payload: event.currentTarget.value.trim(),
                 });
               }}
               required
@@ -136,18 +137,20 @@ export default function UserCreate() {
               name="password"
               id="password"
               type="password"
+              defaultValue={password}
               isInvalid={!!password && !ValidatePassword(password)}
               validationMessage={
                 !!password &&
                 !ValidatePassword(password) && (
                   <Text size={300} color="red500">
-                    Must contain at least 6 characters with upper and lower
-                    case.
+                    At least 6 characters with one uppercase and one lowercase.
                   </Text>
                 )
               }
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                setPassword(event.currentTarget.value);
+                if (ValidatePassword(password)) {
+                  setPassword(event.currentTarget.value);
+                }
               }}
               required
             />
@@ -156,10 +159,11 @@ export default function UserCreate() {
               name="cfmPassword"
               id="cfmPassword"
               type="password"
-              isInvalid={!!state.password && password !== state.password}
+              defaultValue={state.password}
+              isInvalid={!!state.password && state.password !== password}
               validationMessage={
                 !!state.password &&
-                password !== state.password && (
+                state.password !== password && (
                   <Text size={300} color="red500">
                     Password do not match.
                   </Text>
@@ -178,10 +182,11 @@ export default function UserCreate() {
               name="firstName"
               id="firstName"
               type="text"
+              defaultValue={state.firstName}
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_first_name',
-                  payload: event.currentTarget.value,
+                  payload: event.currentTarget.value.trim(),
                 });
               }}
               required
@@ -191,10 +196,11 @@ export default function UserCreate() {
               name="lastName"
               id="lastName"
               type="text"
+              defaultValue={state.lastName}
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_last_name',
-                  payload: event.currentTarget.value,
+                  payload: event.currentTarget.value.trim(),
                 });
               }}
               required
@@ -203,6 +209,7 @@ export default function UserCreate() {
               label="Role"
               name="userRole"
               id="userRole"
+              value={state.role}
               onChange={(event: ChangeEvent<HTMLSelectElement>) => {
                 dispatch({
                   type: 'set_role',
@@ -219,7 +226,7 @@ export default function UserCreate() {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel disabled={hasEmpty} loading={isLoading} />
+        <SaveCancel disabled={!isValidate} loading={isLoading} />
       </Pane>
     </BaseLayout>
   );
