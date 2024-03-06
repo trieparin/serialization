@@ -1,6 +1,6 @@
 import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
-import { Button, Menu } from 'evergreen-ui';
+import { Button, Menu, toaster } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
@@ -17,7 +17,7 @@ export const Logout = () => {
       checkLogin(false);
       router.replace('/');
     } catch (error) {
-      throw error;
+      toaster.danger('An Error Occurred');
     }
   };
 
