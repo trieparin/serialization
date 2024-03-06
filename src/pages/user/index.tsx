@@ -12,6 +12,7 @@ import {
   minorScale,
   toaster,
 } from 'evergreen-ui';
+import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 
@@ -55,7 +56,7 @@ export default function UserPage() {
 
   return (
     <BaseLayout>
-      <PageTitle title="Manage Users" link="/user/create" hasAddButton />
+      <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Table>
         <Table.Head paddingRight="0">
           <Table.TextHeaderCell>No.</Table.TextHeaderCell>
@@ -74,7 +75,7 @@ export default function UserPage() {
                 <Table.TextCell>{role}</Table.TextCell>
                 <Table.TextCell>
                   <Pane display="flex" columnGap={minorScale(3)}>
-                    <Link href={`/user/edit/${uid}`}>
+                    <Link href={`/user/info/${uid}`}>
                       <EditIcon color="dark" cursor="pointer" />
                     </Link>
                     <TrashIcon
@@ -114,4 +115,18 @@ export default function UserPage() {
       </Dialog>
     </BaseLayout>
   );
+}
+
+export function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  return {
+    props: {},
+  };
 }

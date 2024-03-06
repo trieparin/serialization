@@ -7,6 +7,7 @@ import {
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { Pane } from 'evergreen-ui';
+import { GetServerSidePropsContext } from 'next';
 import { FormEvent, useContext, useState } from 'react';
 
 export default function ProductCreate() {
@@ -30,4 +31,18 @@ export default function ProductCreate() {
       </Pane>
     </BaseLayout>
   );
+}
+
+export function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  return {
+    props: {},
+  };
 }

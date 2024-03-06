@@ -2,6 +2,7 @@ import { PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
+import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useEffect } from 'react';
 
@@ -51,7 +52,7 @@ export default function ProductPage() {
               <Table.TextCell>{status}</Table.TextCell>
               <Table.TextCell>
                 <Pane display="flex" columnGap={minorScale(3)}>
-                  <Link href="/product/edit">
+                  <Link href={`/product/info/${id}`}>
                     <EditIcon color="dark" cursor="pointer" />
                   </Link>
                   <TrashIcon color="red" cursor="pointer" />
@@ -63,4 +64,18 @@ export default function ProductPage() {
       </Table>
     </BaseLayout>
   );
+}
+
+export function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  return {
+    props: {},
+  };
 }

@@ -18,6 +18,7 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import {
   ChangeEvent,
@@ -219,4 +220,18 @@ export default function UserCreate() {
       </Pane>
     </BaseLayout>
   );
+}
+
+export function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  return {
+    props: {},
+  };
 }

@@ -4,7 +4,7 @@ import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import { Pane, SelectField, TextInputField, majorScale } from 'evergreen-ui';
-import { useRouter } from 'next/router';
+import { GetServerSidePropsContext } from 'next';
 import {
   ChangeEvent,
   FocusEvent,
@@ -50,8 +50,7 @@ const formReducer = (state: any, action: FormAction) => {
   }
 };
 
-export default function UserEdit() {
-  const router = useRouter();
+export default function UserInfo({ params }: any) {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [state, dispatch] = useReducer(formReducer, {});
 
@@ -62,7 +61,7 @@ export default function UserEdit() {
   const userInfo = async () => {
     try {
       const fch = customFetch();
-      const { data }: any = await fch.get(`/users/${router.query.id}`);
+      const { data }: any = await fch.get(`/users/${params.id}`);
       dispatch({ type: 'initial', payload: JSON.stringify(data) });
     } catch (err) {
       throw err;
@@ -146,4 +145,20 @@ export default function UserEdit() {
       </Pane>
     </BaseLayout>
   );
+}
+
+export function getServerSideProps({ req, params }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  return {
+    props: {
+      params,
+    },
+  };
 }
