@@ -32,7 +32,7 @@ export const TopBar = () => {
           content={
             <Menu>
               <Menu.Group>
-                <Link href={`/user/edit/${profile.uid}`}>
+                <Link href={`/user/${profile.uid}`}>
                   <Menu.Item>Edit Info</Menu.Item>
                 </Link>
                 <Link href="/user/change-password">

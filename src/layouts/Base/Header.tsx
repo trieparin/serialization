@@ -1,7 +1,12 @@
 import { Logo, NavLink } from '@/components';
+import { UserContext } from '@/contexts/UserContext';
+import { Role } from '@/models/user.model';
 import { Pane, Text, minorScale } from 'evergreen-ui';
+import { useContext } from 'react';
 
 export const Header = () => {
+  const { profile } = useContext(UserContext);
+
   return (
     <Pane
       is="header"
@@ -25,11 +30,15 @@ export const Header = () => {
           alignItems="center"
           columnGap={minorScale(3)}
         >
-          <NavLink href="/product">All Products</NavLink>
-          <Text color="muted">|</Text>
-          <NavLink href="/serial">All Serials</NavLink>
-          <Text color="muted">|</Text>
-          <NavLink href="/user">Manage Users</NavLink>
+          {profile.role === Role.ADMIN ? (
+            <NavLink href="/user">Users</NavLink>
+          ) : (
+            <>
+              <NavLink href="/product">Products</NavLink>
+              <Text color="muted">|</Text>
+              <NavLink href="/serial">Serials</NavLink>
+            </>
+          )}
         </Pane>
       </Pane>
     </Pane>
