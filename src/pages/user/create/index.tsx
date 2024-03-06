@@ -70,7 +70,7 @@ const formReducer = (state: any, action: FormAction) => {
 export default function UserCreate() {
   const router = useRouter();
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
-  const [passwordValue, setPasswordValue] = useState('');
+  const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {
     email: '',
     password: '',
@@ -83,7 +83,7 @@ export default function UserCreate() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!hasEmpty && passwordValue === state.password) {
+    if (!hasEmpty && password === state.password) {
       startLoading();
       const { user } = await createUserWithEmailAndPassword(
         temp,
@@ -136,10 +136,10 @@ export default function UserCreate() {
               name="password"
               id="password"
               type="password"
-              isInvalid={!!passwordValue && !ValidatePassword(passwordValue)}
+              isInvalid={!!password && !ValidatePassword(password)}
               validationMessage={
-                !!passwordValue &&
-                !ValidatePassword(passwordValue) && (
+                !!password &&
+                !ValidatePassword(password) && (
                   <Text size={300} color="red500">
                     Must contain at least 6 characters with upper and lower
                     case.
@@ -147,7 +147,7 @@ export default function UserCreate() {
                 )
               }
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                setPasswordValue(event.currentTarget.value);
+                setPassword(event.currentTarget.value);
               }}
               required
             />
@@ -156,10 +156,10 @@ export default function UserCreate() {
               name="cfmPassword"
               id="cfmPassword"
               type="password"
-              isInvalid={!!state.password && passwordValue !== state.password}
+              isInvalid={!!state.password && password !== state.password}
               validationMessage={
                 !!state.password &&
-                passwordValue !== state.password && (
+                password !== state.password && (
                   <Text size={300} color="red500">
                     Password do not match.
                   </Text>
