@@ -47,10 +47,10 @@ export default function Home() {
         email: target.email.value,
         password: target.password.value,
       });
-      checkLogin(true);
       const date = new Date();
       date.setTime(date.getTime() + 1000 * 60 * 59);
       document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
+      checkLogin(true);
     } catch (error) {
       toaster.danger('Invalid email or password');
       stopLoading();
