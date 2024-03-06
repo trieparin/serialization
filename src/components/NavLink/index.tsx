@@ -10,6 +10,7 @@ interface NavLinkProps {
 
 export const NavLink = ({ children, href }: NavLinkProps) => {
   const path = usePathname();
+
   return (
     <Link href={href}>
       <UiLink

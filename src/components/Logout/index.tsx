@@ -1,9 +1,11 @@
 import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
 export const Logout = () => {
+  const router = useRouter();
   const { checkLogin } = useContext(UserContext);
 
   const handleLogout = async () => {
@@ -13,6 +15,7 @@ export const Logout = () => {
       const date = new Date();
       document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
       checkLogin(false);
+      router.replace('/');
     } catch (err) {
       throw err;
     }
