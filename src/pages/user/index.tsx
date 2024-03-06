@@ -33,7 +33,7 @@ export default function UserPage() {
   const allUsers = async () => {
     try {
       const fch = customFetch();
-      const { data }: any = await fch.get('/users/list');
+      const { data }: any = await fch.get('/users');
       setUsers(data);
     } catch (error) {
       throw error;
@@ -44,9 +44,7 @@ export default function UserPage() {
     try {
       startLoading();
       const fch = customFetch();
-      const { message }: any = await fch.put('/users/delete', {
-        id: dialogOption.uid,
-      });
+      const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
       toaster.success(message);
     } catch (error) {
       toaster.danger('An Error Occurred');
