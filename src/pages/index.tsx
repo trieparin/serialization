@@ -43,7 +43,7 @@ export default function Home() {
       startLoading();
       const target = event.currentTarget;
       const fch = customFetch();
-      const { data }: any = await fch.post('/auth/login', {
+      const { data }: any = await fch.post('/auth', {
         email: target.email.value,
         password: target.password.value,
       });

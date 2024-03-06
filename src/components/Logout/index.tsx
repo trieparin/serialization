@@ -11,7 +11,7 @@ export const Logout = () => {
   const handleLogout = async () => {
     try {
       const fch = customFetch();
-      await fch.get('/auth/logout');
+      await fch.get('/auth');
       const date = new Date();
       document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
       checkLogin(false);

@@ -32,10 +32,15 @@ export default function customFetch() {
     return request<T>(url, 'PATCH', body);
   }
 
+  async function del<T>(url: string): Promise<T> {
+    return request<T>(url, 'DELETE');
+  }
+
   return {
     get,
     post,
     put,
     patch,
+    del,
   };
 }
