@@ -18,7 +18,7 @@ export default async function handler(
       });
     });
     res.status(200).json({ data: users });
-  } catch (err) {
-    throw err;
+  } catch (e) {
+    res.status(500);
   }
 }

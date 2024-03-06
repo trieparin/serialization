@@ -10,7 +10,7 @@ export default async function handler(
   try {
     await signOut(auth);
     res.status(200).json({});
-  } catch (err) {
-    throw err;
+  } catch (e) {
+    res.status(500);
   }
 }

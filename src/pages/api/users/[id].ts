@@ -11,7 +11,7 @@ export default async function handler(
     const { id } = req.query;
     const snapshot = await getDoc(doc(db, 'users', id as string));
     res.status(200).json({ data: snapshot.exists() && snapshot.data() });
-  } catch (err) {
-    throw err;
+  } catch (e) {
+    res.status(500);
   }
 }

@@ -11,7 +11,7 @@ export default async function handler(
     const { id } = req.body;
     await deleteDoc(doc(db, 'users', id));
     res.status(200).json({ message: 'Delete User Successfully' });
-  } catch (err) {
-    throw err;
+  } catch (e) {
+    res.status(500);
   }
 }

@@ -1,4 +1,4 @@
-import { db, temp } from '@/firebase/config';
+import { auth, db } from '@/firebase/config';
 import {
   createUserWithEmailAndPassword,
   signOut,
@@ -15,7 +15,7 @@ export default async function handler(
   try {
     const { email, password, firstName, lastName, role } = req.body;
     const { user } = await createUserWithEmailAndPassword(
-      temp,
+      auth,
       email,
       password
     );
@@ -28,9 +28,9 @@ export default async function handler(
       lastName,
       role,
     });
-    await signOut(temp);
+    await signOut(auth);
     res.status(200).json({ message: 'Create New User Successfully' });
-  } catch (err) {
-    throw err;
+  } catch (e) {
+    res.status(500);
   }
 }
