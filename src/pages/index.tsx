@@ -53,7 +53,7 @@ export default function Home() {
       checkLogin(true);
     } catch (error) {
       stopLoading();
-      toaster.danger('Invalid Email or Password');
+      toaster.danger('Invalid email or password');
     }
   };
 

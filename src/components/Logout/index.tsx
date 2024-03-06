@@ -17,7 +17,7 @@ export const Logout = () => {
       checkLogin(false);
       router.replace('/');
     } catch (error) {
-      toaster.danger('An Error Occurred');
+      toaster.danger('An error occurred');
     }
   };
 

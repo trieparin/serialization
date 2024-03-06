@@ -47,7 +47,7 @@ export default function UserPage() {
       const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
       toaster.success(message);
     } catch (error) {
-      toaster.danger('An Error Occurred');
+      toaster.danger('An error occurred');
     }
     close();
   };

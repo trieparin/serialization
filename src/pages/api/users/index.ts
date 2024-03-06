@@ -44,7 +44,7 @@ export default async function handler(
         role,
       });
       await signOut(auth);
-      res.status(200).json({ message: 'Create New User Successfully' });
+      res.status(200).json({ message: 'Create new user successfully' });
     } catch (e) {
       res.status(500);
     }

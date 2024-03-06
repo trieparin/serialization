@@ -1,5 +1,6 @@
 export const ValidatePassword = (password: string) => {
-  return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{6,}$/.test(password);
+  const regex = /^(?!.*\s)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{6,}$/;
+  return regex.test(password);
 };
 
 export const ValidateCookie = (name: string) => {
