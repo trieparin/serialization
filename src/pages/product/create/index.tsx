@@ -14,8 +14,8 @@ export default function ProductCreate() {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [isValidate, setIsValidate] = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
     startLoading();
   };
 

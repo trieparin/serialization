@@ -16,8 +16,8 @@ export const Logout = () => {
       document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
       checkLogin(false);
       router.replace('/');
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   };
 

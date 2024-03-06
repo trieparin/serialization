@@ -81,8 +81,8 @@ export default function UserCreate() {
 
   const hasEmpty = Object.values(state).some((value) => value === '');
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (!hasEmpty && passwordValue === state.password) {
       startLoading();
       const { user } = await createUserWithEmailAndPassword(
@@ -123,8 +123,11 @@ export default function UserCreate() {
               name="email"
               id="email"
               type="email"
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
-                dispatch({ type: 'set_email', payload: e.currentTarget.value });
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
+                dispatch({
+                  type: 'set_email',
+                  payload: event.currentTarget.value,
+                });
               }}
               required
             />
@@ -143,8 +146,8 @@ export default function UserCreate() {
                   </Text>
                 )
               }
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
-                setPasswordValue(e.currentTarget.value);
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
+                setPasswordValue(event.currentTarget.value);
               }}
               required
             />
@@ -162,10 +165,10 @@ export default function UserCreate() {
                   </Text>
                 )
               }
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_password',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required
@@ -175,10 +178,10 @@ export default function UserCreate() {
               name="firstName"
               id="firstName"
               type="text"
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_first_name',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required
@@ -188,10 +191,10 @@ export default function UserCreate() {
               name="lastName"
               id="lastName"
               type="text"
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_last_name',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required
@@ -200,10 +203,10 @@ export default function UserCreate() {
               label="Role"
               name="userRole"
               id="userRole"
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              onChange={(event: ChangeEvent<HTMLSelectElement>) => {
                 dispatch({
                   type: 'set_role',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required

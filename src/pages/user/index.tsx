@@ -35,8 +35,8 @@ export default function UserPage() {
       const fch = customFetch();
       const { data }: any = await fch.get('/users/list');
       setUsers(data);
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -48,7 +48,7 @@ export default function UserPage() {
         id: dialogOption.uid,
       });
       toaster.success(message);
-    } catch (err) {
+    } catch (error) {
       toaster.danger('An Error Occurred');
     }
     close();

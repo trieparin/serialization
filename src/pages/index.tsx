@@ -37,11 +37,11 @@ export default function Home() {
     }
   }, [profile]);
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       startLoading();
-      const target = e.currentTarget;
+      const target = event.currentTarget;
       const fch = customFetch();
       const { data }: any = await fch.post('/auth/login', {
         email: target.email.value,
@@ -51,7 +51,7 @@ export default function Home() {
       date.setTime(date.getTime() + 1000 * 60 * 59);
       document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
       checkLogin(true);
-    } catch (err) {
+    } catch (error) {
       stopLoading();
       toaster.danger('Invalid Email or Password');
     }

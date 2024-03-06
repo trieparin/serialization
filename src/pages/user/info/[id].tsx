@@ -63,13 +63,13 @@ export default function UserInfo({ params }: any) {
       const fch = customFetch();
       const { data }: any = await fch.get(`/users/${params.id}`);
       dispatch({ type: 'initial', payload: JSON.stringify(data) });
-    } catch (err) {
-      throw err;
+    } catch (error) {
+      throw error;
     }
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     startLoading();
   };
 
@@ -98,10 +98,10 @@ export default function UserInfo({ params }: any) {
               id="firstName"
               type="text"
               defaultValue={state.firstName}
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_first_name',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required
@@ -112,10 +112,10 @@ export default function UserInfo({ params }: any) {
               id="lastName"
               type="text"
               defaultValue={state.lastName}
-              onBlur={(e: FocusEvent<HTMLInputElement>) => {
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'set_last_name',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required
@@ -125,10 +125,10 @@ export default function UserInfo({ params }: any) {
               name="userRole"
               id="userRole"
               value={state.role}
-              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+              onChange={(event: ChangeEvent<HTMLSelectElement>) => {
                 dispatch({
                   type: 'set_role',
-                  payload: e.currentTarget.value,
+                  payload: event.currentTarget.value,
                 });
               }}
               required

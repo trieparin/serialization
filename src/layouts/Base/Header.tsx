@@ -6,7 +6,6 @@ import { useContext } from 'react';
 
 export const Header = () => {
   const { profile } = useContext(UserContext);
-
   return (
     <Pane
       is="header"

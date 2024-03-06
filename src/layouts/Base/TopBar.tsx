@@ -16,7 +16,6 @@ import { useContext } from 'react';
 
 export const TopBar = () => {
   const { profile } = useContext(UserContext);
-
   return (
     <Pane background="dark">
       <Pane
