@@ -12,9 +12,9 @@ export const Logout = () => {
     try {
       const fch = customFetch();
       await fch.get('/auth');
+      checkLogin(false);
       const date = new Date();
       document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
-      checkLogin(false);
       router.replace('/');
     } catch (error) {
       toaster.danger('An error occurred');
