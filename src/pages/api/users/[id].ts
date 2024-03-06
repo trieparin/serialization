@@ -1,5 +1,6 @@
-import { db } from '@/firebase/config';
-import { deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '@/firebase/config';
+import { updatePassword } from 'firebase/auth';
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -17,12 +18,21 @@ export default async function handler(
       }
       break;
     case 'PATCH':
+      try {
+        const { id } = req.query;
+        const { password, ...update } = req.body;
+        if (update) await updateDoc(doc(db, 'users', id as string), update);
+        if (password) await updatePassword(auth.currentUser!, password);
+        res.status(200).json({ message: 'Update user successfully' });
+      } catch (e) {
+        res.status(500);
+      }
       break;
     case 'DELETE':
       try {
         const { id } = req.query;
         await deleteDoc(doc(db, 'users', id as string));
-        res.status(200).json({ message: 'Delete User Successfully' });
+        res.status(200).json({ message: 'Delete user successfully' });
       } catch (e) {
         res.status(500);
       }

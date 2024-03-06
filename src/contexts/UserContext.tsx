@@ -1,5 +1,7 @@
 import customFetch from '@/helpers/fetch.helper';
 import { IUser } from '@/models/user.model';
+import { toaster } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 import { ReactNode, createContext, useMemo, useState } from 'react';
 
 export const UserContext = createContext<UserContextType>(null!);
@@ -10,17 +12,27 @@ interface UserContextType {
 }
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const router = useRouter();
   const [profile, setProfile] = useState<IUser>({});
 
   const checkLogin = async (status: boolean) => {
     if (status) {
       const fch = customFetch();
-      const { uid, displayName, role }: any = await fch.get('/auth/check');
-      setProfile({
-        uid: uid,
-        displayName: displayName,
-        role: role,
-      });
+      const res: any = await fch.get('/auth/check');
+      if (res.message) {
+        toaster.danger(res.message);
+        router.reload();
+      } else {
+        const { uid, email, displayName, firstName, lastName, role } = res;
+        setProfile({
+          uid,
+          email,
+          displayName,
+          firstName,
+          lastName,
+          role,
+        });
+      }
     } else {
       setProfile({});
     }

@@ -30,7 +30,7 @@ export default async function handler(
         });
       } else {
         await deleteUser(auth.currentUser);
-        res.status(400);
+        res.status(200).json({ message: 'User has been deleted' });
       }
     } else {
       res.status(200).json({ data: null });

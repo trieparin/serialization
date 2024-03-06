@@ -1,10 +1,20 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
+import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
+import { ValidatePassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
-import { Role } from '@/models/user.model';
-import { Pane, SelectField, TextInputField, majorScale } from 'evergreen-ui';
+import { IUser, Role } from '@/models/user.model';
+import {
+  Pane,
+  SelectField,
+  Text,
+  TextInputField,
+  majorScale,
+  toaster,
+} from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/router';
 import {
   ChangeEvent,
   FocusEvent,
@@ -12,6 +22,7 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useState,
 } from 'react';
 
 interface FormAction {
@@ -22,6 +33,11 @@ interface FormAction {
 const formReducer = (state: any, action: FormAction) => {
   const { type, payload } = action;
   switch (type) {
+    case 'set_password':
+      return {
+        ...state,
+        password: payload,
+      };
     case 'set_first_name':
       return {
         ...state,
@@ -37,21 +53,19 @@ const formReducer = (state: any, action: FormAction) => {
         ...state,
         role: payload,
       };
-    case 'initial':
-      const { email, firstName, lastName, role } = JSON.parse(payload);
-      return {
-        email,
-        firstName,
-        lastName,
-        role,
-      };
+    case 'reset':
+      return {};
     default:
       return { ...state };
   }
 };
 
 export default function UserInfo({ params }: any) {
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const router = useRouter();
+  const { isLoading, startLoading } = useContext(LoadingContext);
+  const { profile, checkLogin } = useContext(UserContext);
+  const [user, setUser] = useState<IUser>({});
+  const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {});
 
   useEffect(() => {
@@ -59,18 +73,31 @@ export default function UserInfo({ params }: any) {
   }, []);
 
   const userInfo = async () => {
-    try {
-      const fch = customFetch();
-      const { data }: any = await fch.get(`/users/${params.id}`);
-      dispatch({ type: 'initial', payload: JSON.stringify(data) });
-    } catch (error) {
-      throw error;
+    if (profile.uid === params.id) {
+      setUser(profile);
+    } else {
+      try {
+        const fch = customFetch();
+        const { data }: any = await fch.get(`/users/${params.id}`);
+        setUser(data);
+      } catch (error) {
+        throw error;
+      }
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    startLoading();
+    try {
+      startLoading();
+      const fch = customFetch();
+      const { message }: any = await fch.patch(`/users/${params.id}`, state);
+      toaster.success(message);
+      checkLogin(true);
+      router.push(profile.role === Role.ADMIN ? '/user' : '/product');
+    } catch (error) {
+      toaster.danger('An error occurred');
+    }
   };
 
   return (
@@ -88,21 +115,64 @@ export default function UserInfo({ params }: any) {
               name="email"
               id="email"
               type="email"
-              defaultValue={state.email}
+              defaultValue={user.email}
               required
               disabled
+            />
+            <TextInputField
+              label="New Password"
+              name="password"
+              id="password"
+              type="password"
+              isInvalid={!!password && !ValidatePassword(password)}
+              validationMessage={
+                !!password &&
+                !ValidatePassword(password) && (
+                  <Text size={300} color="red500">
+                    At least 6 characters with one uppercase and one lowercase.
+                  </Text>
+                )
+              }
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
+                setPassword(event.currentTarget.value);
+              }}
+              disabled={profile.uid !== params.id}
+            />
+            <TextInputField
+              label="Confirm Password"
+              name="cfmPassword"
+              id="cfmPassword"
+              type="password"
+              isInvalid={!!state.password && password !== state.password}
+              validationMessage={
+                !!state.password &&
+                password !== state.password && (
+                  <Text size={300} color="red500">
+                    Password do not match.
+                  </Text>
+                )
+              }
+              onBlur={(event: FocusEvent<HTMLInputElement>) => {
+                dispatch({
+                  type: 'set_password',
+                  payload: event.currentTarget.value,
+                });
+              }}
+              disabled={profile.uid !== params.id}
             />
             <TextInputField
               label="First Name"
               name="firstName"
               id="firstName"
               type="text"
-              defaultValue={state.firstName}
+              defaultValue={user.firstName}
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_first_name',
-                  payload: event.currentTarget.value,
-                });
+                if (event.currentTarget.value !== user.firstName) {
+                  dispatch({
+                    type: 'set_first_name',
+                    payload: event.currentTarget.value.trim(),
+                  });
+                }
               }}
               required
             />
@@ -111,12 +181,14 @@ export default function UserInfo({ params }: any) {
               name="lastName"
               id="lastName"
               type="text"
-              defaultValue={state.lastName}
+              defaultValue={user.lastName}
               onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_last_name',
-                  payload: event.currentTarget.value,
-                });
+                if (event.currentTarget.value !== user.lastName) {
+                  dispatch({
+                    type: 'set_last_name',
+                    payload: event.currentTarget.value.trim(),
+                  });
+                }
               }}
               required
             />
@@ -124,14 +196,18 @@ export default function UserInfo({ params }: any) {
               label="Role"
               name="userRole"
               id="userRole"
-              value={state.role}
+              value={user.role}
               onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                dispatch({
-                  type: 'set_role',
-                  payload: event.currentTarget.value,
-                });
+                setUser({ ...user, role: event.currentTarget.value as Role });
+                if (event.currentTarget.value !== user.role) {
+                  dispatch({
+                    type: 'set_role',
+                    payload: event.currentTarget.value,
+                  });
+                }
               }}
               required
+              disabled={profile.role !== Role.ADMIN}
             >
               {Object.values(Role).map((role) => (
                 <option key={role} value={role}>
