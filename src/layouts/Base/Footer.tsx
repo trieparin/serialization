@@ -1,14 +1,6 @@
-import { UserContext } from '@/contexts/UserContext';
 import { Pane, Paragraph, minorScale } from 'evergreen-ui';
-import { useContext, useEffect } from 'react';
 
 export const Footer = () => {
-  const { profile, checkLogin } = useContext(UserContext);
-
-  useEffect(() => {
-    if (!profile.uid) checkLogin();
-  }, [profile.uid, checkLogin]);
-
   return (
     <Pane
       is="footer"

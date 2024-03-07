@@ -12,10 +12,15 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
 export const TopBar = () => {
-  const { profile } = useContext(UserContext);
+  const { profile, checkLogin } = useContext(UserContext);
+
+  useMemo(() => {
+    if (!profile.uid) checkLogin();
+  }, [profile.uid, checkLogin]);
+
   return (
     <Pane background="dark">
       <Pane
