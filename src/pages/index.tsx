@@ -14,20 +14,20 @@ import {
   toaster,
 } from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { FormEvent, useContext, useEffect } from 'react';
+import { FormEvent, useContext } from 'react';
 
 export default function Home() {
   const router = useRouter();
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile, checkLogin } = useContext(UserContext);
 
-  useEffect(() => {
+  const redirectRole = () => {
     if (profile.role === Role.ADMIN) {
       router.replace('/user');
     } else {
       router.replace('/product');
     }
-  }, [profile]);
+  };
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -43,6 +43,7 @@ export default function Home() {
       date.setTime(date.getTime() + 1000 * 60 * 59);
       document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
       checkLogin();
+      redirectRole();
     } catch (error) {
       toaster.danger('Invalid email or password');
       stopLoading();
