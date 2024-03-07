@@ -1,7 +1,7 @@
 import { Logo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { SetCookie } from '@/helpers/cookie.helper';
+import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BlankLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
@@ -44,7 +44,7 @@ export default function Home() {
         email: target.email.value,
         password: target.password.value,
       });
-      SetCookie('token', data, 1000 * 60 * 60);
+      setCookie('token', data, 1000 * 60 * 60);
       checkLogin();
     } catch (error) {
       toaster.danger('Invalid email or password');

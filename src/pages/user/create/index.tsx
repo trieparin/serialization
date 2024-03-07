@@ -1,7 +1,7 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { db, temp } from '@/firebase/config';
-import { RegExPassword, ValidatePassword } from '@/helpers/validate.helper';
+import { RegExPassword, checkPassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -146,10 +146,10 @@ export default function UserCreate() {
                   setPassword(event.currentTarget.value);
                 },
               })}
-              isInvalid={!!password && !ValidatePassword(password)}
+              isInvalid={!!password && !checkPassword(password)}
               validationMessage={
                 !!password &&
-                !ValidatePassword(password) && (
+                !checkPassword(password) && (
                   <Text size={300} color="red500">
                     At least 6 characters with one uppercase, lowercase and
                     number

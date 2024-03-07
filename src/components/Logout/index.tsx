@@ -1,4 +1,4 @@
-import { SetCookie } from '@/helpers/cookie.helper';
+import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu, toaster } from 'evergreen-ui';
 import { useRouter } from 'next/router';
@@ -10,7 +10,7 @@ export const Logout = () => {
     try {
       const fch = customFetch();
       await fch.get('/auth');
-      SetCookie('token', '');
+      setCookie('token', '');
       router.push('/');
     } catch (error) {
       toaster.danger('An error occurred');

@@ -1,9 +1,9 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { SetCookie } from '@/helpers/cookie.helper';
+import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { RegExPassword, ValidatePassword } from '@/helpers/validate.helper';
+import { RegExPassword, checkPassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser, Role } from '@/models/user.model';
 import {
@@ -100,7 +100,7 @@ export default function UserInfo({ params }: any) {
         toaster.success(message, {
           description: 'Please sign in again',
         });
-        SetCookie('token', '');
+        setCookie('token', '');
         stopLoading();
       }
       checkLogin();
@@ -137,10 +137,10 @@ export default function UserInfo({ params }: any) {
                   setPassword(event.currentTarget.value);
                 },
               })}
-              isInvalid={!!password && !ValidatePassword(password)}
+              isInvalid={!!password && !checkPassword(password)}
               validationMessage={
                 !!password &&
-                !ValidatePassword(password) && (
+                !checkPassword(password) && (
                   <Text size={300} color="red500">
                     At least 6 characters with one uppercase, lowercase and
                     number

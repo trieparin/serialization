@@ -1,4 +1,4 @@
-import { GetCookie, SetCookie } from '@/helpers/cookie.helper';
+import { getCookie, setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { IUser } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
@@ -18,7 +18,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const userInfo = useMemo(() => {
     const checkLogin = async () => {
-      if (GetCookie('token')) {
+      if (getCookie('token')) {
         try {
           const fch = customFetch();
           const res: any = await fch.get('/auth/check');
@@ -32,7 +32,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             role,
           });
         } catch (error) {
-          SetCookie('token', '');
+          setCookie('token', '');
           toaster.danger('Invalid email or password');
           stopLoading();
         }
