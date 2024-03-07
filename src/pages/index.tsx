@@ -1,6 +1,7 @@
 import { Logo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
+import { SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BlankLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
@@ -39,9 +40,7 @@ export default function Home() {
         email: target.email.value,
         password: target.password.value,
       });
-      const date = new Date();
-      date.setTime(date.getTime() + 1000 * 60 * 59);
-      document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
+      SetCookie('token', data, 1000 * 60 * 60);
       checkLogin();
       redirectRole();
     } catch (error) {

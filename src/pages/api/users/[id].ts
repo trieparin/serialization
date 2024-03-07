@@ -17,12 +17,20 @@ export default async function handler(
         res.status(500).json({});
       }
       break;
+    case 'PUT':
+      try {
+        const { password } = req.body;
+        await updatePassword(auth.currentUser!, password);
+        res.status(200).json({ message: 'Change password successfully' });
+      } catch (e) {
+        res.status(500).json({});
+      }
+      break;
     case 'PATCH':
       try {
         const { id } = req.query;
-        const { password, ...update } = req.body;
-        if (update) await updateDoc(doc(db, 'users', id as string), update);
-        if (password) await updatePassword(auth.currentUser!, password);
+        const { info } = req.body;
+        await updateDoc(doc(db, 'users', id as string), info);
         res.status(200).json({ message: 'Update user successfully' });
       } catch (e) {
         res.status(500).json({});

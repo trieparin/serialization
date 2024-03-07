@@ -69,9 +69,7 @@ export default function UserInfo({ params }: any) {
   const [state, dispatch] = useReducer(formReducer, {});
 
   useEffect(() => {
-    console.log('effect');
     const userInfo = async () => {
-      console.log('fetch');
       const fch = customFetch();
       const { data }: any = await fch.get(`/users/${params.id}`);
       setUser(data);
@@ -84,8 +82,19 @@ export default function UserInfo({ params }: any) {
     try {
       startLoading();
       const fch = customFetch();
-      const { message }: any = await fch.patch(`/users/${params.id}`, state);
-      toaster.success(message);
+      const { password, ...info } = state;
+      if (info) {
+        const { message }: any = await fch.patch(`/users/${params.id}`, info);
+        toaster.success(message);
+      }
+      if (password) {
+        const { message }: any = await fch.put(`/users/${params.id}`, {
+          password,
+        });
+        toaster.success(message, {
+          description: 'Please sign in again',
+        });
+      }
       checkLogin();
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {

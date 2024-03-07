@@ -1,4 +1,5 @@
 import { UserContext } from '@/contexts/UserContext';
+import { SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu, toaster } from 'evergreen-ui';
 import { useRouter } from 'next/router';
@@ -12,8 +13,7 @@ export const Logout = () => {
     try {
       const fch = customFetch();
       await fch.get('/auth');
-      const date = new Date();
-      document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
+      SetCookie('token', '');
       checkLogin();
       router.push('/');
     } catch (error) {

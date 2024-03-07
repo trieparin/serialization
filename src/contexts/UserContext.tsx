@@ -1,5 +1,5 @@
+import { GetCookie, SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { ValidateCookie } from '@/helpers/validate.helper';
 import { IUser } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
@@ -18,8 +18,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const userInfo = useMemo(() => {
     const checkLogin = async () => {
-      const token = ValidateCookie('token');
-      if (token) {
+      if (GetCookie('token')) {
         try {
           const fch = customFetch();
           const res: any = await fch.get('/auth/check');
@@ -33,8 +32,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             role,
           });
         } catch (error) {
-          const date = new Date();
-          document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
+          SetCookie('token', '');
           toaster.danger('User has been deleted');
           stopLoading();
         }
