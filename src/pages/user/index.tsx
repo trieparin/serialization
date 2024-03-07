@@ -28,18 +28,7 @@ export default function UserPage() {
     uid: '',
   });
 
-  // useMemo(() => {
-  //   console.log('user');
-  //   const allUsers = async () => {
-  //     const fch = customFetch();
-  //     const { data }: any = await fch.get('/users');
-  //     setUsers(data);
-  //   };
-  //   allUsers();
-  // }, []);
-
   useEffect(() => {
-    console.log('user');
     stopLoading();
     if (!isLoading) {
       const allUsers = async () => {
