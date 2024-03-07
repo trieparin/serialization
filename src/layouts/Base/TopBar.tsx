@@ -12,14 +12,15 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useContext, useMemo } from 'react';
+import { useContext, useEffect } from 'react';
 
 export const TopBar = () => {
   const { profile, checkLogin } = useContext(UserContext);
 
-  useMemo(() => {
+  useEffect(() => {
     if (!profile.uid) checkLogin();
-  }, [profile.uid, checkLogin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.uid]);
 
   return (
     <Pane background="dark">
