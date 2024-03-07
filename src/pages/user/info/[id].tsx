@@ -96,7 +96,6 @@ export default function UserInfo({ params }: any) {
           description: 'Please sign in again',
         });
         SetCookie('token', '');
-        checkLogin();
         stopLoading();
       }
       checkLogin();

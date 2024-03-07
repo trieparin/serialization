@@ -1,20 +1,16 @@
-import { UserContext } from '@/contexts/UserContext';
 import { SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { Button, Menu, toaster } from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
 
 export const Logout = () => {
   const router = useRouter();
-  const { checkLogin } = useContext(UserContext);
 
   const handleLogout = async () => {
     try {
       const fch = customFetch();
       await fch.get('/auth');
       SetCookie('token', '');
-      checkLogin();
       router.push('/');
     } catch (error) {
       toaster.danger('An error occurred');
