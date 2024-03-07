@@ -33,7 +33,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           });
         } catch (error) {
           SetCookie('token', '');
-          toaster.danger('User has been deleted');
+          toaster.danger('Invalid email or password');
           stopLoading();
         }
       } else {
