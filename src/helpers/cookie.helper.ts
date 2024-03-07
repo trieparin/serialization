@@ -5,11 +5,8 @@ export const SetCookie = (name: string, value: string, expire?: number) => {
 };
 
 export const GetCookie = (name: string) => {
-  return document.cookie
-    .split(';')
-    .map((item) => {
-      const [key, value] = item.split('=');
-      return name === key.trim() && value;
-    })
-    .toString();
+  return document.cookie.split(';').find((item) => {
+    const [key, value] = item.split('=');
+    return name === key.trim() && value;
+  });
 };
