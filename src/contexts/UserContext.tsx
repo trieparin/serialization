@@ -16,38 +16,37 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { stopLoading } = useContext(LoadingContext);
   const [profile, setProfile] = useState<IUser>({});
 
-  const checkLogin = async () => {
-    const token = ValidateCookie('token');
-    if (token) {
-      try {
-        const fch = customFetch();
-        const res: any = await fch.get('/auth/check');
-        const { uid, email, displayName, firstName, lastName, role } = res;
-        setProfile({
-          uid,
-          email,
-          displayName,
-          firstName,
-          lastName,
-          role,
-        });
-      } catch (error) {
-        const date = new Date();
-        document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
-        toaster.danger('User has been deleted');
-        stopLoading();
-      }
-    } else {
-      setProfile({});
-    }
-  };
-
   const userInfo = useMemo(() => {
+    const checkLogin = async () => {
+      const token = ValidateCookie('token');
+      if (token) {
+        try {
+          const fch = customFetch();
+          const res: any = await fch.get('/auth/check');
+          const { uid, email, displayName, firstName, lastName, role } = res;
+          setProfile({
+            uid,
+            email,
+            displayName,
+            firstName,
+            lastName,
+            role,
+          });
+        } catch (error) {
+          const date = new Date();
+          document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
+          toaster.danger('User has been deleted');
+          stopLoading();
+        }
+      } else {
+        setProfile({});
+      }
+    };
     return {
       profile,
       checkLogin,
     };
-  }, [profile]);
+  }, [profile, stopLoading]);
 
   return (
     <UserContext.Provider value={userInfo}>{children}</UserContext.Provider>

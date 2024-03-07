@@ -7,7 +7,7 @@ export const Footer = () => {
 
   useEffect(() => {
     if (!profile.uid) checkLogin();
-  }, []);
+  }, [profile.uid, checkLogin]);
 
   return (
     <Pane
