@@ -16,7 +16,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const checkLogin = async () => {
     const token = ValidateCookie('token');
-    if (token && !profile.uid) {
+    if (token) {
       try {
         const fch = customFetch();
         const res: any = await fch.get('/auth/check');
