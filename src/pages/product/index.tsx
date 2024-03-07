@@ -24,11 +24,11 @@ const mockProducts = [
 ];
 
 export default function ProductPage() {
-  const { isLoading, stopLoading } = useContext(LoadingContext);
+  const { stopLoading } = useContext(LoadingContext);
 
   useEffect(() => {
     stopLoading();
-  }, [isLoading]);
+  }, [stopLoading]);
 
   return (
     <BaseLayout>

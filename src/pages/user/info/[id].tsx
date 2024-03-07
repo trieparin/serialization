@@ -69,18 +69,17 @@ export default function UserInfo({ params }: any) {
   const [state, dispatch] = useReducer(formReducer, {});
 
   useEffect(() => {
+    const userInfo = async () => {
+      if (profile.uid === params.id) {
+        setUser(profile);
+      } else {
+        const fch = customFetch();
+        const { data }: any = await fch.get(`/users/${params.id}`);
+        setUser(data);
+      }
+    };
     userInfo();
-  }, []);
-
-  const userInfo = async () => {
-    if (profile.uid === params.id) {
-      setUser(profile);
-    } else {
-      const fch = customFetch();
-      const { data }: any = await fch.get(`/users/${params.id}`);
-      setUser(data);
-    }
-  };
+  }, [profile, params.id]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

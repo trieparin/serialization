@@ -28,16 +28,28 @@ export default function UserPage() {
     uid: '',
   });
 
-  useEffect(() => {
-    allUsers();
-    stopLoading();
-  }, [isLoading]);
+  // useMemo(() => {
+  //   console.log('user');
+  //   const allUsers = async () => {
+  //     const fch = customFetch();
+  //     const { data }: any = await fch.get('/users');
+  //     setUsers(data);
+  //   };
+  //   allUsers();
+  // }, []);
 
-  const allUsers = async () => {
-    const fch = customFetch();
-    const { data }: any = await fch.get('/users');
-    setUsers(data);
-  };
+  useEffect(() => {
+    console.log('user');
+    stopLoading();
+    if (!isLoading) {
+      const allUsers = async () => {
+        const fch = customFetch();
+        const { data }: any = await fch.get('/users');
+        setUsers(data);
+      };
+      allUsers();
+    }
+  }, [isLoading, stopLoading]);
 
   const handleDelete = async (close: () => void) => {
     try {
@@ -100,6 +112,7 @@ export default function UserPage() {
         title="Confirmation"
         intent="danger"
         confirmLabel="Delete"
+        isConfirmLoading={isLoading}
         onConfirm={(close) => handleDelete(close)}
         onCloseComplete={() =>
           setDialogOption({
