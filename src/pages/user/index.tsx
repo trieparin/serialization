@@ -34,13 +34,9 @@ export default function UserPage() {
   }, [isLoading]);
 
   const allUsers = async () => {
-    try {
-      const fch = customFetch();
-      const { data }: any = await fch.get('/users');
-      setUsers(data);
-    } catch (error) {
-      throw error;
-    }
+    const fch = customFetch();
+    const { data }: any = await fch.get('/users');
+    setUsers(data);
   };
 
   const handleDelete = async (close: () => void) => {

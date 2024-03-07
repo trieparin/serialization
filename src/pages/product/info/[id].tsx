@@ -1,7 +1,7 @@
 import { BaseLayout } from '@/layouts';
 import { GetServerSidePropsContext } from 'next';
 
-export default function ProductInfo({ params }: any) {
+export default function ProductInfo() {
   return <BaseLayout></BaseLayout>;
 }
 

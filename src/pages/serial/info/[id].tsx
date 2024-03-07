@@ -1,7 +1,7 @@
 import { BaseLayout } from '@/layouts';
 import { GetServerSidePropsContext } from 'next';
 
-export default function SerialInfo({ params }: any) {
+export default function SerialInfo() {
   return <BaseLayout></BaseLayout>;
 }
 

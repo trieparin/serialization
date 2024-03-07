@@ -39,7 +39,9 @@ export const BatchInformation = () => {
           required
         >
           {productTypes.map((type) => (
-            <option value={type}>{type}</option>
+            <option key={type} value={type}>
+              {type}
+            </option>
           ))}
         </SelectField>
         <TextInputField

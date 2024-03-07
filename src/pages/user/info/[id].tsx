@@ -76,13 +76,9 @@ export default function UserInfo({ params }: any) {
     if (profile.uid === params.id) {
       setUser(profile);
     } else {
-      try {
-        const fch = customFetch();
-        const { data }: any = await fch.get(`/users/${params.id}`);
-        setUser(data);
-      } catch (error) {
-        throw error;
-      }
+      const fch = customFetch();
+      const { data }: any = await fch.get(`/users/${params.id}`);
+      setUser(data);
     }
   };
 
