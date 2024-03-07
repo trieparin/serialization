@@ -1,5 +1,4 @@
-import { auth, db } from '@/firebase/config';
-import { updatePassword } from 'firebase/auth';
+import { db } from '@/firebase/config';
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -13,15 +12,6 @@ export default async function handler(
         const { id } = req.query;
         const snapshot = await getDoc(doc(db, 'users', id as string));
         res.status(200).json({ data: snapshot.exists() && snapshot.data() });
-      } catch (e) {
-        res.status(500).json({});
-      }
-      break;
-    case 'PUT':
-      try {
-        const { password } = req.body;
-        await updatePassword(auth.currentUser!, password);
-        res.status(200).json({ message: 'Change password successfully' });
       } catch (e) {
         res.status(500).json({});
       }

@@ -1,6 +1,7 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
+import { SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { ValidatePassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
@@ -83,17 +84,20 @@ export default function UserInfo({ params }: any) {
       startLoading();
       const fch = customFetch();
       const { password, ...info } = state;
-      if (info) {
-        const { message }: any = await fch.patch(`/users/${params.id}`, info);
+      if (Object.keys(info).length) {
+        const { message }: any = await fch.patch(`/users/${params.id}`, {
+          info,
+        });
         toaster.success(message);
       }
       if (password) {
-        const { message }: any = await fch.put(`/users/${params.id}`, {
-          password,
-        });
+        const { message }: any = await fch.put(`/auth`, { password });
         toaster.success(message, {
           description: 'Please sign in again',
         });
+        SetCookie('token', '');
+        checkLogin();
+        stopLoading();
       }
       checkLogin();
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
