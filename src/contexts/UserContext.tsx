@@ -2,7 +2,8 @@ import customFetch from '@/helpers/fetch.helper';
 import { ValidateCookie } from '@/helpers/validate.helper';
 import { IUser } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
-import { ReactNode, createContext, useMemo, useState } from 'react';
+import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
+import { LoadingContext } from './LoadingContext';
 
 export const UserContext = createContext<UserContextType>(null!);
 
@@ -12,6 +13,7 @@ interface UserContextType {
 }
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const { stopLoading } = useContext(LoadingContext);
   const [profile, setProfile] = useState<IUser>({});
 
   const checkLogin = async () => {
@@ -33,6 +35,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const date = new Date();
         document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
         toaster.danger('User has been deleted');
+        stopLoading();
       }
     } else {
       setProfile({});
