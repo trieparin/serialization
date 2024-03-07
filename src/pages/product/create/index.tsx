@@ -8,11 +8,10 @@ import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { Pane } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import { FormEvent, useContext, useState } from 'react';
+import { FormEvent, useContext } from 'react';
 
 export default function ProductCreate() {
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
-  const [isValidate, setIsValidate] = useState(false);
+  const { isLoading, startLoading } = useContext(LoadingContext);
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -27,7 +26,7 @@ export default function ProductCreate() {
           <BatchInformation />
           <ActiveIngredient />
         </Pane>
-        <SaveCancel loading={isLoading} disabled={!isValidate} />
+        <SaveCancel disabled={false} loading={isLoading} />
       </Pane>
     </BaseLayout>
   );

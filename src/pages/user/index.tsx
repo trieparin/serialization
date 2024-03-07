@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading } = useContext(LoadingContext);
   const [users, setUsers] = useState<IUser[]>([]);
   const [dialogOption, setDialogOption] = useState({
     open: false,
@@ -27,7 +27,6 @@ export default function UserPage() {
 
   useEffect(() => {
     allUsers();
-    stopLoading();
   }, [isLoading]);
 
   const allUsers = async () => {
