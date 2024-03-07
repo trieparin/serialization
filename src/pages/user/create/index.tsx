@@ -1,7 +1,7 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { db, temp } from '@/firebase/config';
-import { ValidatePassword } from '@/helpers/validate.helper';
+import { RegExPassword, ValidatePassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -23,11 +23,11 @@ import { useRouter } from 'next/router';
 import {
   ChangeEvent,
   FocusEvent,
-  FormEvent,
   useContext,
   useReducer,
   useState,
 } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface FormAction {
   type: string;
@@ -68,6 +68,7 @@ const formReducer = (state: any, action: FormAction) => {
 };
 
 export default function UserCreate() {
+  const pwdRegEx = RegExPassword();
   const router = useRouter();
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [password, setPassword] = useState('');
@@ -78,14 +79,13 @@ export default function UserCreate() {
     lastName: '',
     role: 'Admin',
   });
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm();
 
-  const isValidate =
-    !Object.values(state).some((value) => value === '') &&
-    ValidatePassword(password) &&
-    password === state.password;
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const formSubmit = async () => {
     try {
       startLoading();
       const { user } = await createUserWithEmailAndPassword(
@@ -114,7 +114,7 @@ export default function UserCreate() {
   return (
     <BaseLayout>
       <PageTitle title="Create New User" />
-      <Pane is="form" onSubmit={handleSubmit}>
+      <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
         <Pane is="fieldset" border="none" disabled={isLoading}>
           <Pane
             display="grid"
@@ -123,24 +123,29 @@ export default function UserCreate() {
           >
             <TextInputField
               label="Email"
-              name="email"
-              id="email"
               type="email"
               defaultValue={state.email}
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_email',
-                  payload: event.currentTarget.value.trim(),
-                });
-              }}
-              required
+              {...register('email', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_email',
+                    payload: event.currentTarget.value.trim(),
+                  });
+                },
+              })}
             />
             <TextInputField
               label="Password"
-              name="password"
-              id="password"
               type="password"
               defaultValue={password}
+              {...register('password', {
+                pattern: pwdRegEx,
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setPassword(event.currentTarget.value);
+                },
+              })}
               isInvalid={!!password && !ValidatePassword(password)}
               validationMessage={
                 !!password &&
@@ -151,17 +156,21 @@ export default function UserCreate() {
                   </Text>
                 )
               }
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                setPassword(event.currentTarget.value);
-              }}
-              required
             />
             <TextInputField
               label="Confirm Password"
-              name="cfmPassword"
-              id="cfmPassword"
               type="password"
               defaultValue={state.password}
+              {...register('cfmPassword', {
+                pattern: pwdRegEx,
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_password',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
               isInvalid={!!state.password && state.password !== password}
               validationMessage={
                 !!state.password &&
@@ -171,54 +180,47 @@ export default function UserCreate() {
                   </Text>
                 )
               }
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_password',
-                  payload: event.currentTarget.value,
-                });
-              }}
-              required
             />
             <TextInputField
               label="First Name"
-              name="firstName"
-              id="firstName"
               type="text"
               defaultValue={state.firstName}
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_first_name',
-                  payload: event.currentTarget.value.trim(),
-                });
-              }}
-              required
+              {...register('firstName', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_first_name',
+                    payload: event.currentTarget.value.trim(),
+                  });
+                },
+              })}
             />
             <TextInputField
               label="Last Name"
-              name="lastName"
-              id="lastName"
               type="text"
               defaultValue={state.lastName}
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_last_name',
-                  payload: event.currentTarget.value.trim(),
-                });
-              }}
-              required
+              {...register('lastName', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_last_name',
+                    payload: event.currentTarget.value.trim(),
+                  });
+                },
+              })}
             />
             <SelectField
               label="Role"
-              name="userRole"
-              id="userRole"
               value={state.role}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                dispatch({
-                  type: 'set_role',
-                  payload: event.currentTarget.value,
-                });
-              }}
-              required
+              {...register('userRole', {
+                required: true,
+                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
+                  dispatch({
+                    type: 'set_role',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
             >
               {Object.values(Role).map((role) => (
                 <option key={role} value={role}>
@@ -228,7 +230,7 @@ export default function UserCreate() {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel disabled={!isValidate} loading={isLoading} />
+        <SaveCancel disabled={!isValid} loading={isLoading} />
       </Pane>
     </BaseLayout>
   );

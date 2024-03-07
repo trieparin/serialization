@@ -3,7 +3,7 @@ import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { SetCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { ValidatePassword } from '@/helpers/validate.helper';
+import { RegExPassword, ValidatePassword } from '@/helpers/validate.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser, Role } from '@/models/user.model';
 import {
@@ -19,12 +19,12 @@ import { useRouter } from 'next/router';
 import {
   ChangeEvent,
   FocusEvent,
-  FormEvent,
   useContext,
   useEffect,
   useReducer,
   useState,
 } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface FormAction {
   type: string;
@@ -62,12 +62,18 @@ const formReducer = (state: any, action: FormAction) => {
 };
 
 export default function UserInfo({ params }: any) {
+  const pwdRegEx = RegExPassword();
   const router = useRouter();
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile, checkLogin } = useContext(UserContext);
   const [user, setUser] = useState<IUser>({});
   const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {});
+  const {
+    register,
+    handleSubmit,
+    formState: { isValid },
+  } = useForm();
 
   useEffect(() => {
     const userInfo = async () => {
@@ -78,8 +84,7 @@ export default function UserInfo({ params }: any) {
     userInfo();
   }, [params.id]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const formSubmit = async () => {
     try {
       startLoading();
       const fch = customFetch();
@@ -109,7 +114,7 @@ export default function UserInfo({ params }: any) {
   return (
     <BaseLayout>
       <PageTitle title="Edit User Info" />
-      <Pane is="form" onSubmit={handleSubmit}>
+      <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
         <Pane is="fieldset" border="none" disabled={isLoading}>
           <Pane
             display="grid"
@@ -118,18 +123,20 @@ export default function UserInfo({ params }: any) {
           >
             <TextInputField
               label="Email"
-              name="email"
-              id="email"
               type="email"
               defaultValue={user.email}
-              required
-              disabled
+              {...register('email', { disabled: true })}
             />
             <TextInputField
               label="New Password"
-              name="password"
-              id="password"
               type="password"
+              {...register('password', {
+                pattern: pwdRegEx,
+                disabled: profile.uid !== params.id,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setPassword(event.currentTarget.value);
+                },
+              })}
               isInvalid={!!password && !ValidatePassword(password)}
               validationMessage={
                 !!password &&
@@ -140,16 +147,20 @@ export default function UserInfo({ params }: any) {
                   </Text>
                 )
               }
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                setPassword(event.currentTarget.value);
-              }}
-              disabled={profile.uid !== params.id}
             />
             <TextInputField
               label="Confirm Password"
-              name="cfmPassword"
-              id="cfmPassword"
               type="password"
+              {...register('cfmPassword', {
+                pattern: pwdRegEx,
+                disabled: profile.uid !== params.id,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_password',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
               isInvalid={!!state.password && password !== state.password}
               validationMessage={
                 !!state.password &&
@@ -159,62 +170,53 @@ export default function UserInfo({ params }: any) {
                   </Text>
                 )
               }
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                dispatch({
-                  type: 'set_password',
-                  payload: event.currentTarget.value,
-                });
-              }}
-              disabled={profile.uid !== params.id}
             />
             <TextInputField
               label="First Name"
-              name="firstName"
-              id="firstName"
               type="text"
               defaultValue={user.firstName}
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                if (event.currentTarget.value !== user.firstName) {
-                  dispatch({
-                    type: 'set_first_name',
-                    payload: event.currentTarget.value.trim(),
-                  });
-                }
-              }}
-              required
+              {...register('firstName', {
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  if (event.currentTarget.value !== user.firstName) {
+                    dispatch({
+                      type: 'set_first_name',
+                      payload: event.currentTarget.value.trim(),
+                    });
+                  }
+                },
+              })}
             />
             <TextInputField
               label="Last Name"
-              name="lastName"
-              id="lastName"
               type="text"
               defaultValue={user.lastName}
-              onBlur={(event: FocusEvent<HTMLInputElement>) => {
-                if (event.currentTarget.value !== user.lastName) {
-                  dispatch({
-                    type: 'set_last_name',
-                    payload: event.currentTarget.value.trim(),
-                  });
-                }
-              }}
-              required
+              {...register('lastName', {
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  if (event.currentTarget.value !== user.lastName) {
+                    dispatch({
+                      type: 'set_last_name',
+                      payload: event.currentTarget.value.trim(),
+                    });
+                  }
+                },
+              })}
             />
             <SelectField
               label="Role"
-              name="userRole"
-              id="userRole"
               value={user.role}
-              onChange={(event: ChangeEvent<HTMLSelectElement>) => {
-                setUser({ ...user, role: event.currentTarget.value as Role });
-                if (event.currentTarget.value !== user.role) {
-                  dispatch({
-                    type: 'set_role',
-                    payload: event.currentTarget.value,
-                  });
-                }
-              }}
-              required
-              disabled={profile.role !== Role.ADMIN}
+              {...register('userRole', {
+                required: true,
+                disabled: profile.role !== Role.ADMIN,
+                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
+                  setUser({ ...user, role: event.currentTarget.value as Role });
+                  if (event.currentTarget.value !== user.role) {
+                    dispatch({
+                      type: 'set_role',
+                      payload: event.currentTarget.value,
+                    });
+                  }
+                },
+              })}
             >
               {Object.values(Role).map((role) => (
                 <option key={role} value={role}>
@@ -224,7 +226,7 @@ export default function UserInfo({ params }: any) {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel disabled={false} loading={isLoading} />
+        <SaveCancel disabled={!isValid} loading={isLoading} />
       </Pane>
     </BaseLayout>
   );
