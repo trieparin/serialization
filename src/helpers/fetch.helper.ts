@@ -13,7 +13,8 @@ export default function customFetch() {
       body: JSON.stringify(body),
     };
     const res = await fetch(`/api${url}`, options);
-    return res.ok && res.json();
+    if (!res.ok) throw new Error();
+    return res.json();
   }
 
   async function get<T>(url: string): Promise<T> {

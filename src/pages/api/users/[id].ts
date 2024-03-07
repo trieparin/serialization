@@ -14,7 +14,7 @@ export default async function handler(
         const snapshot = await getDoc(doc(db, 'users', id as string));
         res.status(200).json({ data: snapshot.exists() && snapshot.data() });
       } catch (e) {
-        res.status(500);
+        res.status(500).json({});
       }
       break;
     case 'PATCH':
@@ -25,7 +25,7 @@ export default async function handler(
         if (password) await updatePassword(auth.currentUser!, password);
         res.status(200).json({ message: 'Update user successfully' });
       } catch (e) {
-        res.status(500);
+        res.status(500).json({});
       }
       break;
     case 'DELETE':
@@ -34,11 +34,11 @@ export default async function handler(
         await deleteDoc(doc(db, 'users', id as string));
         res.status(200).json({ message: 'Delete user successfully' });
       } catch (e) {
-        res.status(500);
+        res.status(500).json({});
       }
       break;
     default:
-      res.status(400);
+      res.status(400).json({});
       break;
   }
 }

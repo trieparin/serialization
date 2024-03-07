@@ -11,7 +11,7 @@ export default async function handler(
       await signOut(auth);
       res.status(200).json({});
     } catch (e) {
-      res.status(500);
+      res.status(500).json({});
     }
   } else if (req.method === 'POST') {
     try {
@@ -19,9 +19,9 @@ export default async function handler(
       const { user } = await signInWithEmailAndPassword(auth, email, password);
       res.status(200).json({ data: user.refreshToken });
     } catch (e) {
-      res.status(500);
+      res.status(500).json({});
     }
   } else {
-    res.status(400);
+    res.status(400).json({});
   }
 }

@@ -7,7 +7,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== 'GET') res.status(400);
+  if (req.method !== 'GET') res.status(400).json({});
   try {
     if (auth.currentUser) {
       const snapshot = await getDoc(doc(db, 'users', auth.currentUser.uid));
@@ -30,12 +30,12 @@ export default async function handler(
         });
       } else {
         await deleteUser(auth.currentUser);
-        res.status(200).json({ message: 'User has been deleted' });
+        res.status(401).json({});
       }
     } else {
-      res.status(200).json({ data: null });
+      res.status(403).json({});
     }
   } catch (e) {
-    res.status(500);
+    res.status(500).json({});
   }
 }

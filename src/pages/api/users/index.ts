@@ -24,7 +24,7 @@ export default async function handler(
       });
       res.status(200).json({ data: users });
     } catch (e) {
-      res.status(500);
+      res.status(500).json({});
     }
   } else if (req.method === 'POST') {
     try {
@@ -44,11 +44,11 @@ export default async function handler(
         role,
       });
       await signOut(auth);
-      res.status(200).json({ message: 'Create new user successfully' });
+      res.status(201).json({ message: 'Create new user successfully' });
     } catch (e) {
-      res.status(500);
+      res.status(500).json({});
     }
   } else {
-    res.status(400);
+    res.status(400).json({});
   }
 }
