@@ -32,8 +32,6 @@ export default async function handler(
         await deleteUser(auth.currentUser);
         res.status(401).json({});
       }
-    } else {
-      res.status(403).json({});
     }
   } catch (e) {
     res.status(500).json({});

@@ -22,18 +22,10 @@ export default function Home() {
   const { profile, checkLogin } = useContext(UserContext);
 
   useEffect(() => {
-    switch (profile.role) {
-      case Role.ADMIN:
-        router.replace('/user');
-        break;
-      case Role.SUPERVISOR:
-        router.replace('/product');
-        break;
-      case Role.OPERATOR:
-        router.replace('/product');
-        break;
-      default:
-        break;
+    if (profile.role === Role.ADMIN) {
+      router.replace('/user');
+    } else {
+      router.replace('/product');
     }
   }, [profile]);
 
