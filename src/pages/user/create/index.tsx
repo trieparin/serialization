@@ -69,7 +69,7 @@ const formReducer = (state: any, action: FormAction) => {
 
 export default function UserCreate() {
   const router = useRouter();
-  const { isLoading, startLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {
     email: '',
@@ -107,6 +107,7 @@ export default function UserCreate() {
       router.push('/user');
     } catch (error) {
       toaster.danger('An error occurred');
+      stopLoading();
     }
   };
 
@@ -145,7 +146,8 @@ export default function UserCreate() {
                 !!password &&
                 !ValidatePassword(password) && (
                   <Text size={300} color="red500">
-                    At least 6 characters with one uppercase and one lowercase.
+                    At least 6 characters with one uppercase, lowercase and
+                    number
                   </Text>
                 )
               }
@@ -165,7 +167,7 @@ export default function UserCreate() {
                 !!state.password &&
                 state.password !== password && (
                   <Text size={300} color="red500">
-                    Password do not match.
+                    Password do not match
                   </Text>
                 )
               }

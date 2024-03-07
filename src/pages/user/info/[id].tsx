@@ -62,24 +62,22 @@ const formReducer = (state: any, action: FormAction) => {
 
 export default function UserInfo({ params }: any) {
   const router = useRouter();
-  const { isLoading, startLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile, checkLogin } = useContext(UserContext);
   const [user, setUser] = useState<IUser>({});
   const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {});
 
   useEffect(() => {
+    console.log('effect');
     const userInfo = async () => {
-      if (profile.uid === params.id) {
-        setUser(profile);
-      } else {
-        const fch = customFetch();
-        const { data }: any = await fch.get(`/users/${params.id}`);
-        setUser(data);
-      }
+      console.log('fetch');
+      const fch = customFetch();
+      const { data }: any = await fch.get(`/users/${params.id}`);
+      setUser(data);
     };
     userInfo();
-  }, [profile, params.id]);
+  }, [params.id]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -92,6 +90,7 @@ export default function UserInfo({ params }: any) {
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
+      stopLoading();
     }
   };
 
@@ -124,7 +123,8 @@ export default function UserInfo({ params }: any) {
                 !!password &&
                 !ValidatePassword(password) && (
                   <Text size={300} color="red500">
-                    At least 6 characters with one uppercase and one lowercase.
+                    At least 6 characters with one uppercase, lowercase and
+                    number
                   </Text>
                 )
               }
@@ -143,7 +143,7 @@ export default function UserInfo({ params }: any) {
                 !!state.password &&
                 password !== state.password && (
                   <Text size={300} color="red500">
-                    Password do not match.
+                    Password do not match
                   </Text>
                 )
               }
