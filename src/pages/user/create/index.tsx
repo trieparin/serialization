@@ -25,6 +25,7 @@ import {
   FocusEvent,
   FormEvent,
   useContext,
+  useEffect,
   useReducer,
   useState,
 } from 'react';
@@ -69,7 +70,7 @@ const formReducer = (state: any, action: FormAction) => {
 
 export default function UserCreate() {
   const router = useRouter();
-  const { isLoading, startLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {
     email: '',
@@ -78,6 +79,10 @@ export default function UserCreate() {
     lastName: '',
     role: 'Admin',
   });
+
+  useEffect(() => {
+    stopLoading();
+  }, []);
 
   const isValidate =
     !Object.values(state).some((value) => value === '') &&

@@ -1,8 +1,10 @@
 import { PageTitle } from '@/components';
+import { LoadingContext } from '@/contexts/LoadingContext';
 import { BaseLayout } from '@/layouts';
 import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
+import { useContext, useEffect } from 'react';
 
 const mockProducts = [
   {
@@ -22,6 +24,12 @@ const mockProducts = [
 ];
 
 export default function ProductPage() {
+  const { isLoading, stopLoading } = useContext(LoadingContext);
+
+  useEffect(() => {
+    stopLoading();
+  }, [isLoading]);
+
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />

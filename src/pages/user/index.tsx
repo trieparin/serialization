@@ -1,11 +1,13 @@
 import { PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
+import { UserContext } from '@/contexts/UserContext';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser } from '@/models/user.model';
 import {
   Dialog,
   EditIcon,
+  IconButton,
   Pane,
   Table,
   TrashIcon,
@@ -17,7 +19,8 @@ import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 
 export default function UserPage() {
-  const { isLoading, startLoading } = useContext(LoadingContext);
+  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { profile } = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>([]);
   const [dialogOption, setDialogOption] = useState({
     open: false,
@@ -27,6 +30,7 @@ export default function UserPage() {
 
   useEffect(() => {
     allUsers();
+    stopLoading();
   }, [isLoading]);
 
   const allUsers = async () => {
@@ -73,11 +77,12 @@ export default function UserPage() {
                 <Table.TextCell>
                   <Pane display="flex" columnGap={minorScale(3)}>
                     <Link href={`/user/info/${uid}`}>
-                      <EditIcon color="dark" cursor="pointer" />
+                      <IconButton icon={EditIcon} />
                     </Link>
-                    <TrashIcon
-                      color="red"
-                      cursor="pointer"
+                    <IconButton
+                      intent="danger"
+                      icon={TrashIcon}
+                      disabled={uid === profile.uid}
                       onClick={() =>
                         setDialogOption({
                           open: true,
