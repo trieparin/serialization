@@ -14,8 +14,8 @@ export const Logout = () => {
       await fch.get('/auth');
       const date = new Date();
       document.cookie = `token=; path=/; expires=${date.toUTCString()};`;
-      checkLogin(false);
-      router.replace('/');
+      checkLogin();
+      router.push('/');
     } catch (error) {
       toaster.danger('An error occurred');
     }

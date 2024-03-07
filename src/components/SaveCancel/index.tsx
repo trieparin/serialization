@@ -2,11 +2,11 @@ import { Button, Pane, minorScale } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 
 interface SaveCancelProps {
-  loading: boolean;
   disabled: boolean;
+  loading: boolean;
 }
 
-export const SaveCancel = ({ loading, disabled }: SaveCancelProps) => {
+export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
   const router = useRouter();
   return (
     <Pane

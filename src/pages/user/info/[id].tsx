@@ -93,7 +93,7 @@ export default function UserInfo({ params }: any) {
       const fch = customFetch();
       const { message }: any = await fch.patch(`/users/${params.id}`, state);
       toaster.success(message);
-      checkLogin(true);
+      checkLogin();
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');

@@ -1,16 +1,6 @@
-import { UserContext } from '@/contexts/UserContext';
-import { ValidateCookie } from '@/helpers/validate.helper';
 import { Pane, Paragraph, minorScale } from 'evergreen-ui';
-import { useContext, useEffect } from 'react';
 
 export const Footer = () => {
-  const { profile, checkLogin } = useContext(UserContext);
-
-  useEffect(() => {
-    const token = ValidateCookie('token');
-    if (token && !profile.uid) checkLogin(true);
-  }, []);
-
   return (
     <Pane
       is="footer"

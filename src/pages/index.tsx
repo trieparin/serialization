@@ -50,7 +50,7 @@ export default function Home() {
       const date = new Date();
       date.setTime(date.getTime() + 1000 * 60 * 59);
       document.cookie = `token=${data}; path=/; expires=${date.toUTCString()};`;
-      checkLogin(true);
+      checkLogin();
     } catch (error) {
       toaster.danger('Invalid email or password');
       stopLoading();
