@@ -27,7 +27,7 @@ interface FormAction {
   payload: string;
 }
 
-const formReducer = (state: any, action: FormAction) => {
+const formReducer = (state: object, action: FormAction) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_password':

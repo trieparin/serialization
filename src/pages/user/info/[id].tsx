@@ -10,7 +10,7 @@ import {
   regExPassword,
 } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
-import { Role } from '@/models/user.model';
+import { IUser, Role } from '@/models/user.model';
 import {
   Pane,
   SelectField,
@@ -22,15 +22,20 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
+import { ParsedUrlQuery } from 'querystring';
 import { ChangeEvent, FocusEvent, useContext, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 
+interface UserInfoProps {
+  params: ParsedUrlQuery;
+  data: IUser;
+}
 interface FormAction {
   type: string;
   payload: string;
 }
 
-const formReducer = (state: any, action: FormAction) => {
+const formReducer = (state: object, action: FormAction) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_password':
@@ -48,7 +53,7 @@ const formReducer = (state: any, action: FormAction) => {
   }
 };
 
-export default function UserInfo({ params, data }: any) {
+export default function UserInfo({ params, data }: UserInfoProps) {
   const { email, firstName, lastName, role } = data;
   const pwdRegEx = regExPassword();
   const router = useRouter();
