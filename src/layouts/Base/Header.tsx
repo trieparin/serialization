@@ -1,20 +1,22 @@
 import { Logo, NavLink } from '@/components';
-import { Pane, Text, minorScale } from 'evergreen-ui';
+import { IUser, Role } from '@/models/user.model';
+import { Pane, Text, majorScale } from 'evergreen-ui';
 
-export const Header = () => {
+export const Header = ({ profile }: { profile: IUser }) => {
   return (
     <Pane
       is="header"
       elevation={1}
       background="tint1"
       position="sticky"
-      top="0"
+      top={0}
+      zIndex={1}
     >
       <Pane
         display="flex"
         alignItems="center"
         justifyContent="space-between"
-        paddingY={minorScale(3)}
+        paddingY={majorScale(1)}
         className="container"
       >
         <Logo />
@@ -22,13 +24,17 @@ export const Header = () => {
           is="nav"
           display="flex"
           alignItems="center"
-          columnGap={minorScale(3)}
+          columnGap={majorScale(2)}
         >
-          <NavLink href="/product">All Products</NavLink>
-          <Text color="muted">|</Text>
-          <NavLink href="/serial">All Serials</NavLink>
-          <Text color="muted">|</Text>
-          <NavLink href="/user">Manage Users</NavLink>
+          {profile.role === Role.ADMIN ? (
+            <NavLink href="/user">Users</NavLink>
+          ) : (
+            <>
+              <NavLink href="/product">Products</NavLink>
+              <Text color="muted">|</Text>
+              <NavLink href="/serial">Serials</NavLink>
+            </>
+          )}
         </Pane>
       </Pane>
     </Pane>

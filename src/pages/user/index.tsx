@@ -1,29 +1,58 @@
 import { PageTitle } from '@/components';
+import { LoadingContext } from '@/contexts/LoadingContext';
+import { UserContext } from '@/contexts/UserContext';
+import { db } from '@/firebase/config';
+import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
+import { IUser } from '@/models/user.model';
+import {
+  Dialog,
+  EditIcon,
+  IconButton,
+  Pane,
+  Table,
+  TrashIcon,
+  majorScale,
+  toaster,
+} from 'evergreen-ui';
+import { collection, getDocs } from 'firebase/firestore';
+import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
+import { useContext, useState } from 'react';
 
-const mockUsers = [
-  {
-    id: 1,
-    firstName: 'Hello',
-    lastName: 'World',
-    email: 'hello.world@mail.com',
-    role: 'Admin',
-  },
-  {
-    id: 2,
-    firstName: 'Hello',
-    lastName: 'World',
-    email: 'hello.world@mail.com',
-    role: 'Supervisor',
-  },
-];
+export default function UserPage({ data }: any) {
+  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { profile } = useContext(UserContext);
+  const [users, setUsers] = useState<IUser[]>(data);
+  const [dialogOption, setDialogOption] = useState({
+    open: false,
+    message: '',
+    uid: '',
+  });
 
-export default function UserPage() {
+  const getAllUsers = async () => {
+    const fch = customFetch();
+    const { data }: any = await fch.get('/users');
+    setUsers(data);
+  };
+
+  const handleDelete = async (close: () => void) => {
+    startLoading();
+    try {
+      const fch = customFetch();
+      const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
+      toaster.success(message);
+      getAllUsers();
+    } catch (error) {
+      toaster.danger('An error occurred');
+    }
+    stopLoading();
+    close();
+  };
+
   return (
     <BaseLayout>
-      <PageTitle title="Manage Users" link="/user/create" hasAddButton />
+      <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Table>
         <Table.Head paddingRight="0">
           <Table.TextHeaderCell>No.</Table.TextHeaderCell>
@@ -33,24 +62,79 @@ export default function UserPage() {
           <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
-          {mockUsers.map(({ id, firstName, lastName, email, role }, index) => (
-            <Table.Row key={id}>
-              <Table.TextCell>{index + 1}</Table.TextCell>
-              <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
-              <Table.TextCell>{email}</Table.TextCell>
-              <Table.TextCell>{role}</Table.TextCell>
-              <Table.TextCell>
-                <Pane display="flex" columnGap={minorScale(3)}>
-                  <Link href="/user/edit">
-                    <EditIcon color="dark" cursor="pointer" />
-                  </Link>
-                  <TrashIcon color="red" cursor="pointer" />
-                </Pane>
-              </Table.TextCell>
-            </Table.Row>
-          ))}
+          {users?.map(
+            ({ uid, firstName, lastName, email, role }: any, index: number) => (
+              <Table.Row key={uid}>
+                <Table.TextCell>{index + 1}</Table.TextCell>
+                <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
+                <Table.TextCell>{email}</Table.TextCell>
+                <Table.TextCell>{role}</Table.TextCell>
+                <Table.TextCell>
+                  <Pane display="flex" columnGap={majorScale(1)}>
+                    <Link href={`/user/info/${uid}`}>
+                      <IconButton icon={EditIcon} />
+                    </Link>
+                    <IconButton
+                      intent="danger"
+                      icon={TrashIcon}
+                      disabled={uid === profile.uid}
+                      onClick={() =>
+                        setDialogOption({
+                          open: true,
+                          message: `Confirm delete "${firstName} ${lastName}"?`,
+                          uid,
+                        })
+                      }
+                    />
+                  </Pane>
+                </Table.TextCell>
+              </Table.Row>
+            )
+          )}
         </Table.Body>
       </Table>
+      <Dialog
+        isShown={dialogOption.open}
+        hasClose={false}
+        title="Confirmation"
+        intent="danger"
+        confirmLabel="Delete"
+        isConfirmLoading={loading}
+        onConfirm={(close) => handleDelete(close)}
+        onCloseComplete={() =>
+          setDialogOption({
+            open: false,
+            message: '',
+            uid: '',
+          })
+        }
+      >
+        {dialogOption.message}
+      </Dialog>
     </BaseLayout>
   );
+}
+
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const token = req.cookies.token;
+  if (!token) {
+    return {
+      redirect: {
+        destination: '/',
+      },
+    };
+  }
+  const snapshot = await getDocs(collection(db, 'users'));
+  const data: IUser[] = [];
+  snapshot.forEach((doc) => {
+    data.push({
+      uid: doc.id,
+      ...doc.data(),
+    });
+  });
+  return {
+    props: {
+      data,
+    },
+  };
 }

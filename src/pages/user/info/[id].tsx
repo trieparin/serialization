@@ -1,6 +1,14 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { db, temp } from '@/firebase/config';
-import { checkPassword, regExPassword } from '@/helpers/form.helper';
+import { UserContext } from '@/contexts/UserContext';
+import { db } from '@/firebase/config';
+import { setCookie } from '@/helpers/cookie.helper';
+import customFetch from '@/helpers/fetch.helper';
+import {
+  checkPassword,
+  formChangeValue,
+  formHasChange,
+  regExPassword,
+} from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -11,15 +19,10 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
-import {
-  createUserWithEmailAndPassword,
-  signOut,
-  updateProfile,
-} from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, FocusEvent, useReducer } from 'react';
+import { ChangeEvent, FocusEvent, useContext, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface FormAction {
@@ -45,9 +48,11 @@ const formReducer = (state: any, action: FormAction) => {
   }
 };
 
-export default function UserCreate() {
+export default function UserInfo({ params, data }: any) {
+  const { email, firstName, lastName, role } = data;
   const pwdRegEx = regExPassword();
   const router = useRouter();
+  const { profile, checkLogin } = useContext(UserContext);
   const [state, dispatch] = useReducer(formReducer, {});
   const {
     reset,
@@ -55,38 +60,38 @@ export default function UserCreate() {
     handleSubmit,
     setValue,
     getValues,
-    formState: { isDirty, isValid, isSubmitting, defaultValues },
+    formState: { isDirty, isValid, isSubmitting, dirtyFields, defaultValues },
   } = useForm({
     defaultValues: {
-      email: '',
       password: '',
       pwd: '',
-      firstName: '',
-      lastName: '',
-      role: Role.OPERATOR,
+      email,
+      firstName,
+      lastName,
+      role,
     },
   });
 
   const formSubmit = async () => {
     try {
-      const { email, password, firstName, lastName, role } = getValues();
-      const { user } = await createUserWithEmailAndPassword(
-        temp,
-        email,
-        password
-      );
-      await updateProfile(user, {
-        displayName: `${firstName} ${lastName.charAt(0)}.`,
-      });
-      await setDoc(doc(db, 'users', user.uid), {
-        email,
-        firstName,
-        lastName,
-        role,
-      });
-      await signOut(temp);
-      toaster.success('Create new user successfully');
-      router.push('/user');
+      const { password, firstName, lastName, role } = getValues();
+      const data = formChangeValue(dirtyFields, { firstName, lastName, role });
+      const fch = customFetch();
+      if (data.firstName || data.lastName || data.role) {
+        const { message }: any = await fch.patch(`/users/${params.id}`, {
+          data,
+        });
+        toaster.success(message);
+      }
+      if (password) {
+        const { message }: any = await fch.put(`/auth`, { password });
+        toaster.success(message, {
+          description: 'Please sign in again',
+        });
+        setCookie('token', '');
+      }
+      checkLogin();
+      router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
     }
@@ -95,7 +100,7 @@ export default function UserCreate() {
 
   return (
     <BaseLayout>
-      <PageTitle title="Create New User" />
+      <PageTitle title="Edit User Info" />
       <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
         <Pane is="fieldset" border="none" disabled={isSubmitting}>
           <Pane
@@ -108,20 +113,15 @@ export default function UserCreate() {
               type="email"
               id="email"
               defaultValue={defaultValues?.email}
-              {...register('email', {
-                required: true,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('email', event.currentTarget.value.trim());
-                },
-              })}
+              {...register('email', { disabled: true })}
             />
             <TextInputField
-              label="Password"
+              label="New Password"
               type="password"
               id="password"
               defaultValue={defaultValues?.password}
               {...register('password', {
-                required: true,
+                disabled: profile.uid !== params.id,
                 pattern: pwdRegEx,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
@@ -148,8 +148,7 @@ export default function UserCreate() {
               id="pwd"
               defaultValue={defaultValues?.pwd}
               {...register('pwd', {
-                required: true,
-                pattern: pwdRegEx,
+                disabled: profile.uid !== params.id,
                 validate: () => state.pwd === state.password,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
@@ -175,7 +174,7 @@ export default function UserCreate() {
               id="firstName"
               defaultValue={defaultValues?.firstName}
               {...register('firstName', {
-                required: true,
+                validate: () => formHasChange(dirtyFields),
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   setValue('firstName', event.currentTarget.value.trim());
                 },
@@ -187,7 +186,7 @@ export default function UserCreate() {
               id="lastName"
               defaultValue={defaultValues?.lastName}
               {...register('lastName', {
-                required: true,
+                validate: () => formHasChange(dirtyFields),
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   setValue('lastName', event.currentTarget.value.trim());
                 },
@@ -199,6 +198,8 @@ export default function UserCreate() {
               defaultValue={defaultValues?.role}
               {...register('role', {
                 required: true,
+                disabled: profile.role !== Role.ADMIN,
+                validate: () => formHasChange(dirtyFields),
                 onChange: (event: ChangeEvent<HTMLSelectElement>) => {
                   setValue('role', event.currentTarget.value as Role);
                 },
@@ -218,7 +219,10 @@ export default function UserCreate() {
   );
 }
 
-export function getServerSideProps({ req }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  params,
+}: GetServerSidePropsContext) {
   const token = req.cookies.token;
   if (!token) {
     return {
@@ -227,7 +231,12 @@ export function getServerSideProps({ req }: GetServerSidePropsContext) {
       },
     };
   }
+  const snapshot = await getDoc(doc(db, 'users', params?.id as string));
+  const data = snapshot.exists() && snapshot.data();
   return {
-    props: {},
+    props: {
+      params,
+      data,
+    },
   };
 }

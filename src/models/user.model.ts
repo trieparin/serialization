@@ -1,12 +1,14 @@
 export enum Role {
-  ADMIN = 'Admin',
-  SUPERVISOR = 'Supervisor',
   OPERATOR = 'Operator',
+  SUPERVISOR = 'Supervisor',
+  ADMIN = 'Admin',
 }
 
 export interface IUser {
-  uid: string;
-  firstName: string;
-  lastName: string;
-  role: Role;
+  uid?: string;
+  email?: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  role?: Role;
 }

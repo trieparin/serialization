@@ -26,9 +26,9 @@ export const ActiveIngredient = () => {
       },
     ]);
   };
-  const removeActiveIngredient = (e: MouseEvent) => {
+  const removeActiveIngredient = (event: MouseEvent) => {
     const removed = ingredientList.filter(
-      ({ id }) => id !== e.currentTarget.id
+      ({ id }) => id !== event.currentTarget.id
     );
     setIngredientList(removed);
   };

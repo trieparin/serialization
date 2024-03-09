@@ -1,3 +1,5 @@
+import { Logout } from '@/components';
+import { IUser } from '@/models/user.model';
 import {
   Avatar,
   CaretDownIcon,
@@ -11,7 +13,7 @@ import {
 } from 'evergreen-ui';
 import Link from 'next/link';
 
-export const TopBar = () => {
+export const TopBar = ({ profile }: { profile: IUser }) => {
   return (
     <Pane background="dark">
       <Pane
@@ -21,22 +23,19 @@ export const TopBar = () => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Avatar name="Hello World" size={minorScale(5)} />
+        <Avatar name={profile.displayName} size={minorScale(5)} />
         <Popover
           position={Position.BOTTOM_RIGHT}
           content={
             <Menu>
               <Menu.Group>
-                <Link href="/user/info">
+                <Link href={`/user/info/${profile.uid}`}>
                   <Menu.Item>Edit Info</Menu.Item>
-                </Link>
-                <Link href="/user/change-password">
-                  <Menu.Item>Change Password</Menu.Item>
                 </Link>
               </Menu.Group>
               <Menu.Divider />
               <Menu.Group>
-                <Menu.Item>Logout</Menu.Item>
+                <Logout />
               </Menu.Group>
             </Menu>
           }
@@ -47,7 +46,7 @@ export const TopBar = () => {
             icon={<CaretDownIcon fill="white" />}
             marginLeft={minorScale(1)}
           >
-            Hello World
+            {profile.displayName}
           </TextDropdownButton>
         </Popover>
       </Pane>

@@ -1,15 +1,19 @@
-import { Button, Pane, minorScale } from 'evergreen-ui';
+import { Button, Pane, majorScale } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 
-export const SaveCancel = ({ loading }: { loading: boolean }) => {
-  const router = useRouter();
+interface SaveCancelProps {
+  disabled: boolean;
+  loading: boolean;
+}
 
+export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
+  const router = useRouter();
   return (
     <Pane
       display="flex"
       alignItems="center"
       justifyContent="center"
-      columnGap={minorScale(3)}
+      columnGap={majorScale(2)}
     >
       <Button type="reset" size="large" onClick={() => router.back()}>
         Cancel
@@ -18,6 +22,7 @@ export const SaveCancel = ({ loading }: { loading: boolean }) => {
         type="submit"
         appearance="primary"
         size="large"
+        disabled={disabled}
         isLoading={loading}
       >
         Save
