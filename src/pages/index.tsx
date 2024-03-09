@@ -1,5 +1,4 @@
 import { Logo } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
@@ -11,46 +10,56 @@ import {
   Pane,
   TextInputField,
   majorScale,
-  minorScale,
   toaster,
 } from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { FormEvent, useContext, useEffect } from 'react';
+import { FocusEvent, useContext, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 export default function Home() {
   const router = useRouter();
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile, checkLogin } = useContext(UserContext);
+  const [isOK, setIsOK] = useState(false);
+  const {
+    reset,
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: {
+      isDirty,
+      isValid,
+      isSubmitting,
+      isSubmitSuccessful,
+      defaultValues,
+    },
+  } = useForm({ defaultValues: { email: '', password: '' } });
 
   useEffect(() => {
-    const redirectRole = () => {
-      if (profile.role === Role.ADMIN) {
-        router.replace('/user');
-      } else {
-        router.replace('/product');
-      }
-    };
-    if (profile.role) redirectRole();
+    if (profile.role) {
+      profile.role === Role.ADMIN
+        ? router.replace('/user')
+        : router.replace('/product');
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.role]);
 
-  const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const formSubmit = async () => {
     try {
-      startLoading();
-      const target = event.currentTarget;
+      const { email, password } = getValues();
       const fch = customFetch();
-      const { data }: any = await fch.post('/auth', {
-        email: target.email.value,
-        password: target.password.value,
-      });
+      const { data }: any = await fch.post('/auth', { email, password });
       setCookie('token', data, 1000 * 60 * 60);
       checkLogin();
+      setIsOK(true);
     } catch (error) {
       toaster.danger('Invalid email or password');
-      stopLoading();
     }
   };
+
+  if (isSubmitSuccessful && !isOK) {
+    reset();
+  }
 
   return (
     <BlankLayout>
@@ -60,36 +69,55 @@ export default function Home() {
         padding={majorScale(5)}
         minWidth="40%"
       >
-        <Pane is="fieldset" border="none" disabled={isLoading}>
+        <Pane
+          is="fieldset"
+          border="none"
+          disabled={isSubmitting || isSubmitSuccessful}
+        >
           <Pane
             is="form"
             method="post"
-            onSubmit={handleLogin}
+            onSubmit={handleSubmit(formSubmit)}
             width="100%"
             display="flex"
             alignItems="center"
             flexFlow="column"
           >
-            <Pane marginBottom={minorScale(7)}>
+            <Pane marginBottom={majorScale(3)}>
               <Logo />
             </Pane>
             <TextInputField
               label="Email"
-              name="email"
+              type="email"
               id="email"
-              type="text"
-              width="70%"
-              required
+              width="80%"
+              defaultValue={defaultValues?.email}
+              {...register('email', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setValue('email', event.currentTarget.value.trim());
+                },
+              })}
             />
             <TextInputField
               label="Password"
-              name="password"
-              id="password"
               type="password"
-              width="70%"
-              required
+              id="password"
+              width="80%"
+              defaultValue={defaultValues?.password}
+              {...register('password', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setValue('password', event.currentTarget.value);
+                },
+              })}
             />
-            <Button appearance="primary" size="large" isLoading={isLoading}>
+            <Button
+              appearance="primary"
+              size="large"
+              disabled={!isDirty || !isValid}
+              isLoading={isSubmitting || isSubmitSuccessful}
+            >
               Login
             </Button>
           </Pane>
