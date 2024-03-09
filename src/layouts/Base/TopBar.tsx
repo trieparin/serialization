@@ -1,5 +1,5 @@
 import { Logout } from '@/components';
-import { UserContext } from '@/contexts/UserContext';
+import { IUser } from '@/models/user.model';
 import {
   Avatar,
   CaretDownIcon,
@@ -12,16 +12,8 @@ import {
   minorScale,
 } from 'evergreen-ui';
 import Link from 'next/link';
-import { useContext, useEffect } from 'react';
 
-export const TopBar = () => {
-  const { profile, checkLogin } = useContext(UserContext);
-
-  useEffect(() => {
-    if (!profile.uid) checkLogin();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile.uid]);
-
+export const TopBar = ({ profile }: { profile: IUser }) => {
   return (
     <Pane background="dark">
       <Pane
