@@ -1,9 +1,9 @@
 export enum ProductType {
-  SPECIALLY_CONTROLLED_DRUG = 'Specially Controlled Drug',
-  DANGEROUS_DRUG = 'Dangerous Drug',
-  NON_DANGEROUS_DRUG = 'Non-Dangerous Drug',
-  HOUSEHOLD_REMEDY = 'Household Remedy',
   NON_DRUG = 'Non-Drug',
+  HOUSEHOLD_REMEDY = 'Household Remedy',
+  NON_DANGEROUS_DRUG = 'Non-Dangerous Drug',
+  DANGEROUS_DRUG = 'Dangerous Drug',
+  SPECIALLY_CONTROLLED_DRUG = 'Specially Controlled Drug',
 }
 
 export interface IActiveIngredient {
