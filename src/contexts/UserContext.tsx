@@ -12,7 +12,7 @@ interface UserContextType {
 export const UserContext = createContext<UserContextType>(null!);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [profile, setProfile] = useState<IUser>({});
+  const [profile, setProfile] = useState<IUser>({ uid: '' });
 
   const userProfile = useMemo(() => {
     const checkLogin = async () => {

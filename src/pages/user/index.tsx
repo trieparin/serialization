@@ -20,10 +20,10 @@ import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 
-export default function UserPage({ data }: any) {
+export default function UserPage({ data }: { data: IUser[] }) {
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
-  const [users, setUsers] = useState<IUser[]>(data);
+  const [users, setUsers] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
     message: '',
@@ -54,7 +54,7 @@ export default function UserPage({ data }: any) {
     <BaseLayout>
       <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Table>
-        <Table.Head paddingRight="0">
+        <Table.Head paddingRight={0}>
           <Table.TextHeaderCell>No.</Table.TextHeaderCell>
           <Table.TextHeaderCell>Name</Table.TextHeaderCell>
           <Table.TextHeaderCell>Email</Table.TextHeaderCell>
@@ -63,7 +63,7 @@ export default function UserPage({ data }: any) {
         </Table.Head>
         <Table.Body>
           {users?.map(
-            ({ uid, firstName, lastName, email, role }: any, index: number) => (
+            ({ uid, firstName, lastName, email, role }, index: number) => (
               <Table.Row key={uid}>
                 <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>

@@ -13,7 +13,7 @@ export default async function handler(
       const snapshot = await getDoc(doc(db, 'users', auth.currentUser.uid));
       if (snapshot.exists()) {
         const { uid, email, displayName } = auth.currentUser;
-        const { firstName, lastName, role }: any = snapshot.data();
+        const { firstName, lastName, role } = snapshot.data();
         const updateName = `${firstName} ${lastName.charAt(0)}.`;
         if (displayName !== updateName) {
           await updateProfile(auth.currentUser, {

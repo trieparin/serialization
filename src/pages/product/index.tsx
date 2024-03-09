@@ -33,7 +33,7 @@ export default function ProductPage() {
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
       <Table>
-        <Table.Head paddingRight="0">
+        <Table.Head paddingRight={0}>
           <Table.TextHeaderCell>No.</Table.TextHeaderCell>
           <Table.TextHeaderCell>Name</Table.TextHeaderCell>
           <Table.TextHeaderCell>Batch</Table.TextHeaderCell>

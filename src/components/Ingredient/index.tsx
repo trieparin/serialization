@@ -9,7 +9,7 @@ import {
 } from 'evergreen-ui';
 import { MouseEvent, useState } from 'react';
 
-export const ActiveIngredient = () => {
+export const Ingredient = () => {
   const simpleId = () => {
     return Math.random().toString(36).substring(2, 6);
   };
@@ -83,7 +83,7 @@ export const ActiveIngredient = () => {
               position="absolute"
               top="50%"
               transform="translateY(-50%)"
-              right="0"
+              right={0}
               type="button"
               icon={MinusIcon}
               size="small"
