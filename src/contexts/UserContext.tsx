@@ -15,28 +15,26 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<IUser>({});
 
   const userProfile = useMemo(() => {
+    const token = getCookie('token');
     const checkLogin = async () => {
-      if (getCookie('token')) {
-        try {
-          const fch = customFetch();
-          const res: any = await fch.get('/auth/check');
-          const { uid, email, displayName, firstName, lastName, role } = res;
-          setProfile({
-            uid,
-            email,
-            displayName,
-            firstName,
-            lastName,
-            role,
-          });
-        } catch (error) {
-          setCookie('token', '');
-          toaster.danger('Invalid email or password');
-        }
-      } else {
-        setProfile({});
+      try {
+        const fch = customFetch();
+        const res: any = await fch.get('/auth/check');
+        const { uid, email, displayName, firstName, lastName, role } = res;
+        setProfile({
+          uid,
+          email,
+          displayName,
+          firstName,
+          lastName,
+          role,
+        });
+      } catch (error) {
+        setCookie('token', '');
+        toaster.danger('Invalid email or password');
       }
     };
+    if (token && !profile.uid) checkLogin();
     return {
       profile,
       checkLogin,

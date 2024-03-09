@@ -1,6 +1,7 @@
 import { PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
+import { db } from '@/firebase/config';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser } from '@/models/user.model';
@@ -11,33 +12,29 @@ import {
   Pane,
   Table,
   TrashIcon,
-  minorScale,
+  majorScale,
   toaster,
 } from 'evergreen-ui';
+import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 
-export default function UserPage() {
+export default function UserPage({ data }: any) {
   const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
-  const [users, setUsers] = useState<IUser[]>([]);
+  const [users, setUsers] = useState<IUser[]>(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
     message: '',
     uid: '',
   });
 
-  useEffect(() => {
-    if (!isLoading) {
-      const allUsers = async () => {
-        const fch = customFetch();
-        const { data }: any = await fch.get('/users');
-        setUsers(data);
-      };
-      allUsers();
-    }
-  }, [isLoading]);
+  const getAllUsers = async () => {
+    const fch = customFetch();
+    const { data }: any = await fch.get('/users');
+    setUsers(data);
+  };
 
   const handleDelete = async (close: () => void) => {
     startLoading();
@@ -45,6 +42,7 @@ export default function UserPage() {
       const fch = customFetch();
       const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
       toaster.success(message);
+      getAllUsers();
     } catch (error) {
       toaster.danger('An error occurred');
     }
@@ -72,7 +70,7 @@ export default function UserPage() {
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{role}</Table.TextCell>
                 <Table.TextCell>
-                  <Pane display="flex" columnGap={minorScale(3)}>
+                  <Pane display="flex" columnGap={majorScale(1)}>
                     <Link href={`/user/info/${uid}`}>
                       <IconButton icon={EditIcon} />
                     </Link>
@@ -117,7 +115,7 @@ export default function UserPage() {
   );
 }
 
-export function getServerSideProps({ req }: GetServerSidePropsContext) {
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   const token = req.cookies.token;
   if (!token) {
     return {
@@ -126,7 +124,17 @@ export function getServerSideProps({ req }: GetServerSidePropsContext) {
       },
     };
   }
+  const snapshot = await getDocs(collection(db, 'users'));
+  const data: IUser[] = [];
+  snapshot.forEach((doc) => {
+    data.push({
+      uid: doc.id,
+      ...doc.data(),
+    });
+  });
   return {
-    props: {},
+    props: {
+      data,
+    },
   };
 }

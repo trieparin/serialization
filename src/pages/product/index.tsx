@@ -1,6 +1,13 @@
 import { PageTitle } from '@/components';
 import { BaseLayout } from '@/layouts';
-import { EditIcon, Pane, Table, TrashIcon, minorScale } from 'evergreen-ui';
+import {
+  EditIcon,
+  IconButton,
+  Pane,
+  Table,
+  TrashIcon,
+  majorScale,
+} from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 
@@ -43,11 +50,11 @@ export default function ProductPage() {
               <Table.TextCell>{size}</Table.TextCell>
               <Table.TextCell>{status}</Table.TextCell>
               <Table.TextCell>
-                <Pane display="flex" columnGap={minorScale(3)}>
-                  <Link href={`/product/info/${id}`}>
-                    <EditIcon color="dark" cursor="pointer" />
+                <Pane display="flex" columnGap={majorScale(1)}>
+                  <Link href={`/product/info/`}>
+                    <IconButton icon={EditIcon} />
                   </Link>
-                  <TrashIcon color="red" cursor="pointer" />
+                  <IconButton intent="danger" icon={TrashIcon} />
                 </Pane>
               </Table.TextCell>
             </Table.Row>
