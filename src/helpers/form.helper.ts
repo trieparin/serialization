@@ -12,9 +12,11 @@ export const formHasChange = (fields: object) => {
   return changes.some((change) => change);
 };
 
-export const formChangeValue = (fields: any, values: any) => {
+export const formChangeValue = (fields: object, values: object) => {
   const changes = { ...fields };
   const items = Object.keys(changes);
-  items.forEach((item) => (changes[item] = values[item]));
+  items.forEach(
+    (item) => (changes[item as keyof object] = values[item as keyof object])
+  );
   return changes;
 };

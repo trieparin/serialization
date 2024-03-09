@@ -7,7 +7,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
     <Pane
       is="header"
       elevation={1}
-      background="tint1"
+      background="tint2"
       position="sticky"
       top={0}
       zIndex={1}
