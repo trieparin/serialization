@@ -8,7 +8,7 @@ import { TopBar } from './TopBar';
 export const BaseLayout = ({ children }: { children?: ReactNode }) => {
   const { profile } = useContext(UserContext);
   return (
-    <Pane is="main" display="flex" flexDirection="column" minHeight="100vh">
+    <Pane is="main" display="flex" flexFlow="column" minHeight="100vh">
       <TopBar profile={profile} />
       <Header profile={profile} />
       <Pane is="section" className="container">

@@ -5,8 +5,8 @@ export const Footer = () => {
     <Pane
       is="footer"
       textAlign="center"
-      marginTop="auto"
       paddingY={majorScale(1)}
+      marginTop="auto"
       className="container"
     >
       <Paragraph>DPU WE670 | Parin Trieakanuparb (65130273)</Paragraph>

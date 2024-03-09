@@ -60,14 +60,7 @@ export default function UserInfo({ params, data }: any) {
     handleSubmit,
     setValue,
     getValues,
-    formState: {
-      isDirty,
-      isValid,
-      isSubmitting,
-      isSubmitSuccessful,
-      dirtyFields,
-      defaultValues,
-    },
+    formState: { isDirty, isValid, isSubmitting, dirtyFields, defaultValues },
   } = useForm({
     defaultValues: {
       password: '',
@@ -101,19 +94,15 @@ export default function UserInfo({ params, data }: any) {
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
+    reset();
   };
 
   return (
     <BaseLayout>
       <PageTitle title="Edit User Info" />
       <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
-        <Pane
-          is="fieldset"
-          border="none"
-          disabled={isSubmitting || isSubmitSuccessful}
-        >
+        <Pane is="fieldset" border="none" disabled={isSubmitting}>
           <Pane
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -224,10 +213,7 @@ export default function UserInfo({ params, data }: any) {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel
-          disabled={!isDirty || !isValid}
-          loading={isSubmitting || isSubmitSuccessful}
-        />
+        <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
       </Pane>
     </BaseLayout>
   );

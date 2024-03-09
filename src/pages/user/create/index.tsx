@@ -55,13 +55,7 @@ export default function UserCreate() {
     handleSubmit,
     setValue,
     getValues,
-    formState: {
-      isDirty,
-      isValid,
-      isSubmitting,
-      isSubmitSuccessful,
-      defaultValues,
-    },
+    formState: { isDirty, isValid, isSubmitting, defaultValues },
   } = useForm({
     defaultValues: {
       email: '',
@@ -95,19 +89,15 @@ export default function UserCreate() {
       router.push('/user');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
+    reset();
   };
 
   return (
     <BaseLayout>
       <PageTitle title="Create New User" />
       <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
-        <Pane
-          is="fieldset"
-          border="none"
-          disabled={isSubmitting || isSubmitSuccessful}
-        >
+        <Pane is="fieldset" border="none" disabled={isSubmitting}>
           <Pane
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -222,10 +212,7 @@ export default function UserCreate() {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel
-          disabled={!isDirty || !isValid}
-          loading={isSubmitting || isSubmitSuccessful}
-        />
+        <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
       </Pane>
     </BaseLayout>
   );

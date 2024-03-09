@@ -13,36 +13,29 @@ import {
   toaster,
 } from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { FocusEvent, useContext, useEffect, useState } from 'react';
+import { FocusEvent, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Home() {
   const router = useRouter();
   const { profile, checkLogin } = useContext(UserContext);
-  const [isOK, setIsOK] = useState(false);
   const {
     reset,
     register,
     handleSubmit,
     setValue,
     getValues,
-    formState: {
-      isDirty,
-      isValid,
-      isSubmitting,
-      isSubmitSuccessful,
-      defaultValues,
-    },
+    formState: { isDirty, isValid, isSubmitting, defaultValues },
   } = useForm({ defaultValues: { email: '', password: '' } });
 
   useEffect(() => {
-    if (profile.role) {
+    if (profile.uid) {
       profile.role === Role.ADMIN
         ? router.replace('/user')
         : router.replace('/product');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile.role]);
+  }, [profile]);
 
   const formSubmit = async () => {
     try {
@@ -51,37 +44,30 @@ export default function Home() {
       const { data }: any = await fch.post('/auth', { email, password });
       setCookie('token', data, 1000 * 60 * 60);
       checkLogin();
-      setIsOK(true);
     } catch (error) {
       toaster.danger('Invalid email or password');
     }
-  };
-
-  if (isSubmitSuccessful && !isOK) {
     reset();
-  }
+  };
 
   return (
     <BlankLayout>
       <Card
-        background="tint1"
         elevation={2}
+        background="tint1"
+        position="relative"
         padding={majorScale(5)}
         minWidth="40%"
       >
-        <Pane
-          is="fieldset"
-          border="none"
-          disabled={isSubmitting || isSubmitSuccessful}
-        >
+        <Pane is="fieldset" border="none" disabled={isSubmitting}>
           <Pane
             is="form"
             method="post"
-            onSubmit={handleSubmit(formSubmit)}
             width="100%"
             display="flex"
-            alignItems="center"
             flexFlow="column"
+            alignItems="center"
+            onSubmit={handleSubmit(formSubmit)}
           >
             <Pane marginBottom={majorScale(3)}>
               <Logo />
@@ -116,7 +102,7 @@ export default function Home() {
               appearance="primary"
               size="large"
               disabled={!isDirty || !isValid}
-              isLoading={isSubmitting || isSubmitSuccessful}
+              isLoading={isSubmitting}
             >
               Login
             </Button>
