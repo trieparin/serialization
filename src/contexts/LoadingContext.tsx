@@ -1,7 +1,7 @@
 import { ReactNode, createContext, useMemo, useState } from 'react';
 
 interface LoadingContextType {
-  isLoading: boolean;
+  loading: boolean;
   startLoading: () => void;
   stopLoading: () => void;
 }
@@ -9,18 +9,18 @@ interface LoadingContextType {
 export const LoadingContext = createContext<LoadingContextType>(null!);
 
 export const LoadingProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const startLoading = () => setIsLoading(true);
-  const stopLoading = () => setIsLoading(false);
+  const startLoading = () => setLoading(true);
+  const stopLoading = () => setLoading(false);
 
-  const loading = useMemo(
-    () => ({ isLoading, startLoading, stopLoading }),
-    [isLoading]
+  const isLoading = useMemo(
+    () => ({ loading, startLoading, stopLoading }),
+    [loading]
   );
 
   return (
-    <LoadingContext.Provider value={loading}>
+    <LoadingContext.Provider value={isLoading}>
       {children}
     </LoadingContext.Provider>
   );

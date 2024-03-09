@@ -21,7 +21,7 @@ import Link from 'next/link';
 import { useContext, useState } from 'react';
 
 export default function UserPage({ data }: any) {
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
+  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>(data);
   const [dialogOption, setDialogOption] = useState({
@@ -99,7 +99,7 @@ export default function UserPage({ data }: any) {
         title="Confirmation"
         intent="danger"
         confirmLabel="Delete"
-        isConfirmLoading={isLoading}
+        isConfirmLoading={loading}
         onConfirm={(close) => handleDelete(close)}
         onCloseComplete={() =>
           setDialogOption({
