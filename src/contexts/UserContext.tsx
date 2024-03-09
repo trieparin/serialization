@@ -4,18 +4,17 @@ import { IUser } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { ReactNode, createContext, useMemo, useState } from 'react';
 
-export const UserContext = createContext<UserContextType>(null!);
-
 interface UserContextType {
   profile: IUser;
   checkLogin: () => void;
 }
 
+export const UserContext = createContext<UserContextType>(null!);
+
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<IUser>({});
 
   const userProfile = useMemo(() => {
-    const token = getCookie('token');
     const checkLogin = async () => {
       try {
         const fch = customFetch();
@@ -34,7 +33,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         toaster.danger('Invalid email or password');
       }
     };
+
+    const token = getCookie('token');
     if (token && !profile.uid) checkLogin();
+
     return {
       profile,
       checkLogin,
