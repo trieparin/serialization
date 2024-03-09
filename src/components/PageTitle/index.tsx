@@ -17,7 +17,7 @@ export const PageTitle = ({ title, link, hasAddButton }: PageTitleProps) => {
       paddingY={majorScale(3)}
       marginBottom={majorScale(1)}
     >
-      <Heading is="h1" size={900}>
+      <Heading is="h1" size={800} textTransform="uppercase">
         {title}
       </Heading>
       {hasAddButton && (
