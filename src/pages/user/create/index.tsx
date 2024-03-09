@@ -1,6 +1,6 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { db, temp } from '@/firebase/config';
-import { RegExPassword, checkPassword } from '@/helpers/validate.helper';
+import { checkPassword, regExPassword } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -46,7 +46,7 @@ const formReducer = (state: any, action: FormAction) => {
 };
 
 export default function UserCreate() {
-  const pwdRegEx = RegExPassword();
+  const pwdRegEx = regExPassword();
   const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {

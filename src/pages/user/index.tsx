@@ -29,7 +29,6 @@ export default function UserPage() {
   });
 
   useEffect(() => {
-    stopLoading();
     if (!isLoading) {
       const allUsers = async () => {
         const fch = customFetch();
@@ -38,17 +37,18 @@ export default function UserPage() {
       };
       allUsers();
     }
-  }, [isLoading, stopLoading]);
+  }, [isLoading]);
 
   const handleDelete = async (close: () => void) => {
+    startLoading();
     try {
-      startLoading();
       const fch = customFetch();
       const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
       toaster.success(message);
     } catch (error) {
       toaster.danger('An error occurred');
     }
+    stopLoading();
     close();
   };
 

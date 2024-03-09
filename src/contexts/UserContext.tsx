@@ -2,8 +2,7 @@ import { getCookie, setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { IUser } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
-import { ReactNode, createContext, useContext, useMemo, useState } from 'react';
-import { LoadingContext } from './LoadingContext';
+import { ReactNode, createContext, useMemo, useState } from 'react';
 
 export const UserContext = createContext<UserContextType>(null!);
 
@@ -13,10 +12,9 @@ interface UserContextType {
 }
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const { stopLoading } = useContext(LoadingContext);
   const [profile, setProfile] = useState<IUser>({});
 
-  const userInfo = useMemo(() => {
+  const userProfile = useMemo(() => {
     const checkLogin = async () => {
       if (getCookie('token')) {
         try {
@@ -34,7 +32,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
           setCookie('token', '');
           toaster.danger('Invalid email or password');
-          stopLoading();
         }
       } else {
         setProfile({});
@@ -44,9 +41,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       profile,
       checkLogin,
     };
-  }, [profile, stopLoading]);
+  }, [profile]);
 
   return (
-    <UserContext.Provider value={userInfo}>{children}</UserContext.Provider>
+    <UserContext.Provider value={userProfile}>{children}</UserContext.Provider>
   );
 };

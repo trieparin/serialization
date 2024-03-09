@@ -1,11 +1,16 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
+import { db } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { RegExPassword, checkPassword } from '@/helpers/validate.helper';
+import {
+  checkPassword,
+  formChangeValue,
+  formHasChange,
+  regExPassword,
+} from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
-import { IUser, Role } from '@/models/user.model';
+import { Role } from '@/models/user.model';
 import {
   Pane,
   SelectField,
@@ -14,16 +19,10 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
+import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import {
-  ChangeEvent,
-  FocusEvent,
-  useContext,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
+import { ChangeEvent, FocusEvent, useContext, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface FormAction {
@@ -39,59 +38,55 @@ const formReducer = (state: any, action: FormAction) => {
         ...state,
         password: payload,
       };
-    case 'set_first_name':
+    case 'set_pwd':
       return {
         ...state,
-        firstName: payload,
+        pwd: payload,
       };
-    case 'set_last_name':
-      return {
-        ...state,
-        lastName: payload,
-      };
-    case 'set_role':
-      return {
-        ...state,
-        role: payload,
-      };
-    case 'reset':
-      return {};
     default:
       return { ...state };
   }
 };
 
-export default function UserInfo({ params }: any) {
-  const pwdRegEx = RegExPassword();
+export default function UserInfo({ params, data }: any) {
+  const { email, firstName, lastName, role } = data;
+  const pwdRegEx = regExPassword();
   const router = useRouter();
-  const { isLoading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile, checkLogin } = useContext(UserContext);
-  const [user, setUser] = useState<IUser>({});
-  const [password, setPassword] = useState('');
   const [state, dispatch] = useReducer(formReducer, {});
   const {
+    reset,
     register,
     handleSubmit,
-    formState: { isValid },
-  } = useForm();
-
-  useEffect(() => {
-    const userInfo = async () => {
-      const fch = customFetch();
-      const { data }: any = await fch.get(`/users/${params.id}`);
-      setUser(data);
-    };
-    userInfo();
-  }, [params.id]);
+    setValue,
+    getValues,
+    formState: {
+      isDirty,
+      isValid,
+      isSubmitting,
+      isSubmitSuccessful,
+      dirtyFields,
+      defaultValues,
+    },
+  } = useForm({
+    defaultValues: {
+      password: '',
+      pwd: '',
+      email,
+      firstName,
+      lastName,
+      role,
+    },
+  });
 
   const formSubmit = async () => {
     try {
-      startLoading();
+      const { password, firstName, lastName, role } = getValues();
+      const data = formChangeValue(dirtyFields, { firstName, lastName, role });
       const fch = customFetch();
-      const { password, ...info } = state;
-      if (Object.keys(info).length) {
+      if (data.firstName || data.lastName || data.role) {
         const { message }: any = await fch.patch(`/users/${params.id}`, {
-          info,
+          data,
         });
         toaster.success(message);
       }
@@ -101,13 +96,12 @@ export default function UserInfo({ params }: any) {
           description: 'Please sign in again',
         });
         setCookie('token', '');
-        stopLoading();
       }
       checkLogin();
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
-      stopLoading();
+      reset();
     }
   };
 
@@ -115,7 +109,11 @@ export default function UserInfo({ params }: any) {
     <BaseLayout>
       <PageTitle title="Edit User Info" />
       <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
-        <Pane is="fieldset" border="none" disabled={isLoading}>
+        <Pane
+          is="fieldset"
+          border="none"
+          disabled={isSubmitting || isSubmitSuccessful}
+        >
           <Pane
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -124,23 +122,30 @@ export default function UserInfo({ params }: any) {
             <TextInputField
               label="Email"
               type="email"
-              defaultValue={user.email}
+              id="email"
+              defaultValue={defaultValues?.email}
               {...register('email', { disabled: true })}
             />
             <TextInputField
               label="New Password"
               type="password"
+              id="password"
+              defaultValue={defaultValues?.password}
               {...register('password', {
-                pattern: pwdRegEx,
                 disabled: profile.uid !== params.id,
+                pattern: pwdRegEx,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setPassword(event.currentTarget.value);
+                  dispatch({
+                    type: 'set_password',
+                    payload: event.currentTarget.value,
+                  });
+                  setValue('password', event.currentTarget.value);
                 },
               })}
-              isInvalid={!!password && !checkPassword(password)}
+              isInvalid={!!state.password && !checkPassword(state.password)}
               validationMessage={
-                !!password &&
-                !checkPassword(password) && (
+                !!state.password &&
+                !checkPassword(state.password) && (
                   <Text size={300} color="red500">
                     At least 6 characters with one uppercase, lowercase and
                     number
@@ -151,20 +156,23 @@ export default function UserInfo({ params }: any) {
             <TextInputField
               label="Confirm Password"
               type="password"
-              {...register('cfmPassword', {
-                pattern: pwdRegEx,
+              id="pwd"
+              defaultValue={defaultValues?.pwd}
+              {...register('pwd', {
                 disabled: profile.uid !== params.id,
+                validate: () => state.pwd === state.password,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_password',
+                    type: 'set_pwd',
                     payload: event.currentTarget.value,
                   });
+                  setValue('pwd', event.currentTarget.value);
                 },
               })}
-              isInvalid={!!state.password && password !== state.password}
+              isInvalid={!!state.pwd && state.pwd !== state.password}
               validationMessage={
-                !!state.password &&
-                password !== state.password && (
+                !!state.pwd &&
+                state.pwd !== state.password && (
                   <Text size={300} color="red500">
                     Password do not match
                   </Text>
@@ -174,47 +182,37 @@ export default function UserInfo({ params }: any) {
             <TextInputField
               label="First Name"
               type="text"
-              defaultValue={user.firstName}
+              id="firstName"
+              defaultValue={defaultValues?.firstName}
               {...register('firstName', {
+                validate: () => formHasChange(dirtyFields),
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  if (event.currentTarget.value !== user.firstName) {
-                    dispatch({
-                      type: 'set_first_name',
-                      payload: event.currentTarget.value.trim(),
-                    });
-                  }
+                  setValue('firstName', event.currentTarget.value.trim());
                 },
               })}
             />
             <TextInputField
               label="Last Name"
               type="text"
-              defaultValue={user.lastName}
+              id="lastName"
+              defaultValue={defaultValues?.lastName}
               {...register('lastName', {
+                validate: () => formHasChange(dirtyFields),
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  if (event.currentTarget.value !== user.lastName) {
-                    dispatch({
-                      type: 'set_last_name',
-                      payload: event.currentTarget.value.trim(),
-                    });
-                  }
+                  setValue('lastName', event.currentTarget.value.trim());
                 },
               })}
             />
             <SelectField
               label="Role"
-              value={user.role}
-              {...register('userRole', {
+              id="role"
+              defaultValue={defaultValues?.role}
+              {...register('role', {
                 required: true,
                 disabled: profile.role !== Role.ADMIN,
+                validate: () => formHasChange(dirtyFields),
                 onChange: (event: ChangeEvent<HTMLSelectElement>) => {
-                  setUser({ ...user, role: event.currentTarget.value as Role });
-                  if (event.currentTarget.value !== user.role) {
-                    dispatch({
-                      type: 'set_role',
-                      payload: event.currentTarget.value,
-                    });
-                  }
+                  setValue('role', event.currentTarget.value as Role);
                 },
               })}
             >
@@ -226,13 +224,19 @@ export default function UserInfo({ params }: any) {
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel disabled={!isValid} loading={isLoading} />
+        <SaveCancel
+          disabled={!isDirty || !isValid}
+          loading={isSubmitting || isSubmitSuccessful}
+        />
       </Pane>
     </BaseLayout>
   );
 }
 
-export function getServerSideProps({ req, params }: GetServerSidePropsContext) {
+export async function getServerSideProps({
+  req,
+  params,
+}: GetServerSidePropsContext) {
   const token = req.cookies.token;
   if (!token) {
     return {
@@ -241,9 +245,12 @@ export function getServerSideProps({ req, params }: GetServerSidePropsContext) {
       },
     };
   }
+  const snapshot = await getDoc(doc(db, 'users', params?.id as string));
+  const data = snapshot.exists() && snapshot.data();
   return {
     props: {
       params,
+      data,
     },
   };
 }
