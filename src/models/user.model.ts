@@ -1,7 +1,7 @@
 export enum Role {
-  ADMIN = 'Admin',
-  SUPERVISOR = 'Supervisor',
   OPERATOR = 'Operator',
+  SUPERVISOR = 'Supervisor',
+  ADMIN = 'Admin',
 }
 
 export interface IUser {

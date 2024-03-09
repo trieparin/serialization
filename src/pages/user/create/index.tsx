@@ -63,7 +63,7 @@ export default function UserCreate() {
       pwd: '',
       firstName: '',
       lastName: '',
-      role: 'Admin',
+      role: Role.OPERATOR,
     },
   });
 
@@ -200,7 +200,7 @@ export default function UserCreate() {
               {...register('role', {
                 required: true,
                 onChange: (event: ChangeEvent<HTMLSelectElement>) => {
-                  setValue('role', event.currentTarget.value);
+                  setValue('role', event.currentTarget.value as Role);
                 },
               })}
             >
