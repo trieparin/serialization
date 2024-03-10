@@ -20,6 +20,7 @@ export const Logout = () => {
   return (
     <Button
       appearance="minimal"
+      type="button"
       name="logout"
       justifyContent="flex-start"
       width="100%"

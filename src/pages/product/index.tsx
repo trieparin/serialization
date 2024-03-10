@@ -59,15 +59,30 @@ export default function ProductPage() {
               <Table.TextCell>
                 <Pane display="flex" columnGap={majorScale(1)}>
                   <Link href={`/product/info/`}>
-                    <IconButton icon={EditIcon} />
+                    <IconButton type="button" name="edit" icon={EditIcon} />
                   </Link>
                   {profile.role === Role.OPERATOR ? (
-                    <IconButton intent="success" icon={BarcodeIcon} />
+                    <IconButton
+                      type="button"
+                      name="barcode"
+                      intent="success"
+                      icon={BarcodeIcon}
+                    />
                   ) : (
                     <>
-                      <IconButton intent="success" icon={EndorsedIcon} />
+                      <IconButton
+                        type="button"
+                        name="verify"
+                        intent="success"
+                        icon={EndorsedIcon}
+                      />
 
-                      <IconButton intent="danger" icon={TrashIcon} />
+                      <IconButton
+                        type="button"
+                        name="delete"
+                        intent="danger"
+                        icon={TrashIcon}
+                      />
                     </>
                   )}
                 </Pane>

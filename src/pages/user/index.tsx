@@ -72,9 +72,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <Link href={`/user/info/${uid}`}>
-                      <IconButton icon={EditIcon} />
+                      <IconButton type="button" name="edit" icon={EditIcon} />
                     </Link>
                     <IconButton
+                      type="button"
+                      name="delete"
                       intent="danger"
                       icon={TrashIcon}
                       disabled={uid === profile.uid}

@@ -100,6 +100,7 @@ export default function Home() {
             />
             <Button
               appearance="primary"
+              type="submit"
               name="login"
               disabled={!isDirty || !isValid}
               isLoading={isSubmitting}
