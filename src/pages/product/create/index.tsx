@@ -1,4 +1,5 @@
 import { PageTitle, SaveCancel } from '@/components';
+import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormAction } from '@/models/form.model';
 import { ProductStatus, ProductType } from '@/models/product.model';
@@ -11,8 +12,10 @@ import {
   SelectField,
   TextInputField,
   majorScale,
+  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
+import { useRouter } from 'next/router';
 import { FocusEvent, useReducer } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -35,8 +38,10 @@ const formReducer = (state: object, action: IFormAction) => {
 };
 
 export default function ProductCreate() {
+  const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {
+    reset,
     register,
     handleSubmit,
     setValue,
@@ -75,9 +80,17 @@ export default function ProductCreate() {
     }
   };
 
-  const formSubmit = () => {
-    const form = getValues();
-    console.log(form);
+  const formSubmit = async () => {
+    try {
+      const data = getValues();
+      const fch = customFetch();
+      const { message }: any = await fch.post(`/products`, data);
+      toaster.success(message);
+      router.push('/product');
+    } catch (error) {
+      toaster.danger('An error occurred');
+      reset();
+    }
   };
 
   return (
