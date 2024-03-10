@@ -71,19 +71,19 @@ export const Ingredient = () => {
               required
             />
             <TextInputField
-              width="90%"
               label="Unit of Measurement"
               name="uom"
               id="uom"
               type="text"
+              width="90%"
               required
             />
             <IconButton
               id={id}
               position="absolute"
               top="50%"
-              transform="translateY(-50%)"
               right={0}
+              transform="translateY(-50%)"
               type="button"
               icon={MinusIcon}
               size="small"

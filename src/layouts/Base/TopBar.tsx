@@ -2,11 +2,12 @@ import { Logout } from '@/components';
 import { IUser } from '@/models/user.model';
 import {
   Avatar,
-  CaretDownIcon,
   Menu,
+  MinusIcon,
   Pane,
   Popover,
   Position,
+  Text,
   TextDropdownButton,
   majorScale,
   minorScale,
@@ -19,36 +20,47 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
       <Pane
         display="flex"
         alignItems="center"
-        justifyContent="flex-end"
+        justifyContent="space-between"
         paddingY={majorScale(1)}
         className="container"
       >
-        <Avatar name={profile.displayName} size={minorScale(5)} />
-        <Popover
-          position={Position.BOTTOM_RIGHT}
-          content={
-            <Menu>
-              <Menu.Group>
-                <Link href={`/user/info/${profile.uid}`}>
-                  <Menu.Item>Edit Info</Menu.Item>
-                </Link>
-              </Menu.Group>
-              <Menu.Divider />
-              <Menu.Group>
-                <Logout />
-              </Menu.Group>
-            </Menu>
-          }
-        >
-          <TextDropdownButton
-            size="small"
-            color="white"
-            icon={<CaretDownIcon fill="white" />}
-            marginLeft={minorScale(1)}
+        <Pane display="flex" alignItems="center">
+          <MinusIcon
+            color="muted"
+            size={majorScale(1)}
+            marginRight={minorScale(1)}
+          />
+          <Text color="muted" size={300} textTransform="uppercase">
+            DPU | WE 670 Project
+          </Text>
+        </Pane>
+        <Pane display="flex" alignItems="center">
+          <Avatar name={profile.displayName} size={minorScale(5)} />
+          <Popover
+            position={Position.BOTTOM_RIGHT}
+            content={
+              <Menu>
+                <Menu.Group>
+                  <Link href={`/user/info/${profile.uid}`}>
+                    <Menu.Item>Edit Info</Menu.Item>
+                  </Link>
+                </Menu.Group>
+                <Menu.Divider />
+                <Menu.Group>
+                  <Logout />
+                </Menu.Group>
+              </Menu>
+            }
           >
-            {profile.displayName}
-          </TextDropdownButton>
-        </Popover>
+            <TextDropdownButton
+              color="white"
+              size="small"
+              marginLeft={minorScale(1)}
+            >
+              {profile.displayName}
+            </TextDropdownButton>
+          </Popover>
+        </Pane>
       </Pane>
     </Pane>
   );

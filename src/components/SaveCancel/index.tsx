@@ -15,13 +15,13 @@ export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
       justifyContent="center"
       columnGap={majorScale(2)}
     >
-      <Button type="reset" size="large" onClick={() => router.back()}>
+      <Button name="reset" type="reset" onClick={() => router.back()}>
         Cancel
       </Button>
       <Button
-        type="submit"
         appearance="primary"
-        size="large"
+        name="submit"
+        type="submit"
         disabled={disabled}
         isLoading={loading}
       >

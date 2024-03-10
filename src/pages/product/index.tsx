@@ -1,7 +1,11 @@
 import { PageTitle } from '@/components';
+import { UserContext } from '@/contexts/UserContext';
 import { BaseLayout } from '@/layouts';
+import { Role } from '@/models/user.model';
 import {
+  BarcodeIcon,
   EditIcon,
+  EndorsedIcon,
   IconButton,
   Pane,
   Table,
@@ -10,6 +14,7 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
+import { useContext } from 'react';
 
 const mockProducts = [
   {
@@ -29,6 +34,8 @@ const mockProducts = [
 ];
 
 export default function ProductPage() {
+  const { profile } = useContext(UserContext);
+
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
@@ -54,7 +61,15 @@ export default function ProductPage() {
                   <Link href={`/product/info/`}>
                     <IconButton icon={EditIcon} />
                   </Link>
-                  <IconButton intent="danger" icon={TrashIcon} />
+                  {profile.role === Role.OPERATOR ? (
+                    <IconButton intent="success" icon={BarcodeIcon} />
+                  ) : (
+                    <>
+                      <IconButton intent="success" icon={EndorsedIcon} />
+
+                      <IconButton intent="danger" icon={TrashIcon} />
+                    </>
+                  )}
                 </Pane>
               </Table.TextCell>
             </Table.Row>

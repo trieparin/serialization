@@ -5,7 +5,7 @@ import { GetServerSidePropsContext } from 'next';
 export default function SerialPage() {
   return (
     <BaseLayout>
-      <PageTitle title="All Serials" link="/serial/create" hasAddButton />
+      <PageTitle title="All Serials" />
     </BaseLayout>
   );
 }

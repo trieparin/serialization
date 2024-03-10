@@ -56,8 +56,8 @@ export default function Home() {
         elevation={2}
         background="tint1"
         position="relative"
+        width="40%"
         padding={majorScale(5)}
-        minWidth="40%"
       >
         <Pane is="fieldset" border="none" disabled={isSubmitting}>
           <Pane
@@ -100,7 +100,7 @@ export default function Home() {
             />
             <Button
               appearance="primary"
-              size="large"
+              name="login"
               disabled={!isDirty || !isValid}
               isLoading={isSubmitting}
             >

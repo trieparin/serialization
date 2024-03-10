@@ -20,8 +20,9 @@ export const Logout = () => {
   return (
     <Button
       appearance="minimal"
-      width="100%"
+      name="logout"
       justifyContent="flex-start"
+      width="100%"
       paddingX={0}
       onClick={handleLogout}
     >

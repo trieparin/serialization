@@ -9,7 +9,7 @@ export const Footer = () => {
       marginTop="auto"
       className="container"
     >
-      <Paragraph>DPU WE670 | Parin Trieakanuparb (65130273)</Paragraph>
+      <Paragraph>Student ID: 65130273 | Parin Trieakanuparb </Paragraph>
     </Pane>
   );
 };
