@@ -84,9 +84,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
       });
       const fch = customFetch();
       if (data.firstName || data.lastName || data.role) {
-        const { message }: any = await fch.patch(`/users/${params.id}`, {
-          data,
-        });
+        const { message }: any = await fch.patch(`/users/${params.id}`, data);
         toaster.success(message);
       }
       if (password) {
