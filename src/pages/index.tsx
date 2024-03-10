@@ -91,12 +91,7 @@ export default function Home() {
               id="password"
               width="80%"
               defaultValue={defaultValues?.password}
-              {...register('password', {
-                required: true,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('password', event.currentTarget.value);
-                },
-              })}
+              {...register('password', { required: true })}
             />
             <Button
               appearance="primary"

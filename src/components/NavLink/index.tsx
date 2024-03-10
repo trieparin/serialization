@@ -17,7 +17,6 @@ export const NavLink = ({ children, href }: NavLinkProps) => {
         color={path.includes(href) ? 'default' : 'neutral'}
         fontWeight={path.includes(href) ? 500 : 400}
         textTransform="uppercase"
-        letterSpacing="1px"
       >
         {children}
       </UiLink>
