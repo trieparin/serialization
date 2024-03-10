@@ -40,7 +40,7 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Text color="muted" size={300} textTransform="uppercase">
+        <Text color="white" size={300} textTransform="uppercase">
           DPU | WE 670 Project
         </Text>
         <Pane display="flex" alignItems="center">

@@ -7,6 +7,7 @@ import { BaseLayout } from '@/layouts';
 import { IProduct, ProductStatus } from '@/models/product.model';
 import { Role } from '@/models/user.model';
 import {
+  Badge,
   BarcodeIcon,
   EditIcon,
   EndorsedIcon,
@@ -49,6 +50,19 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     stopLoading();
   };
 
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case ProductStatus.SERIALIZED:
+        return <Badge color="green">{status}</Badge>;
+        break;
+      case ProductStatus.APPROVED:
+        return <Badge color="purple">{status}</Badge>;
+        break;
+      default:
+        return <Badge color="blue">{status}</Badge>;
+    }
+  };
+
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
@@ -68,7 +82,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
               <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{batch}</Table.TextCell>
               <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
-              <Table.TextCell>{status}</Table.TextCell>
+              <Table.TextCell>{renderStatus(status)}</Table.TextCell>
               <Table.TextCell>
                 <Pane display="flex" columnGap={majorScale(1)}>
                   <Link href={`/product/info/${id}`}>

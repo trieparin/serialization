@@ -4,8 +4,9 @@ import { UserContext } from '@/contexts/UserContext';
 import { db } from '@/firebase/config';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { IUser } from '@/models/user.model';
+import { IUser, Role } from '@/models/user.model';
 import {
+  Badge,
   EditIcon,
   IconButton,
   Pane,
@@ -44,6 +45,19 @@ export default function UserPage({ data }: { data: IUser[] }) {
     stopLoading();
   };
 
+  const renderRole = (role: string) => {
+    switch (role) {
+      case Role.OPERATOR:
+        return <Badge color="yellow">{role}</Badge>;
+        break;
+      case Role.SUPERVISOR:
+        return <Badge color="orange">{role}</Badge>;
+        break;
+      default:
+        return <Badge color="red">{role}</Badge>;
+    }
+  };
+
   return (
     <BaseLayout>
       <PageTitle title="All Users" link="/user/create" hasAddButton />
@@ -62,7 +76,7 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{email}</Table.TextCell>
-                <Table.TextCell>{role}</Table.TextCell>
+                <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
                 <Table.TextCell>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <Link href={`/user/info/${uid}`}>
