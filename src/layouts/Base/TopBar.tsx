@@ -3,7 +3,6 @@ import { IUser } from '@/models/user.model';
 import {
   Avatar,
   Menu,
-  MinusIcon,
   Pane,
   Popover,
   Position,
@@ -24,16 +23,9 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Pane display="flex" alignItems="center">
-          <MinusIcon
-            color="muted"
-            size={majorScale(1)}
-            marginRight={minorScale(1)}
-          />
-          <Text color="muted" size={300} textTransform="uppercase">
-            DPU | WE 670 Project
-          </Text>
-        </Pane>
+        <Text color="muted" size={300} textTransform="uppercase">
+          DPU | WE 670 Project
+        </Text>
         <Pane display="flex" alignItems="center">
           <Avatar name={profile.displayName} size={minorScale(5)} />
           <Popover

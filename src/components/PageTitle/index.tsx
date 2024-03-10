@@ -28,7 +28,7 @@ export const PageTitle = ({ title, link, hasAddButton }: PageTitleProps) => {
             name="add"
             iconAfter={<PlusIcon />}
           >
-            Add New
+            Add
           </Button>
         </Link>
       )}
