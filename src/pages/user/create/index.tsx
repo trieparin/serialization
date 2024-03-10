@@ -85,8 +85,8 @@ export default function UserCreate() {
       router.push('/user');
     } catch (error) {
       toaster.danger('An error occurred');
+      reset();
     }
-    reset();
   };
 
   return (

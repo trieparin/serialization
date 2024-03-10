@@ -100,8 +100,8 @@ export default function UserInfo({ params, data }: UserInfoProps) {
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
+      reset();
     }
-    reset();
   };
 
   return (
