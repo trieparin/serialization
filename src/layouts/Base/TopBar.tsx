@@ -1,7 +1,9 @@
-import { Logout } from '@/components';
+import { setCookie } from '@/helpers/cookie.helper';
+import customFetch from '@/helpers/fetch.helper';
 import { IUser } from '@/models/user.model';
 import {
   Avatar,
+  Button,
   Menu,
   Pane,
   Popover,
@@ -10,10 +12,25 @@ import {
   TextDropdownButton,
   majorScale,
   minorScale,
+  toaster,
 } from 'evergreen-ui';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 export const TopBar = ({ profile }: { profile: IUser }) => {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const fch = customFetch();
+      await fch.get('/auth');
+      setCookie('token', '');
+      router.push('/');
+    } catch (error) {
+      toaster.danger('An error occurred');
+    }
+  };
+
   return (
     <Pane background="dark">
       <Pane
@@ -39,7 +56,17 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
                 </Menu.Group>
                 <Menu.Divider />
                 <Menu.Group>
-                  <Logout />
+                  <Button
+                    appearance="minimal"
+                    type="button"
+                    name="logout"
+                    justifyContent="flex-start"
+                    width="100%"
+                    paddingX={0}
+                    onClick={handleLogout}
+                  >
+                    <Menu.Item>Logout</Menu.Item>
+                  </Button>
                 </Menu.Group>
               </Menu>
             }
