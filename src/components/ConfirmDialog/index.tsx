@@ -22,10 +22,10 @@ export const ConfirmDialog = ({
   reset,
   status,
 }: ConfirmDialogProps) => {
-  const handleDelete = async (close: () => void) => {
+  const handleApprove = async (close: () => void) => {
     try {
       const fch = customFetch();
-      const { message }: any = await fch.del(path);
+      const { message }: any = await fch.patch(path, { status });
       toaster.success(message);
       update();
     } catch (error) {
@@ -34,10 +34,10 @@ export const ConfirmDialog = ({
     close();
   };
 
-  const handleApprove = async (close: () => void) => {
+  const handleDelete = async (close: () => void) => {
     try {
       const fch = customFetch();
-      const { message }: any = await fch.patch(path, { status });
+      const { message }: any = await fch.del(path);
       toaster.success(message);
       update();
     } catch (error) {

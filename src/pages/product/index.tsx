@@ -12,6 +12,7 @@ import {
   EditIcon,
   EndorsedIcon,
   IconButton,
+  LabelIcon,
   Pane,
   Table,
   TrashIcon,
@@ -35,7 +36,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 
   const getAllProducts = async () => {
     const fch = customFetch();
-    const { data }: any = await fch.get('/users');
+    const { data }: any = await fch.get('/products');
     setProducts(data);
   };
 
@@ -91,8 +92,15 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="edit"
                       title="edit"
                       icon={EditIcon}
+                      disabled={status !== ProductStatus.CREATED}
                     />
                   </Link>
+                  <IconButton
+                    type="button"
+                    name="info"
+                    title="info"
+                    icon={LabelIcon}
+                  />
                   {profile.role === Role.OPERATOR ? (
                     <IconButton
                       type="button"
