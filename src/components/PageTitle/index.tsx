@@ -22,8 +22,13 @@ export const PageTitle = ({ title, link, hasAddButton }: PageTitleProps) => {
       </Heading>
       {hasAddButton && (
         <Link href={link || ''}>
-          <Button appearance="primary" size="large" iconAfter={<PlusIcon />}>
-            Add New
+          <Button
+            appearance="primary"
+            type="button"
+            name="add"
+            iconAfter={<PlusIcon />}
+          >
+            Add
           </Button>
         </Link>
       )}

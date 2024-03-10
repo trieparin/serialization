@@ -2,6 +2,7 @@ import { PageTitle, SaveCancel } from '@/components';
 import { db, temp } from '@/firebase/config';
 import { checkPassword, regExPassword } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
+import { IFormAction } from '@/models/form.model';
 import { Role } from '@/models/user.model';
 import {
   Pane,
@@ -19,15 +20,10 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, FocusEvent, useReducer } from 'react';
+import { FocusEvent, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 
-interface FormAction {
-  type: string;
-  payload: string;
-}
-
-const formReducer = (state: object, action: FormAction) => {
+const formReducer = (state: object, action: IFormAction) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_password':
@@ -89,8 +85,8 @@ export default function UserCreate() {
       router.push('/user');
     } catch (error) {
       toaster.danger('An error occurred');
+      reset();
     }
-    reset();
   };
 
   return (
@@ -128,7 +124,6 @@ export default function UserCreate() {
                     type: 'set_password',
                     payload: event.currentTarget.value,
                   });
-                  setValue('password', event.currentTarget.value);
                 },
               })}
               isInvalid={!!state.password && !checkPassword(state.password)}
@@ -156,7 +151,6 @@ export default function UserCreate() {
                     type: 'set_pwd',
                     payload: event.currentTarget.value,
                   });
-                  setValue('pwd', event.currentTarget.value);
                 },
               })}
               isInvalid={!!state.pwd && state.pwd !== state.password}
@@ -197,12 +191,7 @@ export default function UserCreate() {
               label="Role"
               id="role"
               defaultValue={defaultValues?.role}
-              {...register('role', {
-                required: true,
-                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
-                  setValue('role', event.currentTarget.value as Role);
-                },
-              })}
+              {...register('role', { required: true })}
             >
               {Object.values(Role).map((role) => (
                 <option key={role} value={role}>

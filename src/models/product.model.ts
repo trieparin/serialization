@@ -6,14 +6,21 @@ export enum ProductType {
   SPECIALLY_CONTROLLED_DRUG = 'Specially Controlled Drug',
 }
 
-export interface IActiveIngredient {
-  name: string;
+export enum ProductStatus {
+  CREATED = 'Created',
+  APPROVED = 'Approved',
+  SERIALIZED = 'Serialized',
+}
+
+export interface IIngredient {
+  ingredient: string;
   quantity: number;
   uom: string;
 }
 
 export interface IProduct {
-  regNo: string;
+  id?: string;
+  register: string;
   name: string;
   type: ProductType;
   batch: string;
@@ -22,5 +29,6 @@ export interface IProduct {
   manufacturer: string;
   mfd: string;
   exp: string;
-  activeIngredients: IActiveIngredient[];
+  ingredients: IIngredient[];
+  status: ProductStatus;
 }

@@ -19,7 +19,7 @@ export default async function handler(
     case 'PATCH':
       try {
         const { id } = req.query;
-        const { data } = req.body;
+        const data = req.body;
         await updateDoc(doc(db, 'users', id as string), data);
         res.status(200).json({ message: 'Update user info successfully' });
       } catch (e) {
