@@ -10,6 +10,7 @@ import {
   regExPassword,
 } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
+import { IFormAction } from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Pane,
@@ -23,19 +24,15 @@ import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
-import { ChangeEvent, FocusEvent, useContext, useReducer } from 'react';
+import { FocusEvent, useContext, useReducer } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface UserInfoProps {
   params: ParsedUrlQuery;
   data: IUser;
 }
-interface FormAction {
-  type: string;
-  payload: string;
-}
 
-const formReducer = (state: object, action: FormAction) => {
+const formReducer = (state: object, action: IFormAction) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_password':
@@ -80,7 +77,11 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   const formSubmit = async () => {
     try {
       const { password, firstName, lastName, role } = getValues();
-      const data = formChangeValue(dirtyFields, { firstName, lastName, role });
+      const data: any = formChangeValue(dirtyFields, {
+        firstName,
+        lastName,
+        role,
+      });
       const fch = customFetch();
       if (data.firstName || data.lastName || data.role) {
         const { message }: any = await fch.patch(`/users/${params.id}`, {
@@ -133,7 +134,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
                     type: 'set_password',
                     payload: event.currentTarget.value,
                   });
-                  setValue('password', event.currentTarget.value);
                 },
               })}
               isInvalid={!!state.password && !checkPassword(state.password)}
@@ -160,7 +160,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
                     type: 'set_pwd',
                     payload: event.currentTarget.value,
                   });
-                  setValue('pwd', event.currentTarget.value);
                 },
               })}
               isInvalid={!!state.pwd && state.pwd !== state.password}
@@ -205,9 +204,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
                 required: true,
                 disabled: profile.role !== Role.ADMIN,
                 validate: () => formHasChange(dirtyFields),
-                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
-                  setValue('role', event.currentTarget.value as Role);
-                },
               })}
             >
               {Object.values(Role).map((role) => (
