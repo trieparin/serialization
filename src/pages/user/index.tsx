@@ -49,10 +49,8 @@ export default function UserPage({ data }: { data: IUser[] }) {
     switch (role) {
       case Role.OPERATOR:
         return <Badge color="yellow">{role}</Badge>;
-        break;
       case Role.SUPERVISOR:
         return <Badge color="orange">{role}</Badge>;
-        break;
       default:
         return <Badge color="red">{role}</Badge>;
     }
@@ -63,51 +61,47 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Table overflowX="auto">
         <Table.Head paddingRight={0}>
-          <Table.Row flexBasis="100%" backgroundColor="#F9FAFC" height="auto">
-            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Role</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
-          </Table.Row>
+          <Table.SearchHeaderCell placeholder="Search Email..." />
+          <Table.TextHeaderCell>Email</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Role</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
-          {users?.map(
-            ({ uid, firstName, lastName, email, role }, index: number) => (
-              <Table.Row key={uid}>
-                <Table.TextCell>{index + 1}</Table.TextCell>
-                <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
-                <Table.TextCell>{email}</Table.TextCell>
-                <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
-                <Table.TextCell>
-                  <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link href={`/user/info/${uid}`}>
-                      <IconButton
-                        type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                      />
-                    </Link>
+          {users?.map(({ uid, email, firstName, lastName, role }, index) => (
+            <Table.Row key={uid}>
+              <Table.TextCell>{index + 1}</Table.TextCell>
+              <Table.TextCell>{email}</Table.TextCell>
+              <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
+              <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
+              <Table.Cell>
+                <Pane display="flex" columnGap={majorScale(1)}>
+                  <Link href={`/user/info/${uid}`}>
                     <IconButton
                       type="button"
-                      name="delete"
-                      title="delete"
-                      intent="danger"
-                      icon={TrashIcon}
-                      disabled={uid === profile.uid}
-                      onClick={() => {
-                        openDialog(
-                          uid,
-                          `Confirm delete "${firstName} ${lastName}"?`
-                        );
-                      }}
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
                     />
-                  </Pane>
-                </Table.TextCell>
-              </Table.Row>
-            )
-          )}
+                  </Link>
+                  <IconButton
+                    type="button"
+                    name="delete"
+                    title="delete"
+                    intent="danger"
+                    icon={TrashIcon}
+                    disabled={uid === profile.uid}
+                    onClick={() => {
+                      openDialog(
+                        uid,
+                        `Confirm delete "${firstName} ${lastName}"?`
+                      );
+                    }}
+                  />
+                </Pane>
+              </Table.Cell>
+            </Table.Row>
+          ))}
         </Table.Body>
       </Table>
       <ConfirmDialog

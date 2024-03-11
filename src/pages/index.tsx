@@ -60,6 +60,7 @@ export default function Home() {
         background="tint1"
         position="relative"
         width="40%"
+        minWidth="max-content"
         padding={majorScale(5)}
       >
         <Pane is="fieldset" border="none" disabled={isSubmitting}>

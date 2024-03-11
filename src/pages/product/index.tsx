@@ -55,10 +55,8 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     switch (status) {
       case ProductStatus.SERIALIZED:
         return <Badge color="green">{status}</Badge>;
-        break;
       case ProductStatus.APPROVED:
         return <Badge color="purple">{status}</Badge>;
-        break;
       default:
         return <Badge color="blue">{status}</Badge>;
     }
@@ -69,24 +67,22 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       <PageTitle title="All Products" link="/product/create" hasAddButton />
       <Table overflowX="auto">
         <Table.Head paddingRight={0}>
-          <Table.Row flexBasis="100%" backgroundColor="#F9FAFC" height="auto">
-            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Batch</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
-          </Table.Row>
+          <Table.SearchHeaderCell placeholder="Search Batch ID..." />
+          <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Status</Table.TextHeaderCell>
+          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
         </Table.Head>
         <Table.Body>
           {products.map(({ id, batch, name, size, unit, status }, index) => (
             <Table.Row key={id}>
               <Table.TextCell>{index + 1}</Table.TextCell>
-              <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{batch}</Table.TextCell>
+              <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
               <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-              <Table.TextCell>
+              <Table.Cell>
                 <Pane display="flex" columnGap={majorScale(1)}>
                   <Link href={`/product/info/${id}`}>
                     <IconButton
@@ -147,7 +143,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                     </>
                   )}
                 </Pane>
-              </Table.TextCell>
+              </Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
