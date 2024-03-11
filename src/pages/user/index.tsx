@@ -1,19 +1,18 @@
-import { PageTitle } from '@/components';
+import { ConfirmDialog, PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { db } from '@/firebase/config';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { IUser } from '@/models/user.model';
+import { IUser, Role } from '@/models/user.model';
 import {
-  Dialog,
+  Badge,
   EditIcon,
   IconButton,
   Pane,
   Table,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
@@ -26,8 +25,8 @@ export default function UserPage({ data }: { data: IUser[] }) {
   const [users, setUsers] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
-    message: '',
     uid: '',
+    message: '',
   });
 
   const getAllUsers = async () => {
@@ -36,18 +35,27 @@ export default function UserPage({ data }: { data: IUser[] }) {
     setUsers(data);
   };
 
-  const handleDelete = async (close: () => void) => {
+  const openDialog = (uid: string, message: string) => {
     startLoading();
-    try {
-      const fch = customFetch();
-      const { message }: any = await fch.del(`/users/${dialogOption.uid}`);
-      toaster.success(message);
-      getAllUsers();
-    } catch (error) {
-      toaster.danger('An error occurred');
-    }
+    setDialogOption({
+      open: true,
+      uid,
+      message,
+    });
     stopLoading();
-    close();
+  };
+
+  const renderRole = (role: string) => {
+    switch (role) {
+      case Role.OPERATOR:
+        return <Badge color="yellow">{role}</Badge>;
+        break;
+      case Role.SUPERVISOR:
+        return <Badge color="orange">{role}</Badge>;
+        break;
+      default:
+        return <Badge color="red">{role}</Badge>;
+    }
   };
 
   return (
@@ -68,7 +76,7 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{email}</Table.TextCell>
-                <Table.TextCell>{role}</Table.TextCell>
+                <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
                 <Table.TextCell>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <Link href={`/user/info/${uid}`}>
@@ -86,13 +94,12 @@ export default function UserPage({ data }: { data: IUser[] }) {
                       intent="danger"
                       icon={TrashIcon}
                       disabled={uid === profile.uid}
-                      onClick={() =>
-                        setDialogOption({
-                          open: true,
-                          message: `Confirm delete "${firstName} ${lastName}"?`,
+                      onClick={() => {
+                        openDialog(
                           uid,
-                        })
-                      }
+                          `Confirm delete "${firstName} ${lastName}"?`
+                        );
+                      }}
                     />
                   </Pane>
                 </Table.TextCell>
@@ -101,24 +108,15 @@ export default function UserPage({ data }: { data: IUser[] }) {
           )}
         </Table.Body>
       </Table>
-      <Dialog
-        isShown={dialogOption.open}
-        hasClose={false}
-        title="Confirmation"
-        intent="danger"
-        confirmLabel="Delete"
-        isConfirmLoading={loading}
-        onConfirm={(close) => handleDelete(close)}
-        onCloseComplete={() =>
-          setDialogOption({
-            open: false,
-            message: '',
-            uid: '',
-          })
-        }
-      >
-        {dialogOption.message}
-      </Dialog>
+      <ConfirmDialog
+        approve={false}
+        open={dialogOption.open}
+        loading={loading}
+        message={dialogOption.message}
+        path={`/users/${dialogOption.uid}`}
+        update={getAllUsers}
+        reset={() => setDialogOption({ open: false, uid: '', message: '' })}
+      />
     </BaseLayout>
   );
 }

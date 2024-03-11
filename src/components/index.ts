@@ -1,3 +1,4 @@
+export * from './ConfirmDialog';
 export * from './Logo';
 export * from './NavLink';
 export * from './PageTitle';

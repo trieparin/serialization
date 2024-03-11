@@ -40,7 +40,7 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Text color="muted" size={300} textTransform="uppercase">
+        <Text color="white" size={300} textTransform="uppercase">
           DPU | WE 670 Project
         </Text>
         <Pane display="flex" alignItems="center">
@@ -60,9 +60,12 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
                     appearance="minimal"
                     type="button"
                     name="logout"
-                    justifyContent="flex-start"
+                    textAlign="left"
+                    display="block"
                     width="100%"
                     paddingX={0}
+                    border={0}
+                    borderRadius={0}
                     onClick={handleLogout}
                   >
                     <Menu.Item>Logout</Menu.Item>
@@ -75,6 +78,7 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
               color="white"
               size="small"
               marginLeft={minorScale(1)}
+              className="user-menu"
             >
               {profile.displayName}
             </TextDropdownButton>

@@ -1,4 +1,4 @@
-import { PageTitle } from '@/components';
+import { ConfirmDialog, PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { db } from '@/firebase/config';
@@ -7,16 +7,16 @@ import { BaseLayout } from '@/layouts';
 import { IProduct, ProductStatus } from '@/models/product.model';
 import { Role } from '@/models/user.model';
 import {
+  Badge,
   BarcodeIcon,
-  Dialog,
   EditIcon,
   EndorsedIcon,
   IconButton,
+  LabelIcon,
   Pane,
   Table,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
@@ -29,28 +29,39 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   const [products, setProducts] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
-    message: '',
+    approve: false,
     id: '',
+    message: '',
   });
 
   const getAllProducts = async () => {
     const fch = customFetch();
-    const { data }: any = await fch.get('/users');
+    const { data }: any = await fch.get('/products');
     setProducts(data);
   };
 
-  const handleDelete = async (close: () => void) => {
+  const openDialog = (approve: boolean, id: string, message: string) => {
     startLoading();
-    try {
-      const fch = customFetch();
-      const { message }: any = await fch.del(`/products/${dialogOption.id}`);
-      toaster.success(message);
-      getAllProducts();
-    } catch (error) {
-      toaster.danger('An error occurred');
-    }
+    setDialogOption({
+      open: true,
+      approve,
+      id,
+      message,
+    });
     stopLoading();
-    close();
+  };
+
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case ProductStatus.SERIALIZED:
+        return <Badge color="green">{status}</Badge>;
+        break;
+      case ProductStatus.APPROVED:
+        return <Badge color="purple">{status}</Badge>;
+        break;
+      default:
+        return <Badge color="blue">{status}</Badge>;
+    }
   };
 
   return (
@@ -72,7 +83,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
               <Table.TextCell>{name}</Table.TextCell>
               <Table.TextCell>{batch}</Table.TextCell>
               <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
-              <Table.TextCell>{status}</Table.TextCell>
+              <Table.TextCell>{renderStatus(status)}</Table.TextCell>
               <Table.TextCell>
                 <Pane display="flex" columnGap={majorScale(1)}>
                   <Link href={`/product/info/${id}`}>
@@ -81,8 +92,15 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="edit"
                       title="edit"
                       icon={EditIcon}
+                      disabled={status !== ProductStatus.CREATED}
                     />
                   </Link>
+                  <IconButton
+                    type="button"
+                    name="info"
+                    title="info"
+                    icon={LabelIcon}
+                  />
                   {profile.role === Role.OPERATOR ? (
                     <IconButton
                       type="button"
@@ -101,6 +119,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                         intent="success"
                         icon={EndorsedIcon}
                         disabled={status !== ProductStatus.CREATED}
+                        onClick={() => {
+                          openDialog(
+                            true,
+                            id as string,
+                            `Confirm approve "${batch} : ${name}"?`
+                          );
+                        }}
                       />
                       <IconButton
                         type="button"
@@ -109,13 +134,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                         intent="danger"
                         icon={TrashIcon}
                         disabled={status === ProductStatus.SERIALIZED}
-                        onClick={() =>
-                          setDialogOption({
-                            open: true,
-                            message: `Confirm delete "${batch} : ${name}"?`,
-                            id: id as string,
-                          })
-                        }
+                        onClick={() => {
+                          openDialog(
+                            false,
+                            id as string,
+                            `Confirm delete "${batch} : ${name}"?`
+                          );
+                        }}
                       />
                     </>
                   )}
@@ -125,24 +150,17 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
           ))}
         </Table.Body>
       </Table>
-      <Dialog
-        isShown={dialogOption.open}
-        hasClose={false}
-        title="Confirmation"
-        intent="danger"
-        confirmLabel="Delete"
-        isConfirmLoading={loading}
-        onConfirm={(close) => handleDelete(close)}
-        onCloseComplete={() =>
-          setDialogOption({
-            open: false,
-            message: '',
-            id: '',
-          })
-        }
-      >
-        {dialogOption.message}
-      </Dialog>
+      <ConfirmDialog
+        open={dialogOption.open}
+        approve={dialogOption.approve}
+        loading={loading}
+        message={dialogOption.message}
+        path={`/products/${dialogOption.id}`}
+        update={getAllProducts}
+        reset={() => {
+          setDialogOption({ open: false, approve: false, id: '', message: '' });
+        }}
+      />
     </BaseLayout>
   );
 }

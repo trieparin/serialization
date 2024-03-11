@@ -14,6 +14,7 @@ export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
       alignItems="center"
       justifyContent="center"
       columnGap={majorScale(1)}
+      marginBottom={majorScale(2)}
     >
       <Button type="reset" name="reset" onClick={() => router.back()}>
         Cancel
