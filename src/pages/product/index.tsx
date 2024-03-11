@@ -67,14 +67,16 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
-      <Table>
+      <Table overflowX="auto">
         <Table.Head paddingRight={0}>
-          <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Batch</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Row flexBasis="100%" backgroundColor="#F9FAFC" height="auto">
+            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Batch</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          </Table.Row>
         </Table.Head>
         <Table.Body>
           {products.map(({ id, batch, name, size, unit, status }, index) => (

@@ -61,13 +61,15 @@ export default function UserPage({ data }: { data: IUser[] }) {
   return (
     <BaseLayout>
       <PageTitle title="All Users" link="/user/create" hasAddButton />
-      <Table>
+      <Table overflowX="auto">
         <Table.Head paddingRight={0}>
-          <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Email</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Role</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Row flexBasis="100%" backgroundColor="#F9FAFC" height="auto">
+            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Role</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          </Table.Row>
         </Table.Head>
         <Table.Body>
           {users?.map(
