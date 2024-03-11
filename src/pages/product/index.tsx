@@ -9,6 +9,7 @@ import { Role } from '@/models/user.model';
 import {
   Badge,
   BarcodeIcon,
+  Dialog,
   EditIcon,
   EndorsedIcon,
   IconButton,
@@ -27,6 +28,10 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
   const [products, setProducts] = useState(data);
+  const [viewInfo, setViewInfo] = useState({
+    open: false,
+    id: '',
+  });
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
@@ -112,6 +117,9 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="info"
                       title="info"
                       icon={LabelIcon}
+                      onClick={() => {
+                        setViewInfo({ open: true, id: id as string });
+                      }}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -182,6 +190,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         }}
         status={dialogOption.status}
       />
+      <Dialog
+        isShown={viewInfo.open}
+        hasClose={false}
+        hasCancel={false}
+        title="Product Info"
+        confirmLabel="Close"
+        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
+      ></Dialog>
     </BaseLayout>
   );
 }
