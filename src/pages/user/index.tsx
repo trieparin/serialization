@@ -59,51 +59,53 @@ export default function UserPage({ data }: { data: IUser[] }) {
   return (
     <BaseLayout>
       <PageTitle title="All Users" link="/user/create" hasAddButton />
-      <Table overflowX="auto">
-        <Table.Head paddingRight={0}>
-          <Table.SearchHeaderCell placeholder="Search Email..." />
-          <Table.TextHeaderCell>Email</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Role</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
-        </Table.Head>
-        <Table.Body>
-          {users?.map(({ uid, email, firstName, lastName, role }, index) => (
-            <Table.Row key={uid}>
-              <Table.TextCell>{index + 1}</Table.TextCell>
-              <Table.TextCell>{email}</Table.TextCell>
-              <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
-              <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
-              <Table.Cell>
-                <Pane display="flex" columnGap={majorScale(1)}>
-                  <Link href={`/user/info/${uid}`}>
+      <Pane overflowX="auto">
+        <Table minWidth="max-content">
+          <Table.Head minWidth={1214} paddingRight={0}>
+            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Role</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          </Table.Head>
+          <Table.Body>
+            {users?.map(({ uid, email, firstName, lastName, role }, index) => (
+              <Table.Row key={uid}>
+                <Table.TextCell>{index + 1}</Table.TextCell>
+                <Table.TextCell>{email}</Table.TextCell>
+                <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
+                <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
+                <Table.Cell>
+                  <Pane display="flex" columnGap={majorScale(1)}>
+                    <Link href={`/user/info/${uid}`}>
+                      <IconButton
+                        type="button"
+                        name="edit"
+                        title="edit"
+                        icon={EditIcon}
+                      />
+                    </Link>
                     <IconButton
                       type="button"
-                      name="edit"
-                      title="edit"
-                      icon={EditIcon}
+                      name="delete"
+                      title="delete"
+                      intent="danger"
+                      icon={TrashIcon}
+                      disabled={uid === profile.uid}
+                      onClick={() => {
+                        openDialog(
+                          uid,
+                          `Confirm delete "${firstName} ${lastName}"?`
+                        );
+                      }}
                     />
-                  </Link>
-                  <IconButton
-                    type="button"
-                    name="delete"
-                    title="delete"
-                    intent="danger"
-                    icon={TrashIcon}
-                    disabled={uid === profile.uid}
-                    onClick={() => {
-                      openDialog(
-                        uid,
-                        `Confirm delete "${firstName} ${lastName}"?`
-                      );
-                    }}
-                  />
-                </Pane>
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+                  </Pane>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </Pane>
       <ConfirmDialog
         approve={false}
         open={dialogOption.open}
