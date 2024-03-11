@@ -8,9 +8,9 @@ interface ConfirmDialogProps {
   loading: boolean;
   message: string;
   path: string;
+  status: string;
   update: () => void;
   reset: () => void;
-  status?: string;
 }
 
 export const ConfirmDialog = ({
@@ -19,9 +19,9 @@ export const ConfirmDialog = ({
   loading,
   message,
   path,
+  status,
   update,
   reset,
-  status,
 }: ConfirmDialogProps) => {
   const handleApprove = async (close: () => void) => {
     try {

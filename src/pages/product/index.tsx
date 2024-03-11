@@ -32,6 +32,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     approve: false,
     id: '',
     message: '',
+    status: '',
   });
 
   const getAllProducts = async () => {
@@ -40,13 +41,19 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openDialog = (approve: boolean, id: string, message: string) => {
+  const openDialog = (
+    approve: boolean,
+    id: string,
+    message: string,
+    status?: string
+  ) => {
     startLoading();
     setDialogOption({
       open: true,
       approve,
       id,
       message,
+      status: status || '',
     });
     stopLoading();
   };
@@ -85,7 +92,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link href={`/product/info/${id}`}>
+                    <Link
+                      href={
+                        status === ProductStatus.CREATED
+                          ? `/product/info/${id}`
+                          : ''
+                      }
+                    >
                       <IconButton
                         type="button"
                         name="edit"
@@ -122,7 +135,8 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                             openDialog(
                               true,
                               id as string,
-                              `Confirm approve "${batch} : ${name}"?`
+                              `Confirm approve "${batch} : ${name}"?`,
+                              ProductStatus.APPROVED
                             );
                           }}
                         />
@@ -158,8 +172,15 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         path={`/products/${dialogOption.id}`}
         update={getAllProducts}
         reset={() => {
-          setDialogOption({ open: false, approve: false, id: '', message: '' });
+          setDialogOption({
+            open: false,
+            approve: false,
+            id: '',
+            message: '',
+            status: '',
+          });
         }}
+        status={dialogOption.status}
       />
     </BaseLayout>
   );
