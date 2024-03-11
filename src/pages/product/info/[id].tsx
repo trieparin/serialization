@@ -3,7 +3,7 @@ import { db } from '@/firebase/config';
 import customFetch from '@/helpers/fetch.helper';
 import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
-import { IFormAction } from '@/models/form.model';
+import { IFormAction, IFormMessage } from '@/models/form.model';
 import { IProduct, ProductType } from '@/models/product.model';
 import {
   Heading,
@@ -79,9 +79,12 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
 
   const formSubmit = async () => {
     try {
-      const data: any = formChangeValue(dirtyFields, getValues());
+      const data: object = formChangeValue(dirtyFields, getValues());
       const fch = customFetch();
-      const { message }: any = await fch.patch(`/products/${params.id}`, data);
+      const { message }: IFormMessage = await fch.patch(
+        `/products/${params.id}`,
+        data
+      );
       toaster.success(message);
       router.push('/product');
     } catch (error) {

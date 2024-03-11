@@ -18,7 +18,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const checkLogin = async () => {
       try {
         const fch = customFetch();
-        const res: any = await fch.get('/auth/check');
+        const res: IUser = await fch.get('/auth/check');
         const { uid, email, displayName, firstName, lastName, role } = res;
         setProfile({
           uid,

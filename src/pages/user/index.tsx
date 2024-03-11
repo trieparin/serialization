@@ -31,7 +31,7 @@ export default function UserPage({ data }: { data: IUser[] }) {
 
   const getAllUsers = async () => {
     const fch = customFetch();
-    const { data }: any = await fch.get('/users');
+    const { data }: { data: IUser[] } = await fch.get('/users');
     setUsers(data);
   };
 

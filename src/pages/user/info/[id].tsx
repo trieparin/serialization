@@ -10,7 +10,7 @@ import {
   regExPassword,
 } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
-import { IFormAction } from '@/models/form.model';
+import { IFormAction, IFormMessage } from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Pane,
@@ -77,18 +77,21 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   const formSubmit = async () => {
     try {
       const { password, firstName, lastName, role } = getValues();
-      const data: any = formChangeValue(dirtyFields, {
+      const data: Record<string, string> = formChangeValue(dirtyFields, {
         firstName,
         lastName,
         role,
       });
       const fch = customFetch();
       if (data.firstName || data.lastName || data.role) {
-        const { message }: any = await fch.patch(`/users/${params.id}`, data);
+        const { message }: IFormMessage = await fch.patch(
+          `/users/${params.id}`,
+          data
+        );
         toaster.success(message);
       }
       if (password) {
-        const { message }: any = await fch.put(`/auth`, { password });
+        const { message }: IFormMessage = await fch.put(`/auth`, { password });
         toaster.success(message, {
           description: 'Please sign in again',
         });

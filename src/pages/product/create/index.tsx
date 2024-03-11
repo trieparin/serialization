@@ -1,7 +1,7 @@
 import { PageTitle, SaveCancel } from '@/components';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { IFormAction } from '@/models/form.model';
+import { IFormAction, IFormMessage } from '@/models/form.model';
 import { ProductStatus, ProductType } from '@/models/product.model';
 import {
   Heading,
@@ -84,7 +84,7 @@ export default function ProductCreate() {
     try {
       const data = getValues();
       const fch = customFetch();
-      const { message }: any = await fch.post(`/products`, data);
+      const { message }: IFormMessage = await fch.post(`/products`, data);
       toaster.success(message);
       router.push('/product');
     } catch (error) {

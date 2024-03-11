@@ -41,7 +41,10 @@ export default function Home() {
     try {
       const { email, password } = getValues();
       const fch = customFetch();
-      const { data }: any = await fch.post('/auth', { email, password });
+      const { data }: { data: string } = await fch.post('/auth', {
+        email,
+        password,
+      });
       setCookie('token', data, 1000 * 60 * 60);
       checkLogin();
     } catch (error) {

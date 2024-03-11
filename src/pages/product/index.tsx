@@ -36,7 +36,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 
   const getAllProducts = async () => {
     const fch = customFetch();
-    const { data }: any = await fch.get('/products');
+    const { data }: { data: IProduct[] } = await fch.get('/products');
     setProducts(data);
   };
 
