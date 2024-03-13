@@ -1,4 +1,4 @@
-import { ConfirmDialog, PageTitle } from '@/components';
+import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { db } from '@/firebase/config';
@@ -28,16 +28,16 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
   const [products, setProducts] = useState(data);
-  const [viewInfo, setViewInfo] = useState({
-    open: false,
-    id: '',
-  });
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
     id: '',
     message: '',
     status: '',
+  });
+  const [viewInfo, setViewInfo] = useState({
+    open: false,
+    info: {},
   });
 
   const getAllProducts = async () => {
@@ -60,6 +60,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       message,
       status: status || '',
     });
+    stopLoading();
+  };
+
+  const openInfo = async (path: string) => {
+    startLoading();
+    const fch = customFetch();
+    const { data }: { data: IProduct } = await fch.get(path);
+    setViewInfo({ open: true, info: data });
     stopLoading();
   };
 
@@ -117,9 +125,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="info"
                       title="info"
                       icon={LabelIcon}
-                      onClick={() => {
-                        setViewInfo({ open: true, id: id as string });
-                      }}
+                      onClick={() => openInfo(`/products/${id}`)}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -196,8 +202,10 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
-      ></Dialog>
+        onCloseComplete={() => setViewInfo({ open: false, info: {} })}
+      >
+        <ViewInfo info={viewInfo.info} />
+      </Dialog>
     </BaseLayout>
   );
 }
