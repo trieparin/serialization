@@ -37,6 +37,12 @@ a:visited {
   text-decoration: none;
 }
 
+#logo {
+  font-family: var(--font-barcode) !important;
+  font-size: var(--size-3) !important;
+  line-height: 1;
+}
+
 .container {
   width: 100%;
   padding-left: var(--size-2);
@@ -47,21 +53,15 @@ a:visited {
   fill: white;
 }
 
-#logo {
-  font-family: var(--font-barcode) !important;
-  font-size: var(--size-3) !important;
-  line-height: 1;
-}
-
 @media only screen and (min-width: 1024px) {
+  #logo {
+    font-size: var(--size-4) !important;
+  }
+
   .container {
     max-width: 128rem;
     padding-left: var(--size-4);
     padding-right: var(--size-4);
     margin: 0 auto;
-  }
-
-  #logo {
-    font-size: var(--size-4) !important;
   }
 }

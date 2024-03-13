@@ -41,7 +41,10 @@ export default function Home() {
     try {
       const { email, password } = getValues();
       const fch = customFetch();
-      const { data }: any = await fch.post('/auth', { email, password });
+      const { data }: { data: string } = await fch.post('/auth', {
+        email,
+        password,
+      });
       setCookie('token', data, 1000 * 60 * 60);
       checkLogin();
     } catch (error) {
@@ -57,6 +60,7 @@ export default function Home() {
         background="tint1"
         position="relative"
         width="40%"
+        minWidth="max-content"
         padding={majorScale(5)}
       >
         <Pane is="fieldset" border="none" disabled={isSubmitting}>

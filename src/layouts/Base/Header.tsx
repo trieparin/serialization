@@ -7,7 +7,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
     <Pane
       is="header"
       elevation={1}
-      background="tint2"
+      background="tint1"
       position="sticky"
       top={0}
       zIndex={1}
@@ -24,7 +24,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
           is="nav"
           display="flex"
           alignItems="center"
-          columnGap={majorScale(2)}
+          columnGap={majorScale(1)}
         >
           {profile.role === Role.ADMIN ? (
             <NavLink href="/user">Users</NavLink>

@@ -1,4 +1,5 @@
 import customFetch from '@/helpers/fetch.helper';
+import { IFormMessage } from '@/models/form.model';
 import { Dialog, toaster } from 'evergreen-ui';
 
 interface ConfirmDialogProps {
@@ -7,9 +8,9 @@ interface ConfirmDialogProps {
   loading: boolean;
   message: string;
   path: string;
+  status: string;
   update: () => void;
   reset: () => void;
-  status?: string;
 }
 
 export const ConfirmDialog = ({
@@ -18,14 +19,16 @@ export const ConfirmDialog = ({
   loading,
   message,
   path,
+  status,
   update,
   reset,
-  status,
 }: ConfirmDialogProps) => {
   const handleApprove = async (close: () => void) => {
     try {
       const fch = customFetch();
-      const { message }: any = await fch.patch(path, { status });
+      const { message }: IFormMessage = await fch.patch(path, {
+        status,
+      });
       toaster.success(message);
       update();
     } catch (error) {
@@ -37,7 +40,7 @@ export const ConfirmDialog = ({
   const handleDelete = async (close: () => void) => {
     try {
       const fch = customFetch();
-      const { message }: any = await fch.del(path);
+      const { message }: IFormMessage = await fch.del(path);
       toaster.success(message);
       update();
     } catch (error) {

@@ -9,6 +9,7 @@ import { Role } from '@/models/user.model';
 import {
   Badge,
   BarcodeIcon,
+  Dialog,
   EditIcon,
   EndorsedIcon,
   IconButton,
@@ -27,26 +28,37 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const { profile } = useContext(UserContext);
   const [products, setProducts] = useState(data);
+  const [viewInfo, setViewInfo] = useState({
+    open: false,
+    id: '',
+  });
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
     id: '',
     message: '',
+    status: '',
   });
 
   const getAllProducts = async () => {
     const fch = customFetch();
-    const { data }: any = await fch.get('/products');
+    const { data }: { data: IProduct[] } = await fch.get('/products');
     setProducts(data);
   };
 
-  const openDialog = (approve: boolean, id: string, message: string) => {
+  const openDialog = (
+    approve: boolean,
+    id: string,
+    message: string,
+    status?: string
+  ) => {
     startLoading();
     setDialogOption({
       open: true,
       approve,
       id,
       message,
+      status: status || '',
     });
     stopLoading();
   };
@@ -55,10 +67,8 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     switch (status) {
       case ProductStatus.SERIALIZED:
         return <Badge color="green">{status}</Badge>;
-        break;
       case ProductStatus.APPROVED:
         return <Badge color="purple">{status}</Badge>;
-        break;
       default:
         return <Badge color="blue">{status}</Badge>;
     }
@@ -67,89 +77,101 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
-      <Table>
-        <Table.Head paddingRight={0}>
-          <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Batch</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-          <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
-        </Table.Head>
-        <Table.Body>
-          {products.map(({ id, batch, name, size, unit, status }, index) => (
-            <Table.Row key={id}>
-              <Table.TextCell>{index + 1}</Table.TextCell>
-              <Table.TextCell>{name}</Table.TextCell>
-              <Table.TextCell>{batch}</Table.TextCell>
-              <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
-              <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-              <Table.TextCell>
-                <Pane display="flex" columnGap={majorScale(1)}>
-                  <Link href={`/product/info/${id}`}>
-                    <IconButton
-                      type="button"
-                      name="edit"
-                      title="edit"
-                      icon={EditIcon}
-                      disabled={status !== ProductStatus.CREATED}
-                    />
-                  </Link>
-                  <IconButton
-                    type="button"
-                    name="info"
-                    title="info"
-                    icon={LabelIcon}
-                  />
-                  {profile.role === Role.OPERATOR ? (
-                    <IconButton
-                      type="button"
-                      name="barcode"
-                      title="barcode"
-                      intent="success"
-                      icon={BarcodeIcon}
-                      disabled={status !== ProductStatus.APPROVED}
-                    />
-                  ) : (
-                    <>
+      <Pane overflowX="auto">
+        <Table minWidth="max-content">
+          <Table.Head minWidth={1214} paddingRight={0}>
+            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          </Table.Head>
+          <Table.Body>
+            {products.map(({ id, batch, name, size, unit, status }, index) => (
+              <Table.Row key={id}>
+                <Table.TextCell>{index + 1}</Table.TextCell>
+                <Table.TextCell>{batch}</Table.TextCell>
+                <Table.TextCell>{name}</Table.TextCell>
+                <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
+                <Table.TextCell>{renderStatus(status)}</Table.TextCell>
+                <Table.Cell>
+                  <Pane display="flex" columnGap={majorScale(1)}>
+                    <Link
+                      href={
+                        status === ProductStatus.CREATED
+                          ? `/product/info/${id}`
+                          : ''
+                      }
+                    >
                       <IconButton
                         type="button"
-                        name="verify"
-                        title="verify"
-                        intent="success"
-                        icon={EndorsedIcon}
+                        name="edit"
+                        title="edit"
+                        icon={EditIcon}
                         disabled={status !== ProductStatus.CREATED}
-                        onClick={() => {
-                          openDialog(
-                            true,
-                            id as string,
-                            `Confirm approve "${batch} : ${name}"?`
-                          );
-                        }}
                       />
+                    </Link>
+                    <IconButton
+                      type="button"
+                      name="info"
+                      title="info"
+                      icon={LabelIcon}
+                      onClick={() => {
+                        setViewInfo({ open: true, id: id as string });
+                      }}
+                    />
+                    {profile.role === Role.OPERATOR ? (
                       <IconButton
                         type="button"
-                        name="delete"
-                        title="delete"
-                        intent="danger"
-                        icon={TrashIcon}
-                        disabled={status === ProductStatus.SERIALIZED}
-                        onClick={() => {
-                          openDialog(
-                            false,
-                            id as string,
-                            `Confirm delete "${batch} : ${name}"?`
-                          );
-                        }}
+                        name="barcode"
+                        title="barcode"
+                        intent="success"
+                        icon={BarcodeIcon}
+                        disabled={status !== ProductStatus.APPROVED}
                       />
-                    </>
-                  )}
-                </Pane>
-              </Table.TextCell>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table>
+                    ) : (
+                      <>
+                        <IconButton
+                          type="button"
+                          name="verify"
+                          title="verify"
+                          intent="success"
+                          icon={EndorsedIcon}
+                          disabled={status !== ProductStatus.CREATED}
+                          onClick={() => {
+                            openDialog(
+                              true,
+                              id as string,
+                              `Confirm approve "${batch} : ${name}"?`,
+                              ProductStatus.APPROVED
+                            );
+                          }}
+                        />
+                        <IconButton
+                          type="button"
+                          name="delete"
+                          title="delete"
+                          intent="danger"
+                          icon={TrashIcon}
+                          disabled={status === ProductStatus.SERIALIZED}
+                          onClick={() => {
+                            openDialog(
+                              false,
+                              id as string,
+                              `Confirm delete "${batch} : ${name}"?`
+                            );
+                          }}
+                        />
+                      </>
+                    )}
+                  </Pane>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      </Pane>
       <ConfirmDialog
         open={dialogOption.open}
         approve={dialogOption.approve}
@@ -158,9 +180,24 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         path={`/products/${dialogOption.id}`}
         update={getAllProducts}
         reset={() => {
-          setDialogOption({ open: false, approve: false, id: '', message: '' });
+          setDialogOption({
+            open: false,
+            approve: false,
+            id: '',
+            message: '',
+            status: '',
+          });
         }}
+        status={dialogOption.status}
       />
+      <Dialog
+        isShown={viewInfo.open}
+        hasClose={false}
+        hasCancel={false}
+        title="Product Info"
+        confirmLabel="Close"
+        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
+      ></Dialog>
     </BaseLayout>
   );
 }

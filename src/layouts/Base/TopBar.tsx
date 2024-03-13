@@ -63,9 +63,9 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
                     textAlign="left"
                     display="block"
                     width="100%"
-                    paddingX={0}
-                    border={0}
+                    border="none"
                     borderRadius={0}
+                    paddingX={0}
                     onClick={handleLogout}
                   >
                     <Menu.Item>Logout</Menu.Item>
