@@ -171,52 +171,6 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
                 },
               })}
             />
-            <TextInputField
-              label="Manufacturer"
-              type="text"
-              id="manufacturer"
-              defaultValue={defaultValues?.manufacturer}
-              {...register('manufacturer', {
-                required: true,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('manufacturer', event.currentTarget.value.trim());
-                },
-              })}
-            />
-            <TextInputField
-              label="Manufacture Date"
-              type="date"
-              id="mfd"
-              max={state.exp}
-              defaultValue={defaultValues?.mfd}
-              {...register('mfd', {
-                required: true,
-                max: state.exp,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  dispatch({
-                    type: 'set_mfd',
-                    payload: event.currentTarget.value,
-                  });
-                },
-              })}
-            />
-            <TextInputField
-              label="Expiration Date"
-              type="date"
-              id="exp"
-              min={state.mfd}
-              defaultValue={defaultValues?.exp}
-              {...register('exp', {
-                required: true,
-                min: state.mfd,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  dispatch({
-                    type: 'set_exp',
-                    payload: event.currentTarget.value,
-                  });
-                },
-              })}
-            />
           </Pane>
           <Pane
             display="flex"
@@ -287,6 +241,61 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
               )}
             </Pane>
           ))}
+          <Heading marginBottom={majorScale(2)}>
+            Manufacture Information
+          </Heading>
+          <Pane
+            display="grid"
+            gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            columnGap={majorScale(3)}
+          >
+            <TextInputField
+              label="Manufacturer"
+              type="text"
+              id="manufacturer"
+              defaultValue={defaultValues?.manufacturer}
+              {...register('manufacturer', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setValue('manufacturer', event.currentTarget.value.trim());
+                },
+              })}
+            />
+            <TextInputField
+              label="Manufacture Date"
+              type="date"
+              id="mfd"
+              max={state.exp}
+              defaultValue={defaultValues?.mfd}
+              {...register('mfd', {
+                required: true,
+                max: state.exp,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_mfd',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
+            />
+            <TextInputField
+              label="Expiration Date"
+              type="date"
+              id="exp"
+              min={state.mfd}
+              defaultValue={defaultValues?.exp}
+              {...register('exp', {
+                required: true,
+                min: state.mfd,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_exp',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
+            />
+          </Pane>
         </Pane>
         <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
       </Pane>
