@@ -1,7 +1,7 @@
 import { ConfirmDialog, PageTitle } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { db } from '@/firebase/config';
+import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IUser, Role } from '@/models/user.model';
@@ -14,14 +14,13 @@ import {
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
-import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 
 export default function UserPage({ data }: { data: IUser[] }) {
+  const profile = useContext(UserContext);
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { profile } = useContext(UserContext);
   const [users, setUsers] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
@@ -120,25 +119,25 @@ export default function UserPage({ data }: { data: IUser[] }) {
 }
 
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role !== Role.ADMIN) return { redirect: { destination: '/' } };
+
+    const data: IUser[] = [];
+    const snapshot = await db.collection('/users').get();
+    snapshot.forEach((doc) =>
+      data.push({
+        uid: doc.id,
+        ...doc.data(),
+      })
+    );
+
     return {
-      redirect: {
-        destination: '/',
+      props: {
+        data,
       },
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDocs(collection(db, 'users'));
-  const data: IUser[] = [];
-  snapshot.forEach((doc) => {
-    data.push({
-      uid: doc.id,
-      ...doc.data(),
-    });
-  });
-  return {
-    props: {
-      data,
-    },
-  };
 }

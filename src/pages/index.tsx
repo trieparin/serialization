@@ -1,7 +1,7 @@
 import { Logo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
+import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
-import customFetch from '@/helpers/fetch.helper';
 import { BlankLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -12,13 +12,14 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { FocusEvent, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Home() {
   const router = useRouter();
-  const { profile, checkLogin } = useContext(UserContext);
+  const profile = useContext(UserContext);
   const {
     reset,
     register,
@@ -40,13 +41,8 @@ export default function Home() {
   const formSubmit = async () => {
     try {
       const { email, password } = getValues();
-      const fch = customFetch();
-      const { data }: { data: string } = await fch.post('/auth', {
-        email,
-        password,
-      });
-      setCookie('token', data, 1000 * 60 * 60);
-      checkLogin();
+      await signInWithEmailAndPassword(auth, email, password);
+      setCookie('token', profile.token as string, 1000 * 60 * 60);
     } catch (error) {
       toaster.danger('Invalid email or password');
     }
