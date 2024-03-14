@@ -1,5 +1,5 @@
+import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
-import customFetch from '@/helpers/fetch.helper';
 import { IUser } from '@/models/user.model';
 import {
   Avatar,
@@ -14,6 +14,7 @@ import {
   minorScale,
   toaster,
 } from 'evergreen-ui';
+import { signOut } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -22,10 +23,9 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
 
   const handleLogout = async () => {
     try {
-      const fch = customFetch();
-      await fch.get('/auth');
-      setCookie('token', '');
+      await signOut(auth);
       router.push('/');
+      setCookie('token', '');
     } catch (error) {
       toaster.danger('An error occurred');
     }
