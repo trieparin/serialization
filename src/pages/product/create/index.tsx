@@ -1,8 +1,10 @@
 import { PageTitle, SaveCancel } from '@/components';
+import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormAction, IFormMessage } from '@/models/form.model';
 import { ProductStatus, ProductType } from '@/models/product.model';
+import { Role } from '@/models/user.model';
 import {
   Heading,
   IconButton,
@@ -303,16 +305,14 @@ export default function ProductCreate() {
   );
 }
 
-export function getServerSideProps({ req }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
     return {
-      redirect: {
-        destination: '/',
-      },
+      props: {},
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  return {
-    props: {},
-  };
 }

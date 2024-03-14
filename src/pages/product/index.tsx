@@ -1,7 +1,7 @@
 import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { db } from '@/firebase/config';
+import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IProduct, ProductStatus } from '@/models/product.model';
@@ -19,14 +19,13 @@ import {
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
-import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 
 export default function ProductPage({ data }: { data: IProduct[] }) {
+  const profile = useContext(UserContext);
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { profile } = useContext(UserContext);
   const [products, setProducts] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
@@ -58,7 +57,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       approve,
       id,
       message,
-      status: status || '',
+      status: status!,
     });
     stopLoading();
   };
@@ -211,22 +210,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 }
 
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
     return {
-      redirect: {
-        destination: '/',
-      },
+      props: {},
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDocs(collection(db, 'products'));
-  const data: IProduct[] = [];
-  snapshot.forEach((doc) => {
-    data.push({ id: doc.id, ...(doc.data() as IProduct) });
-  });
-  return {
-    props: {
-      data,
-    },
-  };
 }

@@ -1,10 +1,11 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { db } from '@/firebase/config';
+import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormAction, IFormMessage } from '@/models/form.model';
 import { IProduct, ProductType } from '@/models/product.model';
+import { Role } from '@/models/user.model';
 import {
   Heading,
   IconButton,
@@ -16,7 +17,6 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
-import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
@@ -307,20 +307,15 @@ export async function getServerSideProps({
   req,
   params,
 }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
     return {
-      redirect: {
-        destination: '/',
+      props: {
+        params,
       },
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDoc(doc(db, 'products', params?.id as string));
-  const data = snapshot.exists() && snapshot.data();
-  return {
-    props: {
-      params,
-      data,
-    },
-  };
 }
