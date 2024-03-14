@@ -15,7 +15,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         const result = await user.getIdTokenResult();
         setProfile({
           uid: user.uid,
-          displayName: user.displayName as string,
+          displayName: user.displayName!,
           role: result.claims.role as Role,
           token,
         });

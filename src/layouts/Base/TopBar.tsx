@@ -24,8 +24,8 @@ export const TopBar = ({ profile }: { profile: IUser }) => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      router.push('/');
       setCookie('token', '');
+      router.push('/');
     } catch (error) {
       toaster.danger('An error occurred');
     }

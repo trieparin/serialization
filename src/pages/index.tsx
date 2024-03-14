@@ -19,7 +19,7 @@ import { useForm } from 'react-hook-form';
 
 export default function Home() {
   const router = useRouter();
-  const profile = useContext(UserContext);
+  const { role, token } = useContext(UserContext);
   const {
     reset,
     register,
@@ -30,19 +30,19 @@ export default function Home() {
   } = useForm({ defaultValues: { email: '', password: '' } });
 
   useEffect(() => {
-    if (profile.uid) {
-      profile.role === Role.ADMIN
+    if (role) {
+      setCookie('token', token!, 1000 * 60 * 60);
+      role === Role.ADMIN
         ? router.replace('/user')
         : router.replace('/product');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
+  }, [role, token]);
 
   const formSubmit = async () => {
     try {
       const { email, password } = getValues();
       await signInWithEmailAndPassword(auth, email, password);
-      setCookie('token', profile.token as string, 1000 * 60 * 60);
     } catch (error) {
       toaster.danger('Invalid email or password');
     }

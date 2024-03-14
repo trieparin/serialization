@@ -1,49 +1,36 @@
-import { auth, db } from '@/firebase/config';
+import { admin, db } from '@/firebase/admin';
 import { IUser } from '@/models/user.model';
-import {
-  createUserWithEmailAndPassword,
-  signOut,
-  updateProfile,
-} from 'firebase/auth';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const users = db.collection('/users');
   if (req.method === 'GET') {
     try {
-      const snapshot = await getDocs(collection(db, 'users'));
-      const users: IUser[] = [];
-      snapshot.forEach((doc) => {
-        users.push({
+      const data: IUser[] = [];
+      const snapshot = await users.get();
+      snapshot.forEach((doc) =>
+        data.push({
           uid: doc.id,
           ...doc.data(),
-        });
-      });
-      res.status(200).json({ data: users });
+        })
+      );
+      res.status(200).json({ data });
     } catch (e) {
       res.status(500).json({});
     }
   } else if (req.method === 'POST') {
     try {
       const { email, password, firstName, lastName, role } = req.body;
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
+      const { uid } = await admin.createUser({
         email,
-        password
-      );
-      await updateProfile(user, {
+        password,
         displayName: `${firstName} ${lastName.charAt(0)}.`,
       });
-      await setDoc(doc(db, 'users', user.uid), {
-        email,
-        firstName,
-        lastName,
-        role,
-      });
-      await signOut(auth);
+      await admin.setCustomUserClaims(uid, { role });
+      await users.doc(uid).set({ email, firstName, lastName, role });
       res.status(201).json({ message: 'Create new user successfully' });
     } catch (e) {
       res.status(500).json({});

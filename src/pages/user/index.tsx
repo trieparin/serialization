@@ -73,7 +73,7 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
-                <Table.TextCell>{renderRole(role as string)}</Table.TextCell>
+                <Table.TextCell>{renderRole(role!)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <Link href={`/user/info/${uid}`}>
