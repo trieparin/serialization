@@ -1,5 +1,5 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { admin } from '@/firebase/admin';
+import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
@@ -310,9 +310,17 @@ export async function getServerSideProps({
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+
+    const doc = await db
+      .collection('/products')
+      .doc(params?.id as string)
+      .get();
+    const data = doc.exists && doc.data();
+
     return {
       props: {
         params,
+        data,
       },
     };
   } catch (e) {
