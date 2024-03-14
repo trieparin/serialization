@@ -1,7 +1,7 @@
 import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { admin } from '@/firebase/admin';
+import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IProduct, ProductStatus } from '@/models/product.model';
@@ -147,7 +147,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           onClick={() => {
                             openDialog(
                               true,
-                              id as string,
+                              id!,
                               `Confirm approve "${batch} : ${name}"?`,
                               ProductStatus.APPROVED
                             );
@@ -163,7 +163,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           onClick={() => {
                             openDialog(
                               false,
-                              id as string,
+                              id!,
                               `Confirm delete "${batch} : ${name}"?`
                             );
                           }}
@@ -213,8 +213,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+
+    const data: IProduct[] = [];
+    const snapshot = await db.collection('/products').get();
+    snapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...(doc.data() as IProduct) });
+    });
+
     return {
-      props: {},
+      props: {
+        data,
+      },
     };
   } catch (e) {
     return { redirect: { destination: '/' } };
