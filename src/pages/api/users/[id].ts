@@ -31,6 +31,14 @@ export default async function handler(
         const { id } = req.query;
         const data = req.body;
         await users.doc(id as string).update(data);
+        if (data.displayName) {
+          await admin.updateUser(id as string, {
+            displayName: data.displayName,
+          });
+        }
+        if (data.role) {
+          await admin.setCustomUserClaims(id as string, { role: data.role });
+        }
         res.status(200).json({ message: 'Update user info successfully' });
       } catch (e) {
         res.status(500).json({});

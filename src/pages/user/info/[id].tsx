@@ -87,6 +87,13 @@ export default function UserInfo({ params, data }: UserInfoProps) {
       if (Object.keys(change).length) {
         delete change.password;
         delete change.pwd;
+        const displayName = `${firstName} ${lastName?.charAt(0)}.`;
+        if (displayName !== profile.displayName) {
+          change.displayName = displayName;
+        }
+        if (role !== profile.role) {
+          change.role = role as Role;
+        }
         const { message }: IFormMessage = await fch.patch(
           `/users/${params.id}`,
           change

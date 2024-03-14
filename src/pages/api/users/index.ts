@@ -25,12 +25,18 @@ export default async function handler(
     try {
       const { email, password, firstName, lastName, role } = req.body;
       const { uid } = await admin.createUser({
+        displayName: `${firstName} ${lastName.charAt(0)}.`,
         email,
         password,
-        displayName: `${firstName} ${lastName.charAt(0)}.`,
       });
       await admin.setCustomUserClaims(uid, { role });
-      await users.doc(uid).set({ email, firstName, lastName, role });
+      await users.doc(uid).set({
+        displayName: `${firstName} ${lastName.charAt(0)}.`,
+        firstName,
+        lastName,
+        email,
+        role,
+      });
       res.status(201).json({ message: 'Create new user successfully' });
     } catch (e) {
       res.status(500).json({});
