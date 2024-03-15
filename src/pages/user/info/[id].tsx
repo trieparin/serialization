@@ -104,15 +104,19 @@ export default function UserInfo({ params, data }: UserInfoProps) {
         const { message }: IFormMessage = await fch.put(`/users/${params.id}`, {
           password,
         });
-        toaster.success(message, {
-          description: 'Please sign in again',
-        });
-        await signOut(auth);
-        setCookie('token', '');
-        router.push('/');
+        if (profile.uid === params.id) {
+          toaster.success(message, {
+            description: 'Please sign in again',
+          });
+          await signOut(auth);
+          setCookie('token', '');
+          router.push('/');
+        } else {
+          toaster.success(message);
+        }
       }
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
   };

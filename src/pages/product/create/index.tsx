@@ -88,7 +88,7 @@ export default function ProductCreate() {
       const { message }: IFormMessage = await fch.post(`/products`, data);
       toaster.success(message);
       router.push('/product');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
   };

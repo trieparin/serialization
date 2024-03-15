@@ -33,7 +33,7 @@ export const ConfirmDialog = ({
       });
       toaster.success(message);
       update();
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
     close();
@@ -47,7 +47,7 @@ export const ConfirmDialog = ({
       const { message }: IFormMessage = await fch.del(path);
       toaster.success(message);
       update();
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
     close();

@@ -70,7 +70,7 @@ export default function UserCreate() {
       });
       toaster.success(message);
       router.push('/user');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
   };

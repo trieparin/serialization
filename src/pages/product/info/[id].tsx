@@ -92,7 +92,7 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
       );
       toaster.success(message);
       router.push('/product');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
   };
