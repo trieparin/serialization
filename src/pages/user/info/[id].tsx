@@ -237,7 +237,7 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (!role) return { redirect: { destination: '/' } };
+    if (!role) return { redirect: { destination: '/no-permission' } };
 
     const doc = await db
       .collection('/users')

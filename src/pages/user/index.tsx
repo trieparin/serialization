@@ -109,7 +109,9 @@ export default function UserPage({ data }: { data: IUser[] }) {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role !== Role.ADMIN) return { redirect: { destination: '/' } };
+    if (role !== Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     const data: IUser[] = [];
     const snapshot = await db.collection('/users').get();

@@ -187,7 +187,9 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+    if (role === Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     const data: IProduct[] = [];
     const snapshot = await db.collection('/products').get();

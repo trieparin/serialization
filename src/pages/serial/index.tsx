@@ -15,7 +15,9 @@ export default function SerialPage() {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+    if (role === Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
     return {
       props: {},
     };
