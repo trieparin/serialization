@@ -1,5 +1,4 @@
 import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -25,7 +24,6 @@ import { useContext, useState } from 'react';
 
 export default function ProductPage({ data }: { data: IProduct[] }) {
   const profile = useContext(UserContext);
-  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const [products, setProducts] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
@@ -45,29 +43,10 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openDialog = (
-    approve: boolean,
-    id: string,
-    message: string,
-    status?: string
-  ) => {
-    startLoading();
-    setDialogOption({
-      open: true,
-      approve,
-      id,
-      message,
-      status: status!,
-    });
-    stopLoading();
-  };
-
   const openInfo = async (path: string) => {
-    startLoading();
     const fch = customFetch();
     const { data }: { data: IProduct } = await fch.get(path);
     setViewInfo({ open: true, info: data });
-    stopLoading();
   };
 
   const renderStatus = (status: string) => {
@@ -145,12 +124,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           icon={EndorsedIcon}
                           disabled={status !== ProductStatus.CREATED}
                           onClick={() => {
-                            openDialog(
-                              true,
-                              id!,
-                              `Confirm approve "${batch} : ${name}"?`,
-                              ProductStatus.APPROVED
-                            );
+                            setDialogOption({
+                              open: true,
+                              approve: true,
+                              id: id!,
+                              message: `Confirm approve "${batch} : ${name}"?`,
+                              status: ProductStatus.APPROVED,
+                            });
                           }}
                         />
                         <IconButton
@@ -161,11 +141,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           icon={TrashIcon}
                           disabled={status === ProductStatus.SERIALIZED}
                           onClick={() => {
-                            openDialog(
-                              false,
-                              id!,
-                              `Confirm delete "${batch} : ${name}"?`
-                            );
+                            setDialogOption({
+                              open: true,
+                              approve: false,
+                              id: id!,
+                              message: `Confirm delete "${batch} : ${name}"?`,
+                              status: '',
+                            });
                           }}
                         />
                       </>
@@ -180,7 +162,6 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       <ConfirmDialog
         open={dialogOption.open}
         approve={dialogOption.approve}
-        loading={loading}
         message={dialogOption.message}
         path={`/products/${dialogOption.id}`}
         update={getAllProducts}

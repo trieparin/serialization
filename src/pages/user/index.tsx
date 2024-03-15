@@ -1,5 +1,4 @@
 import { ConfirmDialog, PageTitle } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -20,28 +19,17 @@ import { useContext, useState } from 'react';
 
 export default function UserPage({ data }: { data: IUser[] }) {
   const profile = useContext(UserContext);
-  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const [users, setUsers] = useState(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
-    uid: '',
     message: '',
+    uid: '',
   });
 
   const getAllUsers = async () => {
     const fch = customFetch();
     const { data }: { data: IUser[] } = await fch.get('/users');
     setUsers(data);
-  };
-
-  const openDialog = (uid: string, message: string) => {
-    startLoading();
-    setDialogOption({
-      open: true,
-      uid,
-      message,
-    });
-    stopLoading();
   };
 
   const renderRole = (role: string) => {
@@ -92,10 +80,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
                       icon={TrashIcon}
                       disabled={uid === profile.uid}
                       onClick={() => {
-                        openDialog(
+                        setDialogOption({
+                          open: true,
+                          message: `Confirm delete "${firstName} ${lastName}"?`,
                           uid,
-                          `Confirm delete "${firstName} ${lastName}"?`
-                        );
+                        });
                       }}
                     />
                   </Pane>
@@ -108,11 +97,10 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <ConfirmDialog
         approve={false}
         open={dialogOption.open}
-        loading={loading}
         message={dialogOption.message}
         path={`/users/${dialogOption.uid}`}
         update={getAllUsers}
-        reset={() => setDialogOption({ open: false, uid: '', message: '' })}
+        reset={() => setDialogOption({ open: false, message: '', uid: '' })}
       />
     </BaseLayout>
   );
