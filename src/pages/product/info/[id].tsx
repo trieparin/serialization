@@ -1,10 +1,11 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { db } from '@/firebase/config';
+import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormAction, IFormMessage } from '@/models/form.model';
 import { IProduct, ProductType } from '@/models/product.model';
+import { Role } from '@/models/user.model';
 import {
   Heading,
   IconButton,
@@ -16,7 +17,6 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
-import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
@@ -171,52 +171,6 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
                 },
               })}
             />
-            <TextInputField
-              label="Manufacturer"
-              type="text"
-              id="manufacturer"
-              defaultValue={defaultValues?.manufacturer}
-              {...register('manufacturer', {
-                required: true,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('manufacturer', event.currentTarget.value.trim());
-                },
-              })}
-            />
-            <TextInputField
-              label="Manufacture Date"
-              type="date"
-              id="mfd"
-              max={state.exp}
-              defaultValue={defaultValues?.mfd}
-              {...register('mfd', {
-                required: true,
-                max: state.exp,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  dispatch({
-                    type: 'set_mfd',
-                    payload: event.currentTarget.value,
-                  });
-                },
-              })}
-            />
-            <TextInputField
-              label="Expiration Date"
-              type="date"
-              id="exp"
-              min={state.mfd}
-              defaultValue={defaultValues?.exp}
-              {...register('exp', {
-                required: true,
-                min: state.mfd,
-                onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  dispatch({
-                    type: 'set_exp',
-                    payload: event.currentTarget.value,
-                  });
-                },
-              })}
-            />
           </Pane>
           <Pane
             display="flex"
@@ -287,6 +241,61 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
               )}
             </Pane>
           ))}
+          <Heading marginBottom={majorScale(2)}>
+            Manufacture Information
+          </Heading>
+          <Pane
+            display="grid"
+            gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            columnGap={majorScale(3)}
+          >
+            <TextInputField
+              label="Manufacturer"
+              type="text"
+              id="manufacturer"
+              defaultValue={defaultValues?.manufacturer}
+              {...register('manufacturer', {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setValue('manufacturer', event.currentTarget.value.trim());
+                },
+              })}
+            />
+            <TextInputField
+              label="Manufacture Date"
+              type="date"
+              id="mfd"
+              max={state.exp}
+              defaultValue={defaultValues?.mfd}
+              {...register('mfd', {
+                required: true,
+                max: state.exp,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_mfd',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
+            />
+            <TextInputField
+              label="Expiration Date"
+              type="date"
+              id="exp"
+              min={state.mfd}
+              defaultValue={defaultValues?.exp}
+              {...register('exp', {
+                required: true,
+                min: state.mfd,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  dispatch({
+                    type: 'set_exp',
+                    payload: event.currentTarget.value,
+                  });
+                },
+              })}
+            />
+          </Pane>
         </Pane>
         <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
       </Pane>
@@ -298,20 +307,23 @@ export async function getServerSideProps({
   req,
   params,
 }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+
+    const doc = await db
+      .collection('/products')
+      .doc(params?.id as string)
+      .get();
+    const data = doc.exists && doc.data();
+
     return {
-      redirect: {
-        destination: '/',
+      props: {
+        params,
+        data,
       },
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDoc(doc(db, 'products', params?.id as string));
-  const data = snapshot.exists() && snapshot.data();
-  return {
-    props: {
-      params,
-      data,
-    },
-  };
 }

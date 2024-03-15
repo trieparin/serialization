@@ -1,7 +1,7 @@
 import { Logo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
+import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
-import customFetch from '@/helpers/fetch.helper';
 import { BlankLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import {
@@ -12,13 +12,14 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { FocusEvent, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Home() {
   const router = useRouter();
-  const { profile, checkLogin } = useContext(UserContext);
+  const { role, token } = useContext(UserContext);
   const {
     reset,
     register,
@@ -29,24 +30,19 @@ export default function Home() {
   } = useForm({ defaultValues: { email: '', password: '' } });
 
   useEffect(() => {
-    if (profile.uid) {
-      profile.role === Role.ADMIN
+    if (role) {
+      setCookie('token', token!, 1000 * 60 * 60);
+      role === Role.ADMIN
         ? router.replace('/user')
         : router.replace('/product');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
+  }, [role, token]);
 
   const formSubmit = async () => {
     try {
       const { email, password } = getValues();
-      const fch = customFetch();
-      const { data }: { data: string } = await fch.post('/auth', {
-        email,
-        password,
-      });
-      setCookie('token', data, 1000 * 60 * 60);
-      checkLogin();
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       toaster.danger('Invalid email or password');
     }

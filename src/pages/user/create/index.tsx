@@ -1,8 +1,9 @@
 import { PageTitle, SaveCancel } from '@/components';
-import { db, temp } from '@/firebase/config';
+import { admin } from '@/firebase/admin';
+import customFetch from '@/helpers/fetch.helper';
 import { checkPassword, regExPassword } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
-import { IFormAction } from '@/models/form.model';
+import { IFormAction, IFormMessage } from '@/models/form.model';
 import { Role } from '@/models/user.model';
 import {
   Pane,
@@ -12,12 +13,6 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
-import {
-  createUserWithEmailAndPassword,
-  signOut,
-  updateProfile,
-} from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { FocusEvent, useReducer } from 'react';
@@ -46,7 +41,6 @@ export default function UserCreate() {
   const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -66,26 +60,18 @@ export default function UserCreate() {
   const formSubmit = async () => {
     try {
       const { email, password, firstName, lastName, role } = getValues();
-      const { user } = await createUserWithEmailAndPassword(
-        temp,
+      const fch = customFetch();
+      const { message }: IFormMessage = await fch.post('/users', {
         email,
-        password
-      );
-      await updateProfile(user, {
-        displayName: `${firstName} ${lastName.charAt(0)}.`,
-      });
-      await setDoc(doc(db, 'users', user.uid), {
-        email,
+        password,
         firstName,
         lastName,
         role,
       });
-      await signOut(temp);
-      toaster.success('Create new user successfully');
+      toaster.success(message);
       router.push('/user');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 
@@ -207,16 +193,12 @@ export default function UserCreate() {
   );
 }
 
-export function getServerSideProps({ req }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
-    return {
-      redirect: {
-        destination: '/',
-      },
-    };
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role !== Role.ADMIN) return { redirect: { destination: '/' } };
+    return { props: {} };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  return {
-    props: {},
-  };
 }

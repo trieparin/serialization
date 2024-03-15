@@ -1,7 +1,7 @@
-import { ConfirmDialog, PageTitle } from '@/components';
+import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
-import { db } from '@/firebase/config';
+import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IProduct, ProductStatus } from '@/models/product.model';
@@ -19,25 +19,24 @@ import {
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
-import { collection, getDocs } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 
 export default function ProductPage({ data }: { data: IProduct[] }) {
+  const profile = useContext(UserContext);
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const { profile } = useContext(UserContext);
   const [products, setProducts] = useState(data);
-  const [viewInfo, setViewInfo] = useState({
-    open: false,
-    id: '',
-  });
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
     id: '',
     message: '',
     status: '',
+  });
+  const [viewInfo, setViewInfo] = useState({
+    open: false,
+    info: {},
   });
 
   const getAllProducts = async () => {
@@ -58,8 +57,16 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       approve,
       id,
       message,
-      status: status || '',
+      status: status!,
     });
+    stopLoading();
+  };
+
+  const openInfo = async (path: string) => {
+    startLoading();
+    const fch = customFetch();
+    const { data }: { data: IProduct } = await fch.get(path);
+    setViewInfo({ open: true, info: data });
     stopLoading();
   };
 
@@ -117,9 +124,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="info"
                       title="info"
                       icon={LabelIcon}
-                      onClick={() => {
-                        setViewInfo({ open: true, id: id as string });
-                      }}
+                      onClick={() => openInfo(`/products/${id}`)}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -142,7 +147,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           onClick={() => {
                             openDialog(
                               true,
-                              id as string,
+                              id!,
                               `Confirm approve "${batch} : ${name}"?`,
                               ProductStatus.APPROVED
                             );
@@ -158,7 +163,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           onClick={() => {
                             openDialog(
                               false,
-                              id as string,
+                              id!,
                               `Confirm delete "${batch} : ${name}"?`
                             );
                           }}
@@ -196,29 +201,31 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
-      ></Dialog>
+        onCloseComplete={() => setViewInfo({ open: false, info: {} })}
+      >
+        <ViewInfo info={viewInfo.info} />
+      </Dialog>
     </BaseLayout>
   );
 }
 
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+
+    const data: IProduct[] = [];
+    const snapshot = await db.collection('/products').get();
+    snapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...(doc.data() as IProduct) });
+    });
+
     return {
-      redirect: {
-        destination: '/',
+      props: {
+        data,
       },
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDocs(collection(db, 'products'));
-  const data: IProduct[] = [];
-  snapshot.forEach((doc) => {
-    data.push({ id: doc.id, ...(doc.data() as IProduct) });
-  });
-  return {
-    props: {
-      data,
-    },
-  };
 }

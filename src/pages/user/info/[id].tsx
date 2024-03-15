@@ -1,6 +1,7 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
-import { db } from '@/firebase/config';
+import { admin, db } from '@/firebase/admin';
+import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
 import customFetch from '@/helpers/fetch.helper';
 import {
@@ -20,7 +21,7 @@ import {
   majorScale,
   toaster,
 } from 'evergreen-ui';
-import { doc, getDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { ParsedUrlQuery } from 'querystring';
@@ -54,7 +55,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   const { email, firstName, lastName, role } = data;
   const pwdRegEx = regExPassword();
   const router = useRouter();
-  const { profile, checkLogin } = useContext(UserContext);
+  const profile = useContext(UserContext);
   const [state, dispatch] = useReducer(formReducer, {});
   const {
     reset,
@@ -77,27 +78,39 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   const formSubmit = async () => {
     try {
       const { password, firstName, lastName, role } = getValues();
-      const data: Record<string, string> = formChangeValue(dirtyFields, {
+      const change: Record<string, string> = formChangeValue(dirtyFields, {
         firstName,
         lastName,
         role,
       });
       const fch = customFetch();
-      if (data.firstName || data.lastName || data.role) {
+      if (Object.keys(change).length) {
+        delete change.password;
+        delete change.pwd;
+        const displayName = `${firstName} ${lastName?.charAt(0)}.`;
+        if (displayName !== profile.displayName) {
+          change.displayName = displayName;
+        }
+        if (role !== profile.role) {
+          change.role = role as Role;
+        }
         const { message }: IFormMessage = await fch.patch(
           `/users/${params.id}`,
-          data
+          change
         );
         toaster.success(message);
       }
       if (password) {
-        const { message }: IFormMessage = await fch.put(`/auth`, { password });
+        const { message }: IFormMessage = await fch.put(`/users/${params.id}`, {
+          password,
+        });
         toaster.success(message, {
           description: 'Please sign in again',
         });
+        await signOut(auth);
         setCookie('token', '');
+        router.push('/');
       }
-      checkLogin();
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
@@ -128,7 +141,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
               id="password"
               defaultValue={defaultValues?.password}
               {...register('password', {
-                disabled: profile.uid !== params.id,
                 pattern: pwdRegEx,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
@@ -154,7 +166,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
               id="pwd"
               defaultValue={defaultValues?.pwd}
               {...register('pwd', {
-                disabled: profile.uid !== params.id,
                 validate: () => state.pwd === state.password,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
@@ -225,20 +236,23 @@ export async function getServerSideProps({
   req,
   params,
 }: GetServerSidePropsContext) {
-  const token = req.cookies.token;
-  if (!token) {
+  try {
+    const { role } = await admin.verifyIdToken(req.cookies.token!);
+    if (!role) return { redirect: { destination: '/' } };
+
+    const doc = await db
+      .collection('/users')
+      .doc(params?.id as string)
+      .get();
+    const data = doc.exists && doc.data();
+
     return {
-      redirect: {
-        destination: '/',
+      props: {
+        params,
+        data,
       },
     };
+  } catch (e) {
+    return { redirect: { destination: '/' } };
   }
-  const snapshot = await getDoc(doc(db, 'users', params?.id as string));
-  const data = snapshot.exists() && snapshot.data();
-  return {
-    props: {
-      params,
-      data,
-    },
-  };
 }

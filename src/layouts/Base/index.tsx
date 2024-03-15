@@ -6,7 +6,7 @@ import { Header } from './Header';
 import { TopBar } from './TopBar';
 
 export const BaseLayout = ({ children }: { children?: ReactNode }) => {
-  const { profile } = useContext(UserContext);
+  const profile = useContext(UserContext);
   return (
     <Pane is="main" display="flex" flexFlow="column" minHeight="100vh">
       <TopBar profile={profile} />

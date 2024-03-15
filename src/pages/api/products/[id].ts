@@ -1,17 +1,17 @@
-import { db } from '@/firebase/config';
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '@/firebase/admin';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const products = db.collection('/products');
   switch (req.method) {
     case 'GET':
       try {
         const { id } = req.query;
-        const snapshot = await getDoc(doc(db, 'products', id as string));
-        res.status(200).json({ data: snapshot.exists() && snapshot.data() });
+        const doc = await products.doc(id as string).get();
+        res.status(200).json({ data: doc.exists && doc.data() });
       } catch (e) {
         res.status(500).json({});
       }
@@ -20,7 +20,7 @@ export default async function handler(
       try {
         const { id } = req.query;
         const data = req.body;
-        await updateDoc(doc(db, 'products', id as string), data);
+        await products.doc(id as string).update(data);
         res.status(200).json({ message: 'Update product info successfully' });
       } catch (e) {
         res.status(500).json({});
@@ -29,7 +29,7 @@ export default async function handler(
     case 'DELETE':
       try {
         const { id } = req.query;
-        await deleteDoc(doc(db, 'products', id as string));
+        await products.doc(id as string).delete();
         res.status(200).json({ message: 'Delete product successfully' });
       } catch (e) {
         res.status(500).json({});
