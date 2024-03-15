@@ -58,7 +58,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   const profile = useContext(UserContext);
   const [state, dispatch] = useReducer(formReducer, {});
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -115,7 +114,6 @@ export default function UserInfo({ params, data }: UserInfoProps) {
       router.push(profile.role === Role.ADMIN ? '/user' : '/product');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 

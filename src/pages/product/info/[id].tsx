@@ -50,7 +50,6 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
   const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -89,7 +88,6 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
       router.push('/product');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 

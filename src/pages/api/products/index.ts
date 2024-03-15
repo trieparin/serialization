@@ -22,7 +22,7 @@ export default async function handler(
     try {
       const data = req.body;
       await products.add(data);
-      res.status(201).json({ message: 'Create product successfully' });
+      res.status(201).json({ message: 'Create new product successfully' });
     } catch (e) {
       res.status(500).json({});
     }

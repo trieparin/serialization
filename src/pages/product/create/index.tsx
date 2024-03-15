@@ -43,7 +43,6 @@ export default function ProductCreate() {
   const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -91,7 +90,6 @@ export default function ProductCreate() {
       router.push('/product');
     } catch (error) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 

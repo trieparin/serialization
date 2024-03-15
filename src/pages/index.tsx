@@ -45,8 +45,8 @@ export default function Home() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       toaster.danger('Invalid email or password');
+      reset();
     }
-    reset();
   };
 
   return (
