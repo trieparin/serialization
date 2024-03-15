@@ -52,7 +52,7 @@ const formReducer = (state: object, action: IFormAction) => {
 };
 
 export default function UserInfo({ params, data }: UserInfoProps) {
-  const { email, firstName, lastName, role } = data;
+  const { email, displayName, firstName, lastName, role } = data;
   const pwdRegEx = regExPassword();
   const router = useRouter();
   const profile = useContext(UserContext);
@@ -69,6 +69,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
       password: '',
       pwd: '',
       email,
+      displayName,
       firstName,
       lastName,
       role,
@@ -83,15 +84,15 @@ export default function UserInfo({ params, data }: UserInfoProps) {
         lastName,
         role,
       });
+      delete change.pwd;
+      delete change.password;
       const fch = customFetch();
       if (Object.keys(change).length) {
-        delete change.password;
-        delete change.pwd;
         const displayName = `${firstName} ${lastName?.charAt(0)}.`;
-        if (displayName !== profile.displayName) {
+        if (defaultValues?.displayName !== displayName) {
           change.displayName = displayName;
         }
-        if (role !== profile.role) {
+        if (defaultValues?.role !== role && profile.role === Role.ADMIN) {
           change.role = role as Role;
         }
         const { message }: IFormMessage = await fch.patch(
