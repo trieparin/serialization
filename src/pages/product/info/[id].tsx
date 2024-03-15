@@ -28,7 +28,10 @@ interface ProductInfoProps {
   data: IProduct;
 }
 
-const formReducer = (state: object, action: IFormAction) => {
+const formReducer = (
+  state: { mfd: string; exp: string },
+  action: IFormAction
+) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_mfd':
@@ -48,7 +51,10 @@ const formReducer = (state: object, action: IFormAction) => {
 
 export default function ProductInfo({ params, data }: ProductInfoProps) {
   const router = useRouter();
-  const [state, dispatch] = useReducer(formReducer, {});
+  const [state, dispatch] = useReducer(formReducer, {
+    mfd: data.mfd,
+    exp: data.exp,
+  });
   const {
     register,
     handleSubmit,

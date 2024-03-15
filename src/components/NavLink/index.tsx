@@ -1,6 +1,6 @@
 import { Link as UiLink } from 'evergreen-ui';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { ReactNode } from 'react';
 
 interface NavLinkProps {
@@ -9,13 +9,13 @@ interface NavLinkProps {
 }
 
 export const NavLink = ({ children, href }: NavLinkProps) => {
-  const path = usePathname();
+  const router = useRouter();
   return (
     <Link href={href}>
       <UiLink
         is="span"
-        color={path.includes(href) ? 'default' : 'neutral'}
-        fontWeight={path.includes(href) ? 500 : 400}
+        color={router.pathname.includes(href) ? 'default' : 'neutral'}
+        fontWeight={router.pathname.includes(href) ? 500 : 400}
         textTransform="uppercase"
       >
         {children}

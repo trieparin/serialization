@@ -14,10 +14,11 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
 export default function UserPage({ data }: { data: IUser[] }) {
+  const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState(data);
   const [dialogOption, setDialogOption] = useState({
@@ -64,14 +65,13 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link href={`/user/info/${uid}`}>
-                      <IconButton
-                        type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                      />
-                    </Link>
+                    <IconButton
+                      type="button"
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
+                      onClick={() => router.push(`/user/info/${uid}`)}
+                    />
                     <IconButton
                       type="button"
                       name="delete"

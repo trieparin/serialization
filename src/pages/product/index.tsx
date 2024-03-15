@@ -19,10 +19,11 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
 export default function ProductPage({ data }: { data: IProduct[] }) {
+  const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState(data);
   const [dialogOption, setDialogOption] = useState({
@@ -83,21 +84,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link
-                      href={
-                        status === ProductStatus.CREATED
-                          ? `/product/info/${id}`
-                          : ''
-                      }
-                    >
-                      <IconButton
-                        type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                        disabled={status !== ProductStatus.CREATED}
-                      />
-                    </Link>
+                    <IconButton
+                      type="button"
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
+                      disabled={status !== ProductStatus.CREATED}
+                      onClick={() => router.push(`/product/info/${id}`)}
+                    />
                     <IconButton
                       type="button"
                       name="info"
