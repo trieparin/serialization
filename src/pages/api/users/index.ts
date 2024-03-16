@@ -34,6 +34,6 @@ export default async function handler(
       res.status(400).json({});
     }
   } catch (e) {
-    res.status(500).json({});
+    res.status(401).json({});
   }
 }

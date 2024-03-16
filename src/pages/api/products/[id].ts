@@ -29,6 +29,6 @@ export default async function handler(
         break;
     }
   } catch (e) {
-    res.status(500).json({});
+    res.status(401).json({});
   }
 }
