@@ -3,5 +3,5 @@ export * from './ErrorPage';
 export * from './Logo';
 export * from './NavLink';
 export * from './PageTitle';
+export * from './ProductInfo';
 export * from './SaveCancel';
-export * from './ViewInfo';

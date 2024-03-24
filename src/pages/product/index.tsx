@@ -1,4 +1,4 @@
-import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
+import { ConfirmDialog, PageTitle, ProductInfo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -25,7 +25,7 @@ import { useContext, useState } from 'react';
 export default function ProductPage({ data }: { data: IProduct[] }) {
   const router = useRouter();
   const profile = useContext(UserContext);
-  const [products, setProducts] = useState(data);
+  const [products, setProducts] = useState<IProduct[]>(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
@@ -33,9 +33,9 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     message: '',
     status: '',
   });
-  const [viewInfo, setViewInfo] = useState({
+  const [productInfo, setProductInfo] = useState({
     open: false,
-    info: {},
+    id: '',
   });
 
   const getAllProducts = async () => {
@@ -44,10 +44,8 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openInfo = async (path: string) => {
-    const fch = customFetch();
-    const { data }: { data: IProduct } = await fch.get(path);
-    setViewInfo({ open: true, info: data });
+  const openInfo = async (id: string) => {
+    setProductInfo({ open: true, id });
   };
 
   const renderStatus = (status: string) => {
@@ -97,7 +95,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                       name="info"
                       title="info"
                       icon={LabelIcon}
-                      onClick={() => openInfo(`/products/${id}`)}
+                      onClick={() => openInfo(id!)}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -171,14 +169,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         status={dialogOption.status}
       />
       <Dialog
-        isShown={viewInfo.open}
+        isShown={productInfo.open}
         hasClose={false}
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setViewInfo({ open: false, info: {} })}
+        onCloseComplete={() => setProductInfo({ open: false, id: '' })}
       >
-        <ViewInfo info={viewInfo.info} />
+        <ProductInfo id={productInfo.id} />
       </Dialog>
     </BaseLayout>
   );

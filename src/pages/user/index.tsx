@@ -20,7 +20,7 @@ import { useContext, useState } from 'react';
 export default function UserPage({ data }: { data: IUser[] }) {
   const router = useRouter();
   const profile = useContext(UserContext);
-  const [users, setUsers] = useState(data);
+  const [users, setUsers] = useState<IUser[]>(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
     message: '',

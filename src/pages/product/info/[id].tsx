@@ -145,7 +145,7 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
               ))}
             </SelectField>
             <TextInputField
-              label="Batch"
+              label="Batch No."
               type="text"
               id="batch"
               defaultValue={defaultValues?.batch}
