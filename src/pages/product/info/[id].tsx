@@ -34,12 +34,12 @@ const formReducer = (
 ) => {
   const { type, payload } = action;
   switch (type) {
-    case 'set_mfd':
+    case 'SET_MFD':
       return {
         ...state,
         mfd: payload,
       };
-    case 'set_exp':
+    case 'SET_EXP':
       return {
         ...state,
         exp: payload,
@@ -276,7 +276,7 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
                 max: state.exp,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_mfd',
+                    type: 'SET_MFD',
                     payload: event.currentTarget.value,
                   });
                 },
@@ -293,7 +293,7 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
                 min: state.mfd,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_exp',
+                    type: 'SET_EXP',
                     payload: event.currentTarget.value,
                   });
                 },

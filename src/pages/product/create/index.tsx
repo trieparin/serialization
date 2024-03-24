@@ -24,12 +24,12 @@ import { useFieldArray, useForm } from 'react-hook-form';
 const formReducer = (state: object, action: IFormAction) => {
   const { type, payload } = action;
   switch (type) {
-    case 'set_mfd':
+    case 'SET_MFD':
       return {
         ...state,
         mfd: payload,
       };
-    case 'set_exp':
+    case 'SET_EXP':
       return {
         ...state,
         exp: payload,
@@ -272,7 +272,7 @@ export default function ProductCreate() {
                 max: state.exp,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_mfd',
+                    type: 'SET_MFD',
                     payload: event.currentTarget.value,
                   });
                 },
@@ -289,7 +289,7 @@ export default function ProductCreate() {
                 min: state.mfd,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_exp',
+                    type: 'SET_EXP',
                     payload: event.currentTarget.value,
                   });
                 },
