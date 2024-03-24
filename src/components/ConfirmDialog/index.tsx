@@ -1,11 +1,12 @@
+import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
 import { IFormMessage } from '@/models/form.model';
 import { Dialog, toaster } from 'evergreen-ui';
+import { useContext } from 'react';
 
 interface ConfirmDialogProps {
   open: boolean;
   approve: boolean;
-  loading: boolean;
   message: string;
   path: string;
   update: () => void;
@@ -16,14 +17,15 @@ interface ConfirmDialogProps {
 export const ConfirmDialog = ({
   open,
   approve,
-  loading,
   message,
   path,
   update,
   reset,
   status,
 }: ConfirmDialogProps) => {
+  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
   const handleApprove = async (close: () => void) => {
+    startLoading();
     try {
       const fch = customFetch();
       const { message }: IFormMessage = await fch.patch(path, {
@@ -31,22 +33,25 @@ export const ConfirmDialog = ({
       });
       toaster.success(message);
       update();
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
     close();
+    stopLoading();
   };
 
   const handleDelete = async (close: () => void) => {
+    startLoading();
     try {
       const fch = customFetch();
       const { message }: IFormMessage = await fch.del(path);
       toaster.success(message);
       update();
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
     }
     close();
+    stopLoading();
   };
 
   return (

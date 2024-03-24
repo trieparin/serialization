@@ -43,7 +43,8 @@ export default function Home() {
     try {
       const { email, password } = getValues();
       await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
+      toaster.success('Login successfully');
+    } catch (e) {
       toaster.danger('Invalid email or password');
     }
     reset();

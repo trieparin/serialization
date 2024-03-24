@@ -1,5 +1,4 @@
 import { ConfirmDialog, PageTitle } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -15,33 +14,23 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
 export default function UserPage({ data }: { data: IUser[] }) {
+  const router = useRouter();
   const profile = useContext(UserContext);
-  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const [users, setUsers] = useState(data);
+  const [users, setUsers] = useState<IUser[]>(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
-    uid: '',
     message: '',
+    uid: '',
   });
 
   const getAllUsers = async () => {
     const fch = customFetch();
     const { data }: { data: IUser[] } = await fch.get('/users');
     setUsers(data);
-  };
-
-  const openDialog = (uid: string, message: string) => {
-    startLoading();
-    setDialogOption({
-      open: true,
-      uid,
-      message,
-    });
-    stopLoading();
   };
 
   const renderRole = (role: string) => {
@@ -76,14 +65,13 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link href={`/user/info/${uid}`}>
-                      <IconButton
-                        type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                      />
-                    </Link>
+                    <IconButton
+                      type="button"
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
+                      onClick={() => router.push(`/user/info/${uid}`)}
+                    />
                     <IconButton
                       type="button"
                       name="delete"
@@ -92,10 +80,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
                       icon={TrashIcon}
                       disabled={uid === profile.uid}
                       onClick={() => {
-                        openDialog(
+                        setDialogOption({
+                          open: true,
+                          message: `Confirm delete "${firstName} ${lastName}"?`,
                           uid,
-                          `Confirm delete "${firstName} ${lastName}"?`
-                        );
+                        });
                       }}
                     />
                   </Pane>
@@ -108,11 +97,10 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <ConfirmDialog
         approve={false}
         open={dialogOption.open}
-        loading={loading}
         message={dialogOption.message}
         path={`/users/${dialogOption.uid}`}
         update={getAllUsers}
-        reset={() => setDialogOption({ open: false, uid: '', message: '' })}
+        reset={() => setDialogOption({ open: false, message: '', uid: '' })}
       />
     </BaseLayout>
   );
@@ -121,7 +109,10 @@ export default function UserPage({ data }: { data: IUser[] }) {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role !== Role.ADMIN) return { redirect: { destination: '/' } };
+    if (!role) return { redirect: { destination: '/' } };
+    if (role !== Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     const data: IUser[] = [];
     const snapshot = await db.collection('/users').get();

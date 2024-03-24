@@ -28,7 +28,10 @@ interface ProductInfoProps {
   data: IProduct;
 }
 
-const formReducer = (state: object, action: IFormAction) => {
+const formReducer = (
+  state: { mfd: string; exp: string },
+  action: IFormAction
+) => {
   const { type, payload } = action;
   switch (type) {
     case 'set_mfd':
@@ -48,9 +51,11 @@ const formReducer = (state: object, action: IFormAction) => {
 
 export default function ProductInfo({ params, data }: ProductInfoProps) {
   const router = useRouter();
-  const [state, dispatch] = useReducer(formReducer, {});
+  const [state, dispatch] = useReducer(formReducer, {
+    mfd: data.mfd,
+    exp: data.exp,
+  });
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -87,9 +92,8 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
       );
       toaster.success(message);
       router.push('/product');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 
@@ -141,7 +145,7 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
               ))}
             </SelectField>
             <TextInputField
-              label="Batch"
+              label="Batch No."
               type="text"
               id="batch"
               defaultValue={defaultValues?.batch}
@@ -309,7 +313,10 @@ export async function getServerSideProps({
 }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+    if (!role) return { redirect: { destination: '/' } };
+    if (role === Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     const doc = await db
       .collection('/products')

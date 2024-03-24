@@ -3,8 +3,8 @@
 # dependencies
 /node_modules
 /.pnp
-.pnp.js
-.yarn/install-state.gz
+.pnp.*
+.yarn/*
 
 # testing
 /coverage
@@ -31,17 +31,15 @@ yarn-error.log*
 # vercel
 .vercel
 
+# turbo
+.turbo
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 # yarn modern
-.pnp.*
-.yarn/*
 !.yarn/releases
-
-# turbo
-.turbo
 
 # service account
 /src/firebase/*.json

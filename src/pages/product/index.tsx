@@ -1,5 +1,4 @@
-import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
-import { LoadingContext } from '@/contexts/LoadingContext';
+import { ConfirmDialog, PageTitle, ProductInfo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -20,13 +19,13 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
 export default function ProductPage({ data }: { data: IProduct[] }) {
+  const router = useRouter();
   const profile = useContext(UserContext);
-  const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const [products, setProducts] = useState(data);
+  const [products, setProducts] = useState<IProduct[]>(data);
   const [dialogOption, setDialogOption] = useState({
     open: false,
     approve: false,
@@ -34,9 +33,9 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     message: '',
     status: '',
   });
-  const [viewInfo, setViewInfo] = useState({
+  const [productInfo, setProductInfo] = useState({
     open: false,
-    info: {},
+    id: '',
   });
 
   const getAllProducts = async () => {
@@ -45,29 +44,8 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openDialog = (
-    approve: boolean,
-    id: string,
-    message: string,
-    status?: string
-  ) => {
-    startLoading();
-    setDialogOption({
-      open: true,
-      approve,
-      id,
-      message,
-      status: status!,
-    });
-    stopLoading();
-  };
-
-  const openInfo = async (path: string) => {
-    startLoading();
-    const fch = customFetch();
-    const { data }: { data: IProduct } = await fch.get(path);
-    setViewInfo({ open: true, info: data });
-    stopLoading();
+  const openInfo = async (id: string) => {
+    setProductInfo({ open: true, id });
   };
 
   const renderStatus = (status: string) => {
@@ -104,27 +82,20 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
-                    <Link
-                      href={
-                        status === ProductStatus.CREATED
-                          ? `/product/info/${id}`
-                          : ''
-                      }
-                    >
-                      <IconButton
-                        type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                        disabled={status !== ProductStatus.CREATED}
-                      />
-                    </Link>
+                    <IconButton
+                      type="button"
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
+                      disabled={status !== ProductStatus.CREATED}
+                      onClick={() => router.push(`/product/info/${id}`)}
+                    />
                     <IconButton
                       type="button"
                       name="info"
                       title="info"
                       icon={LabelIcon}
-                      onClick={() => openInfo(`/products/${id}`)}
+                      onClick={() => openInfo(id!)}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -145,12 +116,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           icon={EndorsedIcon}
                           disabled={status !== ProductStatus.CREATED}
                           onClick={() => {
-                            openDialog(
-                              true,
-                              id!,
-                              `Confirm approve "${batch} : ${name}"?`,
-                              ProductStatus.APPROVED
-                            );
+                            setDialogOption({
+                              open: true,
+                              approve: true,
+                              id: id!,
+                              message: `Confirm approve "${batch} : ${name}"?`,
+                              status: ProductStatus.APPROVED,
+                            });
                           }}
                         />
                         <IconButton
@@ -161,11 +133,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           icon={TrashIcon}
                           disabled={status === ProductStatus.SERIALIZED}
                           onClick={() => {
-                            openDialog(
-                              false,
-                              id!,
-                              `Confirm delete "${batch} : ${name}"?`
-                            );
+                            setDialogOption({
+                              open: true,
+                              approve: false,
+                              id: id!,
+                              message: `Confirm delete "${batch} : ${name}"?`,
+                              status: '',
+                            });
                           }}
                         />
                       </>
@@ -180,7 +154,6 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       <ConfirmDialog
         open={dialogOption.open}
         approve={dialogOption.approve}
-        loading={loading}
         message={dialogOption.message}
         path={`/products/${dialogOption.id}`}
         update={getAllProducts}
@@ -196,14 +169,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         status={dialogOption.status}
       />
       <Dialog
-        isShown={viewInfo.open}
+        isShown={productInfo.open}
         hasClose={false}
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setViewInfo({ open: false, info: {} })}
+        onCloseComplete={() => setProductInfo({ open: false, id: '' })}
       >
-        <ViewInfo info={viewInfo.info} />
+        <ProductInfo id={productInfo.id} />
       </Dialog>
     </BaseLayout>
   );
@@ -212,7 +185,10 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+    if (!role) return { redirect: { destination: '/' } };
+    if (role === Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     const data: IProduct[] = [];
     const snapshot = await db.collection('/products').get();

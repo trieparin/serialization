@@ -43,7 +43,6 @@ export default function ProductCreate() {
   const router = useRouter();
   const [state, dispatch] = useReducer(formReducer, {});
   const {
-    reset,
     register,
     handleSubmit,
     setValue,
@@ -89,9 +88,8 @@ export default function ProductCreate() {
       const { message }: IFormMessage = await fch.post(`/products`, data);
       toaster.success(message);
       router.push('/product');
-    } catch (error) {
+    } catch (e) {
       toaster.danger('An error occurred');
-      reset();
     }
   };
 
@@ -143,7 +141,7 @@ export default function ProductCreate() {
               ))}
             </SelectField>
             <TextInputField
-              label="Batch"
+              label="Batch No."
               type="text"
               id="batch"
               defaultValue={defaultValues?.batch}
@@ -308,7 +306,10 @@ export default function ProductCreate() {
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
-    if (role === Role.ADMIN) return { redirect: { destination: '/' } };
+    if (!role) return { redirect: { destination: '/' } };
+    if (role === Role.ADMIN) {
+      return { redirect: { destination: '/no-permission' } };
+    }
     return { props: {} };
   } catch (e) {
     return { redirect: { destination: '/' } };

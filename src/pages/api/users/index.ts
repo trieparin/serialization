@@ -6,23 +6,15 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const users = db.collection('/users');
-  if (req.method === 'GET') {
-    try {
+  try {
+    await admin.verifyIdToken(req.cookies.token!);
+    const users = db.collection('/users');
+    if (req.method === 'GET') {
       const data: IUser[] = [];
       const snapshot = await users.get();
-      snapshot.forEach((doc) =>
-        data.push({
-          uid: doc.id,
-          ...doc.data(),
-        })
-      );
+      snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       res.status(200).json({ data });
-    } catch (e) {
-      res.status(500).json({});
-    }
-  } else if (req.method === 'POST') {
-    try {
+    } else if (req.method === 'POST') {
       const { email, password, firstName, lastName, role } = req.body;
       const { uid } = await admin.createUser({
         displayName: `${firstName} ${lastName.charAt(0)}.`,
@@ -38,10 +30,10 @@ export default async function handler(
         role,
       });
       res.status(201).json({ message: 'Create new user successfully' });
-    } catch (e) {
-      res.status(500).json({});
+    } else {
+      res.status(400).json({});
     }
-  } else {
-    res.status(400).json({});
+  } catch (e) {
+    res.status(401).json({});
   }
 }
