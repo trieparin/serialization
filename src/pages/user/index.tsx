@@ -115,7 +115,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IUser[] = [];
-    const snapshot = await db.collection('/users').get();
+    const snapshot = await db.collection('users').get();
     snapshot.forEach((doc) =>
       data.push({
         uid: doc.id,

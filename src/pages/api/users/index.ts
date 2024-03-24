@@ -8,7 +8,7 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const users = db.collection('/users');
+    const users = db.collection('users');
     if (req.method === 'GET') {
       const data: IUser[] = [];
       const snapshot = await users.get();

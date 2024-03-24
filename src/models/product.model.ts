@@ -31,5 +31,5 @@ export interface IProduct {
   ingredients: IIngredient[];
   status: ProductStatus;
   id?: string;
-  serialize?: string;
+  serial?: string;
 }
