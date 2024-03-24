@@ -19,7 +19,6 @@ export interface IIngredient {
 }
 
 export interface IProduct {
-  id?: string;
   register: string;
   name: string;
   type: ProductType;
@@ -31,4 +30,6 @@ export interface IProduct {
   exp: string;
   ingredients: IIngredient[];
   status: ProductStatus;
+  id?: string;
+  serialize?: string;
 }

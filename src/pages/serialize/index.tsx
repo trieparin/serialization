@@ -1,10 +1,15 @@
+import { PageTitle } from '@/components';
 import { admin } from '@/firebase/admin';
 import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import { GetServerSidePropsContext } from 'next';
 
-export default function SerialCreate() {
-  return <BaseLayout></BaseLayout>;
+export default function SerializePage() {
+  return (
+    <BaseLayout>
+      <PageTitle title="All Serials" />
+    </BaseLayout>
+  );
 }
 
 export async function getServerSideProps({ req }: GetServerSidePropsContext) {
@@ -14,7 +19,9 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     if (role === Role.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
-    return { props: {} };
+    return {
+      props: {},
+    };
   } catch (e) {
     return { redirect: { destination: '/' } };
   }

@@ -3,7 +3,7 @@ import { BaseLayout } from '@/layouts';
 import { Role } from '@/models/user.model';
 import { GetServerSidePropsContext } from 'next';
 
-export default function SerialInfo() {
+export default function SerializeInfo() {
   return <BaseLayout></BaseLayout>;
 }
 

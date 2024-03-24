@@ -1,4 +1,4 @@
-import { ConfirmDialog, PageTitle, ProductInfo } from '@/components';
+import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -33,7 +33,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     message: '',
     status: '',
   });
-  const [productInfo, setProductInfo] = useState({
+  const [viewInfo, setViewInfo] = useState({
     open: false,
     id: '',
   });
@@ -45,7 +45,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   };
 
   const openInfo = async (id: string) => {
-    setProductInfo({ open: true, id });
+    setViewInfo({ open: true, id });
   };
 
   const renderStatus = (status: string) => {
@@ -169,14 +169,14 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         status={dialogOption.status}
       />
       <Dialog
-        isShown={productInfo.open}
+        isShown={viewInfo.open}
         hasClose={false}
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setProductInfo({ open: false, id: '' })}
+        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
       >
-        <ProductInfo id={productInfo.id} />
+        <ViewInfo id={viewInfo.id} />
       </Dialog>
     </BaseLayout>
   );
