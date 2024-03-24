@@ -3,7 +3,9 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { IFormMessage } from '@/models/form.model';
 import { IProduct, ProductStatus } from '@/models/product.model';
+import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   Badge,
@@ -17,6 +19,7 @@ import {
   Table,
   TrashIcon,
   majorScale,
+  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -44,10 +47,6 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openInfo = async (id: string) => {
-    setViewInfo({ open: true, id });
-  };
-
   const renderStatus = (status: string) => {
     switch (status) {
       case ProductStatus.SERIALIZED:
@@ -56,6 +55,39 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         return <Badge color="purple">{status}</Badge>;
       default:
         return <Badge color="blue">{status}</Badge>;
+    }
+  };
+
+  const openInfo = async (id: string) => {
+    setViewInfo({ open: true, id });
+  };
+
+  const generateSerial = (batch: string) => {
+    const date = Date.now().toString(36);
+    const math = Math.random().toString(36).substring(2, 8);
+    const generalize = batch.replace(/[^a-zA-Z0-9]/, '').substring(0, 4);
+    return `SZ${generalize}${date}${math}`.toUpperCase();
+  };
+
+  const serializeProduct = async (
+    id: string,
+    batch: string,
+    amount: number
+  ) => {
+    try {
+      const serials = Array.from({ length: amount }, () =>
+        generateSerial(batch)
+      );
+      const fch = customFetch();
+      const { message }: IFormMessage = await fch.post('/serials', {
+        product: id,
+        status: SerializeStatus.CREATED,
+        serials,
+      });
+      toaster.success(message);
+      router.push('/serialize');
+    } catch (e) {
+      toaster.danger('An error occurred');
     }
   };
 
@@ -105,6 +137,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                         intent="success"
                         icon={BarcodeIcon}
                         disabled={status !== ProductStatus.APPROVED}
+                        onClick={() => serializeProduct(id!, batch, size)}
                       />
                     ) : (
                       <>
@@ -191,7 +224,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IProduct[] = [];
-    const snapshot = await db.collection('/products').get();
+    const snapshot = await db.collection('products').get();
     snapshot.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IProduct) });
     });
