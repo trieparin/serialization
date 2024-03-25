@@ -11,10 +11,10 @@ import { useRouter } from 'next/router';
 
 export default function ProductCreate() {
   const router = useRouter();
-  const formSubmit = async (values: object) => {
+  const formSubmit = async (value: object) => {
     try {
       const fch = customFetch();
-      const { message }: IFormMessage = await fch.post(`/products`, values);
+      const { message }: IFormMessage = await fch.post(`/products`, value);
       toaster.success(message);
       router.push('/product');
     } catch (e) {

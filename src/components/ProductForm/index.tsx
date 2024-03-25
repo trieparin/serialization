@@ -16,7 +16,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 
 interface ProductFormProps {
   initForm: IProduct;
-  formSubmit: (values: object, change?: object) => void;
+  formSubmit: (value: object, change?: object) => void;
 }
 
 export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {

@@ -18,9 +18,9 @@ interface ProductInfoProps {
 
 export default function ProductInfo({ params, data }: ProductInfoProps) {
   const router = useRouter();
-  const formSubmit = async (values: object, changes?: object) => {
+  const formSubmit = async (value: object, change?: object) => {
     try {
-      const data: object = formChangeValue(changes!, values);
+      const data: object = formChangeValue(change!, value);
       const fch = customFetch();
       const { message }: IFormMessage = await fch.patch(
         `/products/${params.id}`,
