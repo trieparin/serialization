@@ -3,7 +3,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
+import { DialogAction, IFormDialog } from '@/models/form.model';
 import { IProduct, ProductStatus } from '@/models/product.model';
 import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
@@ -19,7 +19,6 @@ import {
   Table,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -63,33 +62,24 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
 
   const generateSerial = (batch: string) => {
     const date = Date.now().toString(36);
-    const math = Math.random().toString(36).substring(2, 12);
-    const generalize = batch.replace(/[^a-zA-Z0-9]/, '').substring(0, 4);
-    return `SZ${generalize}${date}${math}`.toUpperCase();
+    const rand = Math.random().toString(36).substring(2, 9);
+    const bid = batch.replace(/[^a-zA-Z0-9]/, '').substring(0, 3);
+    return `SZ${date}${bid}${rand}`.toUpperCase();
   };
 
-  const serializeProduct = async (
+  const serializeProduct = (
     id: string,
     name: string,
     batch: string,
     amount: number
   ) => {
-    try {
-      const serials = Array.from({ length: amount }, () =>
-        generateSerial(batch)
-      );
-      const fch = customFetch();
-      const { message }: IFormMessage = await fch.post('/serials', {
-        product: id,
-        status: SerializeStatus.LABELED,
-        label: `${batch} : ${name}`,
-        serials,
-      });
-      toaster.success(message);
-      router.push('/serialize');
-    } catch (e) {
-      toaster.danger('An error occurred');
-    }
+    const serials = Array.from({ length: amount }, () => generateSerial(batch));
+    return {
+      product: id,
+      label: `${batch} : ${name}`,
+      status: SerializeStatus.LABELED,
+      serials,
+    };
   };
 
   return (
@@ -139,9 +129,17 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           intent="success"
                           icon={BarcodeIcon}
                           disabled={status !== ProductStatus.APPROVED}
-                          onClick={() =>
-                            serializeProduct(id!, name, batch, size)
-                          }
+                          onClick={() => {
+                            setDialogOption({
+                              action: DialogAction.CREATE,
+                              open: true,
+                              path: '/serials',
+                              message: `Confirm serialize "${batch} : ${name}"?`,
+                              approve: true,
+                              change: serializeProduct(id!, name, batch, size),
+                              redirect: '/serialize',
+                            });
+                          }}
                         />
                       ) : (
                         <>
@@ -176,8 +174,6 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                                 open: true,
                                 path: `/products/${id}`,
                                 message: `Confirm delete "${batch} : ${name}"?`,
-                                approve: false,
-                                change: {},
                               });
                             }}
                           />
@@ -198,6 +194,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         message={dialogOption.message}
         approve={dialogOption.approve}
         change={dialogOption.change}
+        redirect={dialogOption.redirect}
         update={getAllProducts}
         reset={() => {
           setDialogOption({
@@ -205,8 +202,6 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
             open: false,
             path: '',
             message: '',
-            approve: false,
-            change: {},
           });
         }}
       />

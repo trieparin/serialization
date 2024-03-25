@@ -47,7 +47,7 @@ export const ViewInfo = ({ id }: { id: string }) => {
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Batch Size:</Heading>
-        <Text>{`${viewInfo.size} ${viewInfo.unit}`}</Text>
+        <Text>{`${viewInfo.size} ${viewInfo.container}`}</Text>
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Active Ingredients:</Heading>

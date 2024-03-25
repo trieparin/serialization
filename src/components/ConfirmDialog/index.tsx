@@ -2,6 +2,7 @@ import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
 import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { Dialog, toaster } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
 interface ConfirmDialogProps extends IFormDialog {
@@ -18,7 +19,9 @@ export const ConfirmDialog = ({
   message,
   approve,
   change,
+  redirect,
 }: ConfirmDialogProps) => {
+  const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
 
   const handleAction = async (close: () => void) => {
@@ -37,10 +40,11 @@ export const ConfirmDialog = ({
       }
       update();
       close();
-      stopLoading();
+      redirect && router.push(redirect);
     } catch (e) {
       toaster.danger('An error occurred');
     }
+    stopLoading();
   };
 
   return (

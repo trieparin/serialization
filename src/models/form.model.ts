@@ -20,4 +20,5 @@ export interface IFormDialog {
   message: string;
   approve?: boolean;
   change?: object;
+  redirect?: string;
 }
