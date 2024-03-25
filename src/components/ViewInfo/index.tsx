@@ -53,9 +53,9 @@ export const ViewInfo = ({ id }: { id: string }) => {
         <Heading marginBottom={majorScale(1)}>Active Ingredients:</Heading>
         <OrderedList>
           {viewInfo.ingredients.map(({ ingredient, quantity, uom }, index) => (
-            <ListItem
-              key={index}
-            >{`${ingredient} ${quantity} ${uom}`}</ListItem>
+            <ListItem key={index}>
+              {`${ingredient} ${quantity} ${uom}`}
+            </ListItem>
           ))}
         </OrderedList>
       </Pane>

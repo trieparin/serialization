@@ -13,9 +13,7 @@
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/stylistic"
       ],
-      "rules": {
-        "@typescript-eslint/no-explicit-any": "off"
-      }
+      "rules": {}
     }
   ]
 }
