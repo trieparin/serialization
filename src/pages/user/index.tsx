@@ -3,6 +3,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { DialogAction, IFormDialog } from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Badge,
@@ -21,10 +22,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>(data);
-  const [dialogOption, setDialogOption] = useState({
+  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+    action: DialogAction.DELETE,
     open: false,
+    path: '',
     message: '',
-    uid: '',
   });
 
   const getAllUsers = async () => {
@@ -34,13 +36,10 @@ export default function UserPage({ data }: { data: IUser[] }) {
   };
 
   const renderRole = (role: string) => {
-    switch (role) {
-      case Role.OPERATOR:
-        return <Badge color="yellow">{role}</Badge>;
-      case Role.SUPERVISOR:
-        return <Badge color="orange">{role}</Badge>;
-      default:
-        return <Badge color="red">{role}</Badge>;
+    if (role === Role.ADMIN) {
+      return <Badge color="red">{role}</Badge>;
+    } else {
+      return <Badge color="neutral">{role}</Badge>;
     }
   };
 
@@ -81,9 +80,10 @@ export default function UserPage({ data }: { data: IUser[] }) {
                       disabled={uid === profile.uid}
                       onClick={() => {
                         setDialogOption({
+                          action: DialogAction.DELETE,
                           open: true,
+                          path: `/users/${uid}`,
                           message: `Confirm delete "${firstName} ${lastName}"?`,
-                          uid,
                         });
                       }}
                     />
@@ -95,12 +95,19 @@ export default function UserPage({ data }: { data: IUser[] }) {
         </Table>
       </Pane>
       <ConfirmDialog
-        approve={false}
+        action={dialogOption.action}
         open={dialogOption.open}
+        path={dialogOption.path}
         message={dialogOption.message}
-        path={`/users/${dialogOption.uid}`}
         update={getAllUsers}
-        reset={() => setDialogOption({ open: false, message: '', uid: '' })}
+        reset={() =>
+          setDialogOption({
+            action: DialogAction.DELETE,
+            open: false,
+            path: '',
+            message: '',
+          })
+        }
       />
     </BaseLayout>
   );
