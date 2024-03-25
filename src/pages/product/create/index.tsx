@@ -56,7 +56,7 @@ export default function ProductCreate() {
       type: ProductType.NON_DRUG,
       batch: '',
       size: 0,
-      unit: '',
+      container: '',
       manufacturer: '',
       mfd: '',
       exp: '',
@@ -160,14 +160,14 @@ export default function ProductCreate() {
               {...register('size', { required: true, min: 0 })}
             />
             <TextInputField
-              label="Unit"
+              label="Container"
               type="text"
-              id="unit"
-              defaultValue={defaultValues?.unit}
-              {...register('unit', {
+              id="container"
+              defaultValue={defaultValues?.container}
+              {...register('container', {
                 required: true,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('unit', event.currentTarget.value.trim());
+                  setValue('container', event.currentTarget.value.trim());
                 },
               })}
             />

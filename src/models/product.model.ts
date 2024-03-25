@@ -24,7 +24,7 @@ export interface IProduct {
   type: ProductType;
   batch: string;
   size: number;
-  unit: string;
+  container: string;
   manufacturer: string;
   mfd: string;
   exp: string;

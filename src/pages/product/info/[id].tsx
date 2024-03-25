@@ -164,14 +164,14 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
               {...register('size', { required: true, min: 0 })}
             />
             <TextInputField
-              label="Unit"
+              label="Container"
               type="text"
-              id="unit"
-              defaultValue={defaultValues?.unit}
-              {...register('unit', {
+              id="container"
+              defaultValue={defaultValues?.container}
+              {...register('container', {
                 required: true,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                  setValue('unit', event.currentTarget.value.trim());
+                  setValue('container', event.currentTarget.value.trim());
                 },
               })}
             />
