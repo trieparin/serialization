@@ -18,7 +18,7 @@ export interface IFormDialog {
   open: boolean;
   path: string;
   message: string;
-  approve?: boolean;
+  confirm?: boolean;
   change?: object;
   redirect?: string;
 }

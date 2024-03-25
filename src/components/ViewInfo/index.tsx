@@ -30,7 +30,7 @@ export const ViewInfo = ({ id }: { id: string }) => {
       gap={majorScale(2)}
     >
       <Pane gridColumn="span 2">
-        <Heading marginBottom={majorScale(1)}>Register No.:</Heading>
+        <Heading marginBottom={majorScale(1)}>Register No:</Heading>
         <Text>{viewInfo.register}</Text>
       </Pane>
       <Pane>
@@ -42,12 +42,16 @@ export const ViewInfo = ({ id }: { id: string }) => {
         <Text>{viewInfo.type}</Text>
       </Pane>
       <Pane>
-        <Heading marginBottom={majorScale(1)}>Batch No.:</Heading>
+        <Heading marginBottom={majorScale(1)}>Batch No:</Heading>
         <Text>{viewInfo.batch}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Batch Size:</Heading>
-        <Text>{`${viewInfo.size} ${viewInfo.container}`}</Text>
+        <Text>{`${viewInfo.size} ${viewInfo.pack}`}</Text>
+      </Pane>
+      <Pane gridColumn="span 2">
+        <Heading marginBottom={majorScale(1)}>Package Info:</Heading>
+        <Text>{`${viewInfo.dosage} of ${viewInfo.amount} ${viewInfo.unit} / Package`}</Text>
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Active Ingredients:</Heading>

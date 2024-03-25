@@ -24,7 +24,10 @@ export interface IProduct {
   type: ProductType;
   batch: string;
   size: number;
-  container: string;
+  pack: string;
+  dosage: string;
+  amount: number;
+  unit: string;
   manufacturer: string;
   mfd: string;
   exp: string;

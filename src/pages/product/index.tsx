@@ -91,99 +91,97 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
             <Table.TextHeaderCell>No.</Table.TextHeaderCell>
             <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Size (Container)</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>Status</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {products.map(
-              ({ id, batch, name, size, container, status }, index) => (
-                <Table.Row key={id}>
-                  <Table.TextCell>{index + 1}</Table.TextCell>
-                  <Table.TextCell>{batch}</Table.TextCell>
-                  <Table.TextCell>{name}</Table.TextCell>
-                  <Table.TextCell>{`${size} (${container})`}</Table.TextCell>
-                  <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-                  <Table.Cell>
-                    <Pane display="flex" columnGap={majorScale(1)}>
+            {products.map(({ id, batch, name, size, pack, status }, index) => (
+              <Table.Row key={id}>
+                <Table.TextCell>{index + 1}</Table.TextCell>
+                <Table.TextCell>{batch}</Table.TextCell>
+                <Table.TextCell>{name}</Table.TextCell>
+                <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
+                <Table.TextCell>{renderStatus(status)}</Table.TextCell>
+                <Table.Cell>
+                  <Pane display="flex" columnGap={majorScale(1)}>
+                    <IconButton
+                      type="button"
+                      name="edit"
+                      title="edit"
+                      icon={EditIcon}
+                      disabled={status !== ProductStatus.CREATED}
+                      onClick={() => router.push(`/product/info/${id}`)}
+                    />
+                    <IconButton
+                      type="button"
+                      name="info"
+                      title="info"
+                      icon={LabelIcon}
+                      onClick={() => openInfo(id!)}
+                    />
+                    {profile.role === Role.OPERATOR ? (
                       <IconButton
                         type="button"
-                        name="edit"
-                        title="edit"
-                        icon={EditIcon}
-                        disabled={status !== ProductStatus.CREATED}
-                        onClick={() => router.push(`/product/info/${id}`)}
+                        name="barcode"
+                        title="barcode"
+                        intent="success"
+                        icon={BarcodeIcon}
+                        disabled={status !== ProductStatus.APPROVED}
+                        onClick={() => {
+                          setDialogOption({
+                            action: DialogAction.CREATE,
+                            open: true,
+                            path: '/serials',
+                            message: `Serialize "${batch} : ${name}"?`,
+                            confirm: true,
+                            change: serializeProduct(id!, name, batch, size),
+                            redirect: '/serialize',
+                          });
+                        }}
                       />
-                      <IconButton
-                        type="button"
-                        name="info"
-                        title="info"
-                        icon={LabelIcon}
-                        onClick={() => openInfo(id!)}
-                      />
-                      {profile.role === Role.OPERATOR ? (
+                    ) : (
+                      <>
                         <IconButton
                           type="button"
-                          name="barcode"
-                          title="barcode"
+                          name="verify"
+                          title="verify"
                           intent="success"
-                          icon={BarcodeIcon}
-                          disabled={status !== ProductStatus.APPROVED}
+                          icon={EndorsedIcon}
+                          disabled={status !== ProductStatus.CREATED}
                           onClick={() => {
                             setDialogOption({
-                              action: DialogAction.CREATE,
+                              action: DialogAction.UPDATE,
                               open: true,
-                              path: '/serials',
-                              message: `Confirm serialize "${batch} : ${name}"?`,
-                              approve: true,
-                              change: serializeProduct(id!, name, batch, size),
-                              redirect: '/serialize',
+                              path: `/products/${id}`,
+                              message: `Approve "${batch} : ${name}"?`,
+                              confirm: true,
+                              change: { status: ProductStatus.APPROVED },
                             });
                           }}
                         />
-                      ) : (
-                        <>
-                          <IconButton
-                            type="button"
-                            name="verify"
-                            title="verify"
-                            intent="success"
-                            icon={EndorsedIcon}
-                            disabled={status !== ProductStatus.CREATED}
-                            onClick={() => {
-                              setDialogOption({
-                                action: DialogAction.UPDATE,
-                                open: true,
-                                path: `/products/${id}`,
-                                message: `Confirm approve "${batch} : ${name}"?`,
-                                approve: true,
-                                change: { status: ProductStatus.APPROVED },
-                              });
-                            }}
-                          />
-                          <IconButton
-                            type="button"
-                            name="delete"
-                            title="delete"
-                            intent="danger"
-                            icon={TrashIcon}
-                            disabled={status === ProductStatus.SERIALIZED}
-                            onClick={() => {
-                              setDialogOption({
-                                action: DialogAction.DELETE,
-                                open: true,
-                                path: `/products/${id}`,
-                                message: `Confirm delete "${batch} : ${name}"?`,
-                              });
-                            }}
-                          />
-                        </>
-                      )}
-                    </Pane>
-                  </Table.Cell>
-                </Table.Row>
-              )
-            )}
+                        <IconButton
+                          type="button"
+                          name="delete"
+                          title="delete"
+                          intent="danger"
+                          icon={TrashIcon}
+                          disabled={status === ProductStatus.SERIALIZED}
+                          onClick={() => {
+                            setDialogOption({
+                              action: DialogAction.DELETE,
+                              open: true,
+                              path: `/products/${id}`,
+                              message: `Delete "${batch} : ${name}"?`,
+                            });
+                          }}
+                        />
+                      </>
+                    )}
+                  </Pane>
+                </Table.Cell>
+              </Table.Row>
+            ))}
           </Table.Body>
         </Table>
       </Pane>
@@ -192,7 +190,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         open={dialogOption.open}
         path={dialogOption.path}
         message={dialogOption.message}
-        approve={dialogOption.approve}
+        confirm={dialogOption.confirm}
         change={dialogOption.change}
         redirect={dialogOption.redirect}
         update={getAllProducts}

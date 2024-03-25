@@ -17,7 +17,7 @@ export const ConfirmDialog = ({
   open,
   path,
   message,
-  approve,
+  confirm,
   change,
   redirect,
 }: ConfirmDialogProps) => {
@@ -52,8 +52,8 @@ export const ConfirmDialog = ({
       isShown={open}
       hasClose={false}
       title="Confirmation"
-      intent={approve ? 'success' : 'danger'}
-      confirmLabel={approve ? 'Approve' : 'Delete'}
+      intent={confirm ? 'success' : 'danger'}
+      confirmLabel={confirm ? 'Confirm' : 'Delete'}
       isConfirmLoading={loading}
       onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
