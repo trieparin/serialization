@@ -7,7 +7,7 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const users = db.collection('/users');
+    const users = db.collection('users');
     const { id } = req.query;
     switch (req.method) {
       case 'GET':

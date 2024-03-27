@@ -1,56 +1,49 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { IFormMessage } from '@/models/form.model';
+import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { Dialog, toaster } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 import { useContext } from 'react';
 
-interface ConfirmDialogProps {
-  open: boolean;
-  approve: boolean;
-  message: string;
-  path: string;
+interface ConfirmDialogProps extends IFormDialog {
   update: () => void;
   reset: () => void;
-  status?: string;
 }
 
 export const ConfirmDialog = ({
-  open,
-  approve,
-  message,
-  path,
   update,
   reset,
-  status,
+  action,
+  open,
+  path,
+  message,
+  confirm,
+  change,
+  redirect,
 }: ConfirmDialogProps) => {
+  const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const handleApprove = async (close: () => void) => {
-    startLoading();
-    try {
-      const fch = customFetch();
-      const { message }: IFormMessage = await fch.patch(path, {
-        status,
-      });
-      toaster.success(message);
-      update();
-    } catch (e) {
-      toaster.danger('An error occurred');
-    }
-    close();
-    stopLoading();
-  };
 
-  const handleDelete = async (close: () => void) => {
+  const handleAction = async (close: () => void) => {
     startLoading();
     try {
       const fch = customFetch();
-      const { message }: IFormMessage = await fch.del(path);
-      toaster.success(message);
+      if (action === DialogAction.CREATE) {
+        const { message }: IFormMessage = await fch.post(path, change!);
+        toaster.success(message);
+      } else if (action === DialogAction.UPDATE) {
+        const { message }: IFormMessage = await fch.patch(path, change!);
+        toaster.success(message);
+      } else {
+        const { message }: IFormMessage = await fch.del(path);
+        toaster.success(message);
+      }
       update();
+      close();
+      redirect && router.push(redirect);
     } catch (e) {
       toaster.danger('An error occurred');
     }
-    close();
     stopLoading();
   };
 
@@ -59,12 +52,10 @@ export const ConfirmDialog = ({
       isShown={open}
       hasClose={false}
       title="Confirmation"
-      intent={approve ? 'success' : 'danger'}
-      confirmLabel={approve ? 'Approve' : 'Delete'}
+      intent={confirm ? 'success' : 'danger'}
+      confirmLabel={confirm ? 'Confirm' : 'Delete'}
       isConfirmLoading={loading}
-      onConfirm={(close) => {
-        approve ? handleApprove(close) : handleDelete(close);
-      }}
+      onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
     >
       {message}

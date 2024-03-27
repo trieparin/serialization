@@ -36,12 +36,12 @@ interface UserInfoProps {
 const formReducer = (state: object, action: IFormAction) => {
   const { type, payload } = action;
   switch (type) {
-    case 'set_password':
+    case 'SET_PASSWORD':
       return {
         ...state,
         password: payload,
       };
-    case 'set_pwd':
+    case 'SET_PWD':
       return {
         ...state,
         pwd: payload,
@@ -147,7 +147,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
                 pattern: pwdRegEx,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_password',
+                    type: 'SET_PASSWORD',
                     payload: event.currentTarget.value,
                   });
                 },
@@ -172,7 +172,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
                 validate: () => state.pwd === state.password,
                 onBlur: (event: FocusEvent<HTMLInputElement>) => {
                   dispatch({
-                    type: 'set_pwd',
+                    type: 'SET_PWD',
                     payload: event.currentTarget.value,
                   });
                 },

@@ -11,67 +11,69 @@ import {
 } from 'evergreen-ui';
 import { useEffect, useState } from 'react';
 
-export const ProductInfo = ({ id }: { id: string }) => {
-  const [productInfo, setProductInfo] = useState<IProduct>(null!);
+export const ViewInfo = ({ id }: { id: string }) => {
+  const [viewInfo, setViewInfo] = useState<IProduct>(null!);
 
   useEffect(() => {
     const getInfo = async () => {
       const fch = customFetch();
       const { data }: { data: IProduct } = await fch.get(`/products/${id}`);
-      setProductInfo(data);
+      setViewInfo(data);
     };
     getInfo();
   }, [id]);
 
-  return productInfo ? (
+  return viewInfo ? (
     <Pane
       display="grid"
       gridTemplateColumns="repeat(2, minmax(0, 1fr))"
       gap={majorScale(2)}
     >
       <Pane gridColumn="span 2">
-        <Heading marginBottom={majorScale(1)}>Register No.:</Heading>
-        <Text>{productInfo.register}</Text>
+        <Heading marginBottom={majorScale(1)}>Register No:</Heading>
+        <Text>{viewInfo.register}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Product Name:</Heading>
-        <Text>{productInfo.name}</Text>
+        <Text>{viewInfo.name}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Product Type:</Heading>
-        <Text>{productInfo.type}</Text>
+        <Text>{viewInfo.type}</Text>
       </Pane>
       <Pane>
-        <Heading marginBottom={majorScale(1)}>Batch No.:</Heading>
-        <Text>{productInfo.batch}</Text>
+        <Heading marginBottom={majorScale(1)}>Batch No:</Heading>
+        <Text>{viewInfo.batch}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Batch Size:</Heading>
-        <Text>{`${productInfo.size} ${productInfo.unit}`}</Text>
+        <Text>{`${viewInfo.size} ${viewInfo.pack}`}</Text>
+      </Pane>
+      <Pane gridColumn="span 2">
+        <Heading marginBottom={majorScale(1)}>Package Info:</Heading>
+        <Text>{`${viewInfo.dosage} of ${viewInfo.amount} ${viewInfo.unit} / Package`}</Text>
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Active Ingredients:</Heading>
         <OrderedList>
-          {productInfo.ingredients.map(
-            ({ ingredient, quantity, uom }, index) => (
-              <ListItem
-                key={index}
-              >{`${ingredient} ${quantity} ${uom}`}</ListItem>
-            )
-          )}
+          {viewInfo.ingredients.map(({ ingredient, quantity, uom }, index) => (
+            <ListItem key={index}>
+              {`${ingredient} ${quantity} ${uom}`}
+            </ListItem>
+          ))}
         </OrderedList>
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Manufacturer:</Heading>
-        <Text>{productInfo.manufacturer}</Text>
+        <Text>{viewInfo.manufacturer}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Manufacture Date:</Heading>
-        <Text>{productInfo.mfd}</Text>
+        <Text>{viewInfo.mfd}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Expiration Date:</Heading>
-        <Text>{productInfo.exp}</Text>
+        <Text>{viewInfo.exp}</Text>
       </Pane>
     </Pane>
   ) : (

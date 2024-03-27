@@ -1,9 +1,11 @@
-import { ConfirmDialog, PageTitle, ProductInfo } from '@/components';
+import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { DialogAction, IFormDialog } from '@/models/form.model';
 import { IProduct, ProductStatus } from '@/models/product.model';
+import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   Badge,
@@ -26,14 +28,13 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
-  const [dialogOption, setDialogOption] = useState({
+  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+    action: DialogAction.DELETE,
     open: false,
-    approve: false,
-    id: '',
+    path: '',
     message: '',
-    status: '',
   });
-  const [productInfo, setProductInfo] = useState({
+  const [viewInfo, setViewInfo] = useState({
     open: false,
     id: '',
   });
@@ -44,19 +45,41 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
     setProducts(data);
   };
 
-  const openInfo = async (id: string) => {
-    setProductInfo({ open: true, id });
-  };
-
   const renderStatus = (status: string) => {
     switch (status) {
-      case ProductStatus.SERIALIZED:
-        return <Badge color="green">{status}</Badge>;
+      case ProductStatus.CREATED:
+        return <Badge color="yellow">{status}</Badge>;
       case ProductStatus.APPROVED:
-        return <Badge color="purple">{status}</Badge>;
-      default:
         return <Badge color="blue">{status}</Badge>;
+      default:
+        return <Badge color="green">{status}</Badge>;
     }
+  };
+
+  const openInfo = async (id: string) => {
+    setViewInfo({ open: true, id });
+  };
+
+  const generateSerial = (batch: string) => {
+    const date = Date.now().toString(36);
+    const rand = Math.random().toString(36).substring(2, 9);
+    const bid = batch.replace(/[^a-zA-Z0-9]/, '').substring(0, 3);
+    return `SZ${date}${bid}${rand}`.toUpperCase();
+  };
+
+  const serializeProduct = (
+    id: string,
+    name: string,
+    batch: string,
+    amount: number
+  ) => {
+    const serials = Array.from({ length: amount }, () => generateSerial(batch));
+    return {
+      product: id,
+      label: `${batch} : ${name}`,
+      status: SerializeStatus.LABELED,
+      serials,
+    };
   };
 
   return (
@@ -68,17 +91,17 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
             <Table.TextHeaderCell>No.</Table.TextHeaderCell>
             <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Size (Unit)</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>Status</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {products.map(({ id, batch, name, size, unit, status }, index) => (
+            {products.map(({ id, batch, name, size, pack, status }, index) => (
               <Table.Row key={id}>
                 <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{batch}</Table.TextCell>
                 <Table.TextCell>{name}</Table.TextCell>
-                <Table.TextCell>{`${size} (${unit})`}</Table.TextCell>
+                <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
                 <Table.Cell>
                   <Pane display="flex" columnGap={majorScale(1)}>
@@ -105,6 +128,17 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                         intent="success"
                         icon={BarcodeIcon}
                         disabled={status !== ProductStatus.APPROVED}
+                        onClick={() => {
+                          setDialogOption({
+                            action: DialogAction.CREATE,
+                            open: true,
+                            path: '/serials',
+                            message: `Serialize "${batch} : ${name}"?`,
+                            confirm: true,
+                            change: serializeProduct(id!, name, batch, size),
+                            redirect: '/serialize',
+                          });
+                        }}
                       />
                     ) : (
                       <>
@@ -117,11 +151,12 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           disabled={status !== ProductStatus.CREATED}
                           onClick={() => {
                             setDialogOption({
+                              action: DialogAction.UPDATE,
                               open: true,
-                              approve: true,
-                              id: id!,
-                              message: `Confirm approve "${batch} : ${name}"?`,
-                              status: ProductStatus.APPROVED,
+                              path: `/products/${id}`,
+                              message: `Approve "${batch} : ${name}"?`,
+                              confirm: true,
+                              change: { status: ProductStatus.APPROVED },
                             });
                           }}
                         />
@@ -134,11 +169,10 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                           disabled={status === ProductStatus.SERIALIZED}
                           onClick={() => {
                             setDialogOption({
+                              action: DialogAction.DELETE,
                               open: true,
-                              approve: false,
-                              id: id!,
-                              message: `Confirm delete "${batch} : ${name}"?`,
-                              status: '',
+                              path: `/products/${id}`,
+                              message: `Delete "${batch} : ${name}"?`,
                             });
                           }}
                         />
@@ -152,31 +186,32 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
         </Table>
       </Pane>
       <ConfirmDialog
+        action={dialogOption.action}
         open={dialogOption.open}
-        approve={dialogOption.approve}
+        path={dialogOption.path}
         message={dialogOption.message}
-        path={`/products/${dialogOption.id}`}
+        confirm={dialogOption.confirm}
+        change={dialogOption.change}
+        redirect={dialogOption.redirect}
         update={getAllProducts}
         reset={() => {
           setDialogOption({
+            action: DialogAction.DELETE,
             open: false,
-            approve: false,
-            id: '',
+            path: '',
             message: '',
-            status: '',
           });
         }}
-        status={dialogOption.status}
       />
       <Dialog
-        isShown={productInfo.open}
+        isShown={viewInfo.open}
         hasClose={false}
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setProductInfo({ open: false, id: '' })}
+        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
       >
-        <ProductInfo id={productInfo.id} />
+        <ViewInfo id={viewInfo.id} />
       </Dialog>
     </BaseLayout>
   );
@@ -191,7 +226,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IProduct[] = [];
-    const snapshot = await db.collection('/products').get();
+    const snapshot = await db.collection('products').get();
     snapshot.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IProduct) });
     });

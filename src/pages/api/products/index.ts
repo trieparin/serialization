@@ -8,7 +8,7 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const products = db.collection('/products');
+    const products = db.collection('products');
     if (req.method === 'GET') {
       const data: IProduct[] = [];
       const snapshot = await products.get();

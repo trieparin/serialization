@@ -19,16 +19,20 @@ export interface IIngredient {
 }
 
 export interface IProduct {
-  id?: string;
   register: string;
   name: string;
   type: ProductType;
   batch: string;
   size: number;
+  pack: string;
+  dosage: string;
+  amount: number;
   unit: string;
   manufacturer: string;
   mfd: string;
   exp: string;
   ingredients: IIngredient[];
   status: ProductStatus;
+  id?: string;
+  serial?: string;
 }

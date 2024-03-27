@@ -30,9 +30,9 @@ export const Header = ({ profile }: { profile: IUser }) => {
             <NavLink href="/user">Users</NavLink>
           ) : (
             <>
-              <NavLink href="/product">Products</NavLink>
+              <NavLink href="/product">Product</NavLink>
               <Text color="muted">|</Text>
-              <NavLink href="/serial">Serials</NavLink>
+              <NavLink href="/serialize">Serialize</NavLink>
             </>
           )}
         </Pane>
