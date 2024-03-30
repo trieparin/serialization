@@ -1,4 +1,4 @@
-import { ConfirmDialog, PageTitle } from '@/components';
+import { ConfirmDialog, PageTitle, TableSearch } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -48,17 +48,21 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={1214} paddingRight={0}>
-            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
+          <Table.Head minWidth={900} paddingRight={0}>
+            <TableSearch
+              placeholder="SEARCH EMAIL"
+              path="/users"
+              find="email"
+              update={(search: IUser[]) => setUsers(search)}
+              reset={getAllUsers}
+            />
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Role</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {users?.map(({ uid, email, firstName, lastName, role }, index) => (
+            {users?.map(({ uid, email, firstName, lastName, role }) => (
               <Table.Row key={uid}>
-                <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>

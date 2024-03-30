@@ -1,4 +1,4 @@
-import { ConfirmDialog, PageTitle, ViewInfo } from '@/components';
+import { ConfirmDialog, PageTitle, TableSearch, ViewInfo } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -87,18 +87,22 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       <PageTitle title="All Products" link="/product/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={1214} paddingRight={0}>
-            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
+          <Table.Head minWidth={900} paddingRight={0}>
+            <TableSearch
+              placeholder="SEARCH BATCH ID"
+              path="/products"
+              find="batch"
+              update={(search: IProduct[]) => setProducts(search)}
+              reset={getAllProducts}
+            />
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>Status</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {products.map(({ id, batch, name, size, pack, status }, index) => (
+            {products.map(({ id, batch, name, size, pack, status }) => (
               <Table.Row key={id}>
-                <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{batch}</Table.TextCell>
                 <Table.TextCell>{name}</Table.TextCell>
                 <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
