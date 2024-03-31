@@ -1,4 +1,5 @@
 import { PageTitle, TableSearch } from '@/components';
+import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
@@ -6,6 +7,7 @@ import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   Badge,
+  EndorsedIcon,
   IconButton,
   LabelIcon,
   Pane,
@@ -13,9 +15,10 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 export default function SerializePage({ data }: { data: ISerialize[] }) {
+  const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
 
   const getAllSerials = async () => {
@@ -64,6 +67,16 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
                       title="info"
                       icon={LabelIcon}
                     />
+                    {profile.role === Role.SUPERVISOR && (
+                      <IconButton
+                        type="button"
+                        name="verify"
+                        title="verify"
+                        intent="success"
+                        icon={EndorsedIcon}
+                        disabled={!SerializeStatus.LABELED}
+                      />
+                    )}
                   </Pane>
                 </Table.Cell>
               </Table.Row>
