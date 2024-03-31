@@ -20,3 +20,11 @@ export const formChangeValue = (fields: object, values: object) => {
   );
   return changes;
 };
+
+export const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('en-UK', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
