@@ -7,6 +7,7 @@ import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   Badge,
+  BoxIcon,
   EndorsedIcon,
   IconButton,
   LabelIcon,
@@ -74,9 +75,17 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
                         title="verify"
                         intent="success"
                         icon={EndorsedIcon}
-                        disabled={!SerializeStatus.LABELED}
+                        disabled={status !== SerializeStatus.LABELED}
                       />
                     )}
+                    <IconButton
+                      type="button"
+                      name="distribute"
+                      title="distribute"
+                      intent="success"
+                      icon={BoxIcon}
+                      disabled={status !== SerializeStatus.VERIFIED}
+                    />
                   </Pane>
                 </Table.Cell>
               </Table.Row>
