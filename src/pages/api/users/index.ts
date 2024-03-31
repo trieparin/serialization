@@ -10,9 +10,18 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const users = db.collection('users');
     if (req.method === 'GET') {
+      const { email } = req.query;
       const data: IUser[] = [];
-      const snapshot = await users.get();
-      snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
+      if (email) {
+        const snapshot = await users
+          .where('email', '>=', email)
+          .where('email', '<=', `${email}~`)
+          .get();
+        snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
+      } else {
+        const snapshot = await users.get();
+        snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
+      }
       res.status(200).json({ data });
     } else if (req.method === 'POST') {
       const { email, password, firstName, lastName, role } = req.body;

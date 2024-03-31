@@ -12,11 +12,23 @@ export default async function handler(
     const serialize = db.collection('serials');
     const products = db.collection('products');
     if (req.method === 'GET') {
+      const { label } = req.query;
       const data: ISerialize[] = [];
-      const snapshot = await serialize.get();
-      snapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...(doc.data() as ISerialize) });
-      });
+      if (label) {
+        const snapshot = await serialize
+          .where('label', '>=', label)
+          .where('label', '<=', `${label}~`)
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+        });
+      } else {
+        const snapshot = await serialize.get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+        });
+      }
+
       res.status(200).json({ data });
     } else if (req.method === 'POST') {
       const { product } = req.body;

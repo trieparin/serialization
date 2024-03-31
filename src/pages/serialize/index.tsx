@@ -1,5 +1,6 @@
-import { PageTitle } from '@/components';
+import { PageTitle, TableSearch } from '@/components';
 import { admin, db } from '@/firebase/admin';
+import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
@@ -12,8 +13,17 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
+import { useState } from 'react';
 
 export default function SerializePage({ data }: { data: ISerialize[] }) {
+  const [serials, setSerials] = useState<ISerialize[]>(data);
+
+  const getAllSerials = async () => {
+    const fch = customFetch();
+    const { data }: { data: ISerialize[] } = await fch.get('/serials');
+    setSerials(data);
+  };
+
   const renderStatus = (status: string) => {
     switch (status) {
       case SerializeStatus.LABELED:
@@ -30,16 +40,20 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
       <PageTitle title="All Serials" />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={1214} paddingRight={0}>
-            <Table.TextHeaderCell>No.</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Label</Table.TextHeaderCell>
+          <Table.Head minWidth={900} paddingRight={0}>
+            <TableSearch
+              placeholder="SEARCH LABEL"
+              path="/serials"
+              find="label"
+              update={(search: ISerialize[]) => setSerials(search)}
+              reset={getAllSerials}
+            />
             <Table.TextHeaderCell>Status</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {data.map(({ id, label, status }, index) => (
+            {serials.map(({ id, label, status }) => (
               <Table.Row key={id}>
-                <Table.TextCell>{index + 1}</Table.TextCell>
                 <Table.TextCell>{label}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
                 <Table.Cell>
