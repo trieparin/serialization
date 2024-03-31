@@ -10,11 +10,22 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const products = db.collection('products');
     if (req.method === 'GET') {
+      const { batch } = req.query;
       const data: IProduct[] = [];
-      const snapshot = await products.get();
-      snapshot.forEach((doc) => {
-        data.push({ id: doc.id, ...(doc.data() as IProduct) });
-      });
+      if (batch) {
+        const snapshot = await products
+          .where('batch', '>=', batch)
+          .where('batch', '<=', `${batch}~`)
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as IProduct) });
+        });
+      } else {
+        const snapshot = await products.get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as IProduct) });
+        });
+      }
       res.status(200).json({ data });
     } else if (req.method === 'POST') {
       await products.add(req.body);
