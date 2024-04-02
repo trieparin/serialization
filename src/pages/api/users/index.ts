@@ -16,10 +16,11 @@ export default async function handler(
         const snapshot = await users
           .where('email', '>=', email)
           .where('email', '<=', `${email}~`)
+          .orderBy('role')
           .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       } else {
-        const snapshot = await users.get();
+        const snapshot = await users.orderBy('role').get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       }
       res.status(200).json({ data });
