@@ -49,6 +49,10 @@ a:visited {
   padding-right: var(--size-2);
 }
 
+.pagination ul {
+  justify-content: flex-end;
+}
+
 .user-menu svg {
   fill: white;
 }
