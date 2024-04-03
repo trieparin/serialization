@@ -1,3 +1,7 @@
+export enum PageSize {
+  PER_PAGE = 10,
+}
+
 export enum DialogAction {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',

@@ -1,9 +1,9 @@
-import { ConfirmDialog, PageTitle, TableSearch } from '@/components';
+import { ConfirmDialog, PageTitle, Paginate } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog } from '@/models/form.model';
+import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Badge,
@@ -18,7 +18,12 @@ import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
-export default function UserPage({ data }: { data: IUser[] }) {
+interface UserPageProps {
+  data: IUser[];
+  total: number;
+}
+
+export default function UserPage({ data, total }: UserPageProps) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>(data);
@@ -49,13 +54,14 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head minWidth={900} paddingRight={0}>
-            <TableSearch
+            {/* <TableSearch
               placeholder="SEARCH EMAIL"
               path="/users"
               find="email"
               update={(search: IUser[]) => setUsers(search)}
               reset={getAllUsers}
-            />
+            /> */}
+            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Role</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
@@ -97,6 +103,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
             ))}
           </Table.Body>
         </Table>
+        <Paginate
+          update={(value: IUser[]) => setUsers(value)}
+          path="/users"
+          total={total}
+        />
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}
@@ -126,14 +137,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IUser[] = [];
-    const snapshot = await db.collection('users').orderBy('role').get();
-    snapshot.forEach((doc) => {
+    const snapshot = db.collection('users').orderBy('role');
+    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
+    select.forEach((doc) => {
       data.push({ uid: doc.id, ...doc.data() });
     });
 
     return {
       props: {
         data,
+        total,
       },
     };
   } catch (e) {

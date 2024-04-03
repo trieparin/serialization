@@ -1,8 +1,8 @@
-import { PageTitle, TableSearch } from '@/components';
+import { PageTitle, Paginate } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
-import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { PageSize } from '@/models/form.model';
 import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
@@ -18,15 +18,20 @@ import {
 import { GetServerSidePropsContext } from 'next';
 import { useContext, useState } from 'react';
 
-export default function SerializePage({ data }: { data: ISerialize[] }) {
+interface SerializePageProps {
+  data: ISerialize[];
+  total: number;
+}
+
+export default function SerializePage({ data, total }: SerializePageProps) {
   const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
 
-  const getAllSerials = async () => {
-    const fch = customFetch();
-    const { data }: { data: ISerialize[] } = await fch.get('/serials');
-    setSerials(data);
-  };
+  // const getAllSerials = async () => {
+  //   const fch = customFetch();
+  //   const { data }: { data: ISerialize[] } = await fch.get('/serials');
+  //   setSerials(data);
+  // };
 
   const renderStatus = (status: string) => {
     switch (status) {
@@ -45,13 +50,14 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head minWidth={900} paddingRight={0}>
-            <TableSearch
+            {/* <TableSearch
               placeholder="SEARCH LABEL"
               path="/serials"
               find="label"
               update={(search: ISerialize[]) => setSerials(search)}
               reset={getAllSerials}
-            />
+            /> */}
+            <Table.TextHeaderCell>Label</Table.TextHeaderCell>
             <Table.TextHeaderCell>Status</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
@@ -92,6 +98,11 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
             ))}
           </Table.Body>
         </Table>
+        <Paginate
+          update={(value: ISerialize[]) => setSerials(value)}
+          path="/serials"
+          total={total}
+        />
       </Pane>
     </BaseLayout>
   );
@@ -106,14 +117,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: ISerialize[] = [];
-    const snapshot = await db.collection('serials').get();
-    snapshot.forEach((doc) => {
+    const snapshot = db.collection('serials');
+    const select = await snapshot.get();
+    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
+    select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as ISerialize) });
     });
 
     return {
       props: {
         data,
+        total,
       },
     };
   } catch (e) {
