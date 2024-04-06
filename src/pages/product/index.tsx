@@ -1,9 +1,16 @@
-import { ConfirmDialog, PageTitle, TableSearch, ViewInfo } from '@/components';
+import {
+  ConfirmDialog,
+  PageTitle,
+  Paginate,
+  TableSearch,
+  TableSelect,
+  ViewInfo,
+} from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog } from '@/models/form.model';
+import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
 import { IProduct, ProductStatus } from '@/models/product.model';
 import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
@@ -24,7 +31,12 @@ import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
-export default function ProductPage({ data }: { data: IProduct[] }) {
+interface ProductPageProps {
+  data: IProduct[];
+  total: number;
+}
+
+export default function ProductPage({ data, total }: ProductPageProps) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
@@ -87,18 +99,28 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
       <PageTitle title="All Products" link="/product/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            <TableSearch
-              placeholder="SEARCH BATCH ID"
-              path="/products"
-              find="batch"
-              update={(search: IProduct[]) => setProducts(search)}
-              reset={getAllProducts}
-            />
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Batch ID
+              <TableSearch placeholder="Batch ID" find="batch" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Name
+              <TableSearch placeholder="Name" find="name" />
+            </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Status
+              <TableSelect options={ProductStatus} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {products.map(({ id, batch, name, size, pack, status }) => (
@@ -107,7 +129,7 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
                 <Table.TextCell>{name}</Table.TextCell>
                 <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"
@@ -188,6 +210,11 @@ export default function ProductPage({ data }: { data: IProduct[] }) {
             ))}
           </Table.Body>
         </Table>
+        <Paginate
+          update={(value: IProduct[]) => setProducts(value)}
+          path="/products"
+          total={total}
+        />
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}
@@ -230,14 +257,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IProduct[] = [];
-    const snapshot = await db.collection('products').get();
-    snapshot.forEach((doc) => {
+    const snapshot = db.collection('products');
+    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
+    select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IProduct) });
     });
 
     return {
       props: {
         data,
+        total,
       },
     };
   } catch (e) {

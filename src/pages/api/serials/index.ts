@@ -1,4 +1,5 @@
 import { admin, db } from '@/firebase/admin';
+import { PageSize } from '@/models/form.model';
 import { ProductStatus } from '@/models/product.model';
 import { ISerialize } from '@/models/serialize.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -12,7 +13,7 @@ export default async function handler(
     const serialize = db.collection('serials');
     const products = db.collection('products');
     if (req.method === 'GET') {
-      const { label } = req.query;
+      const { label, offset } = req.query;
       const data: ISerialize[] = [];
       if (label) {
         const snapshot = await serialize
@@ -22,8 +23,16 @@ export default async function handler(
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });
+      } else if (offset) {
+        const snapshot = await serialize
+          .limit(PageSize.PER_PAGE)
+          .offset(parseInt(offset as string))
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+        });
       } else {
-        const snapshot = await serialize.get();
+        const snapshot = await serialize.limit(PageSize.PER_PAGE).get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });

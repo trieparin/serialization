@@ -1,11 +1,14 @@
-import { PageTitle, TableSearch } from '@/components';
+import { PageTitle, Paginate, TableSearch, TableSelect } from '@/components';
+import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
-import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { PageSize } from '@/models/form.model';
 import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   Badge,
+  BoxIcon,
+  EndorsedIcon,
   IconButton,
   LabelIcon,
   Pane,
@@ -13,16 +16,22 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
-export default function SerializePage({ data }: { data: ISerialize[] }) {
+interface SerializePageProps {
+  data: ISerialize[];
+  total: number;
+}
+
+export default function SerializePage({ data, total }: SerializePageProps) {
+  const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
 
-  const getAllSerials = async () => {
-    const fch = customFetch();
-    const { data }: { data: ISerialize[] } = await fch.get('/serials');
-    setSerials(data);
-  };
+  // const getAllSerials = async () => {
+  //   const fch = customFetch();
+  //   const { data }: { data: ISerialize[] } = await fch.get('/serials');
+  //   setSerials(data);
+  // };
 
   const renderStatus = (status: string) => {
     switch (status) {
@@ -40,23 +49,30 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
       <PageTitle title="All Serials" />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            <TableSearch
-              placeholder="SEARCH LABEL"
-              path="/serials"
-              find="label"
-              update={(search: ISerialize[]) => setSerials(search)}
-              reset={getAllSerials}
-            />
-            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Label
+              <TableSearch placeholder="Label" find="label" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Status
+              <TableSelect options={SerializeStatus} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {serials.map(({ id, label, status }) => (
               <Table.Row key={id}>
                 <Table.TextCell>{label}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"
@@ -64,12 +80,35 @@ export default function SerializePage({ data }: { data: ISerialize[] }) {
                       title="info"
                       icon={LabelIcon}
                     />
+                    {profile.role === Role.SUPERVISOR && (
+                      <IconButton
+                        type="button"
+                        name="verify"
+                        title="verify"
+                        intent="success"
+                        icon={EndorsedIcon}
+                        disabled={status !== SerializeStatus.LABELED}
+                      />
+                    )}
+                    <IconButton
+                      type="button"
+                      name="distribute"
+                      title="distribute"
+                      intent="success"
+                      icon={BoxIcon}
+                      disabled={status !== SerializeStatus.VERIFIED}
+                    />
                   </Pane>
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table>
+        <Paginate
+          update={(value: ISerialize[]) => setSerials(value)}
+          path="/serials"
+          total={total}
+        />
       </Pane>
     </BaseLayout>
   );
@@ -84,14 +123,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: ISerialize[] = [];
-    const snapshot = await db.collection('serials').get();
-    snapshot.forEach((doc) => {
+    const snapshot = db.collection('serials');
+    const select = await snapshot.get();
+    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
+    select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as ISerialize) });
     });
 
     return {
       props: {
         data,
+        total,
       },
     };
   } catch (e) {

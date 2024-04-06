@@ -38,7 +38,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
           {profile.role === Role.SUPERVISOR && (
             <>
               <Text color="muted">|</Text>
-              <NavLink href="/report">Report</NavLink>
+              <NavLink href="/summary">Summary</NavLink>
             </>
           )}
         </Pane>

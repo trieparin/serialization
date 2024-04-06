@@ -1,4 +1,5 @@
 import { admin, db } from '@/firebase/admin';
+import { PageSize } from '@/models/form.model';
 import { IUser } from '@/models/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,16 +11,27 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const users = db.collection('users');
     if (req.method === 'GET') {
-      const { email } = req.query;
+      const { email, offset } = req.query;
       const data: IUser[] = [];
       if (email) {
         const snapshot = await users
           .where('email', '>=', email)
           .where('email', '<=', `${email}~`)
+          .orderBy('role')
+          .get();
+        snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
+      } else if (offset) {
+        const snapshot = await users
+          .orderBy('role')
+          .limit(PageSize.PER_PAGE)
+          .offset(parseInt(offset as string))
           .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       } else {
-        const snapshot = await users.get();
+        const snapshot = await users
+          .orderBy('role')
+          .limit(PageSize.PER_PAGE)
+          .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       }
       res.status(200).json({ data });

@@ -1,9 +1,15 @@
-import { ConfirmDialog, PageTitle, TableSearch } from '@/components';
+import {
+  ConfirmDialog,
+  PageTitle,
+  Paginate,
+  TableSearch,
+  TableSelect,
+} from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog } from '@/models/form.model';
+import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Badge,
@@ -18,7 +24,12 @@ import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
 
-export default function UserPage({ data }: { data: IUser[] }) {
+interface UserPageProps {
+  data: IUser[];
+  total: number;
+}
+
+export default function UserPage({ data, total }: UserPageProps) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>(data);
@@ -48,17 +59,27 @@ export default function UserPage({ data }: { data: IUser[] }) {
       <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            <TableSearch
-              placeholder="SEARCH EMAIL"
-              path="/users"
-              find="email"
-              update={(search: IUser[]) => setUsers(search)}
-              reset={getAllUsers}
-            />
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Role</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Email
+              <TableSearch placeholder="Email" find="email" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Name
+              <TableSearch placeholder="Name" find="name" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Role
+              <TableSelect options={Role} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {users?.map(({ uid, email, firstName, lastName, role }) => (
@@ -66,7 +87,7 @@ export default function UserPage({ data }: { data: IUser[] }) {
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"
@@ -97,6 +118,11 @@ export default function UserPage({ data }: { data: IUser[] }) {
             ))}
           </Table.Body>
         </Table>
+        <Paginate
+          update={(value: IUser[]) => setUsers(value)}
+          path="/users"
+          total={total}
+        />
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}
@@ -126,14 +152,17 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IUser[] = [];
-    const snapshot = await db.collection('users').get();
-    snapshot.forEach((doc) => {
+    const snapshot = db.collection('users').orderBy('role');
+    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
+    select.forEach((doc) => {
       data.push({ uid: doc.id, ...doc.data() });
     });
 
     return {
       props: {
         data,
+        total,
       },
     };
   } catch (e) {

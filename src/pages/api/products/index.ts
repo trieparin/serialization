@@ -1,4 +1,5 @@
 import { admin, db } from '@/firebase/admin';
+import { PageSize } from '@/models/form.model';
 import { IProduct } from '@/models/product.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,7 +11,7 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const products = db.collection('products');
     if (req.method === 'GET') {
-      const { batch } = req.query;
+      const { batch, offset } = req.query;
       const data: IProduct[] = [];
       if (batch) {
         const snapshot = await products
@@ -20,8 +21,16 @@ export default async function handler(
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as IProduct) });
         });
+      } else if (offset) {
+        const snapshot = await products
+          .limit(PageSize.PER_PAGE)
+          .offset(parseInt(offset as string))
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as IProduct) });
+        });
       } else {
-        const snapshot = await products.get();
+        const snapshot = await products.limit(PageSize.PER_PAGE).get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as IProduct) });
         });

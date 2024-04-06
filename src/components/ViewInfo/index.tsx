@@ -1,4 +1,5 @@
 import customFetch from '@/helpers/fetch.helper';
+import { formatDate } from '@/helpers/form.helper';
 import { IProduct } from '@/models/product.model';
 import {
   Heading,
@@ -69,11 +70,11 @@ export const ViewInfo = ({ id }: { id: string }) => {
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Manufacture Date:</Heading>
-        <Text>{viewInfo.mfd}</Text>
+        <Text>{formatDate(viewInfo.mfd)}</Text>
       </Pane>
       <Pane>
         <Heading marginBottom={majorScale(1)}>Expiration Date:</Heading>
-        <Text>{viewInfo.exp}</Text>
+        <Text>{formatDate(viewInfo.exp)}</Text>
       </Pane>
     </Pane>
   ) : (
