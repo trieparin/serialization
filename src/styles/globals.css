@@ -49,12 +49,17 @@ a:visited {
   padding-right: var(--size-2);
 }
 
+.user-menu svg {
+  fill: white;
+}
+
 .pagination ul {
   justify-content: flex-end;
 }
 
-.user-menu svg {
-  fill: white;
+.table-select select {
+  border: none;
+  background-color: transparent;
 }
 
 @media only screen and (min-width: 1024px) {

@@ -1,4 +1,10 @@
-import { ConfirmDialog, PageTitle, Paginate } from '@/components';
+import {
+  ConfirmDialog,
+  PageTitle,
+  Paginate,
+  TableSearch,
+  TableSelect,
+} from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -53,18 +59,27 @@ export default function UserPage({ data, total }: UserPageProps) {
       <PageTitle title="All Users" link="/user/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            {/* <TableSearch
-              placeholder="SEARCH EMAIL"
-              path="/users"
-              find="email"
-              update={(search: IUser[]) => setUsers(search)}
-              reset={getAllUsers}
-            /> */}
-            <Table.TextHeaderCell>Email</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Role</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Email
+              <TableSearch placeholder="Email" find="email" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Name
+              <TableSearch placeholder="Name" find="name" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Role
+              <TableSelect options={Role} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {users?.map(({ uid, email, firstName, lastName, role }) => (
@@ -72,7 +87,7 @@ export default function UserPage({ data, total }: UserPageProps) {
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"

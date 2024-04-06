@@ -1,4 +1,4 @@
-import { PageTitle, Paginate } from '@/components';
+import { PageTitle, Paginate, TableSearch, TableSelect } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import { BaseLayout } from '@/layouts';
@@ -49,24 +49,30 @@ export default function SerializePage({ data, total }: SerializePageProps) {
       <PageTitle title="All Serials" />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            {/* <TableSearch
-              placeholder="SEARCH LABEL"
-              path="/serials"
-              find="label"
-              update={(search: ISerialize[]) => setSerials(search)}
-              reset={getAllSerials}
-            /> */}
-            <Table.TextHeaderCell>Label</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Label
+              <TableSearch placeholder="Label" find="label" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Status
+              <TableSelect options={SerializeStatus} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {serials.map(({ id, label, status }) => (
               <Table.Row key={id}>
                 <Table.TextCell>{label}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"

@@ -1,4 +1,11 @@
-import { ConfirmDialog, PageTitle, Paginate, ViewInfo } from '@/components';
+import {
+  ConfirmDialog,
+  PageTitle,
+  Paginate,
+  TableSearch,
+  TableSelect,
+  ViewInfo,
+} from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
@@ -92,19 +99,28 @@ export default function ProductPage({ data, total }: ProductPageProps) {
       <PageTitle title="All Products" link="/product/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
-          <Table.Head minWidth={900} paddingRight={0}>
-            {/* <TableSearch
-              placeholder="SEARCH BATCH ID"
-              path="/products"
-              find="batch"
-              update={(search: IProduct[]) => setProducts(search)}
-              reset={getAllProducts}
-            /> */}
-            <Table.TextHeaderCell>Batch ID</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+          <Table.Head
+            minWidth={900}
+            paddingRight={0}
+            paddingY={majorScale(1)}
+            alignItems="flex-start"
+          >
+            <Table.TextHeaderCell>
+              Batch ID
+              <TableSearch placeholder="Batch ID" find="batch" />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Name
+              <TableSearch placeholder="Name" find="name" />
+            </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Status</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+            <Table.TextHeaderCell>
+              Status
+              <TableSelect options={ProductStatus} />
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {products.map(({ id, batch, name, size, pack, status }) => (
@@ -113,7 +129,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                 <Table.TextCell>{name}</Table.TextCell>
                 <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
                 <Table.TextCell>{renderStatus(status)}</Table.TextCell>
-                <Table.Cell>
+                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"

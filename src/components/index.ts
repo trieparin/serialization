@@ -7,4 +7,5 @@ export * from './Paginate';
 export * from './ProductForm';
 export * from './SaveCancel';
 export * from './TableSearch';
+export * from './TableSelect';
 export * from './ViewInfo';
