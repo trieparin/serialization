@@ -11,7 +11,7 @@ import { admin, db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
-import { IProduct, ProductStatus } from '@/models/product.model';
+import { IProduct, ProductStatus, ProductType } from '@/models/product.model';
 import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
@@ -23,7 +23,9 @@ import {
   IconButton,
   LabelIcon,
   Pane,
+  Switch,
   Table,
+  Text,
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
@@ -37,6 +39,22 @@ interface ProductPageProps {
 }
 
 export default function ProductPage({ data, total }: ProductPageProps) {
+  const init = {
+    register: '',
+    name: '',
+    type: ProductType.NON_DRUG,
+    batch: '',
+    size: 0,
+    pack: '',
+    dosage: '',
+    amount: 0,
+    unit: '',
+    manufacturer: '',
+    mfd: '',
+    exp: '',
+    ingredients: [{ ingredient: '', quantity: 0, uom: '' }],
+    status: ProductStatus.CREATED,
+  };
   const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
@@ -48,28 +66,14 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   });
   const [viewInfo, setViewInfo] = useState({
     open: false,
-    id: '',
+    product: init,
   });
+  const [sort, setSort] = useState(true);
 
   const getAllProducts = async () => {
     const fch = customFetch();
     const { data }: { data: IProduct[] } = await fch.get('/products');
     setProducts(data);
-  };
-
-  const renderStatus = (status: string) => {
-    switch (status) {
-      case ProductStatus.CREATED:
-        return <Badge color="yellow">{status}</Badge>;
-      case ProductStatus.APPROVED:
-        return <Badge color="blue">{status}</Badge>;
-      default:
-        return <Badge color="green">{status}</Badge>;
-    }
-  };
-
-  const openInfo = async (id: string) => {
-    setViewInfo({ open: true, id });
   };
 
   const generateSerial = (batch: string) => {
@@ -94,6 +98,17 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     };
   };
 
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case ProductStatus.CREATED:
+        return <Badge color="yellow">{status}</Badge>;
+      case ProductStatus.APPROVED:
+        return <Badge color="blue">{status}</Badge>;
+      default:
+        return <Badge color="green">{status}</Badge>;
+    }
+  };
+
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
@@ -107,11 +122,11 @@ export default function ProductPage({ data, total }: ProductPageProps) {
           >
             <Table.TextHeaderCell>
               Batch ID
-              <TableSearch placeholder="Batch ID" find="batch" />
+              <TableSearch placeholder="Batch ID..." find="batch" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Name
-              <TableSearch placeholder="Name" find="name" />
+              <TableSearch placeholder="Name..." find="name" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>
@@ -123,12 +138,12 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {products.map(({ id, batch, name, size, pack, status }) => (
-              <Table.Row key={id}>
-                <Table.TextCell>{batch}</Table.TextCell>
-                <Table.TextCell>{name}</Table.TextCell>
-                <Table.TextCell>{`${size} (${pack})`}</Table.TextCell>
-                <Table.TextCell>{renderStatus(status)}</Table.TextCell>
+            {products.map((product) => (
+              <Table.Row key={product.id}>
+                <Table.TextCell>{product.batch}</Table.TextCell>
+                <Table.TextCell>{product.name}</Table.TextCell>
+                <Table.TextCell>{`${product.size} (${product.pack})`}</Table.TextCell>
+                <Table.TextCell>{renderStatus(product.status)}</Table.TextCell>
                 <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
@@ -136,15 +151,15 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                       name="edit"
                       title="edit"
                       icon={EditIcon}
-                      disabled={status !== ProductStatus.CREATED}
-                      onClick={() => router.push(`/product/info/${id}`)}
+                      disabled={product.status !== ProductStatus.CREATED}
+                      onClick={() => router.push(`/product/info/${product.id}`)}
                     />
                     <IconButton
                       type="button"
                       name="info"
                       title="info"
                       icon={LabelIcon}
-                      onClick={() => openInfo(id!)}
+                      onClick={() => setViewInfo({ open: true, product })}
                     />
                     {profile.role === Role.OPERATOR ? (
                       <IconButton
@@ -153,15 +168,20 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                         title="barcode"
                         intent="success"
                         icon={BarcodeIcon}
-                        disabled={status !== ProductStatus.APPROVED}
+                        disabled={product.status !== ProductStatus.APPROVED}
                         onClick={() => {
                           setDialogOption({
                             action: DialogAction.CREATE,
                             open: true,
                             path: '/serials',
-                            message: `Serialize "${batch} : ${name}"?`,
+                            message: `Serialize "${product.batch} : ${product.name}"?`,
                             confirm: true,
-                            change: serializeProduct(id!, name, batch, size),
+                            change: serializeProduct(
+                              product.id!,
+                              product.name,
+                              product.batch,
+                              product.size
+                            ),
                             redirect: '/serialize',
                           });
                         }}
@@ -174,13 +194,13 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                           title="verify"
                           intent="success"
                           icon={EndorsedIcon}
-                          disabled={status !== ProductStatus.CREATED}
+                          disabled={product.status !== ProductStatus.CREATED}
                           onClick={() => {
                             setDialogOption({
                               action: DialogAction.UPDATE,
                               open: true,
-                              path: `/products/${id}`,
-                              message: `Approve "${batch} : ${name}"?`,
+                              path: `/products/${product.id}`,
+                              message: `Approve "${product.batch} : ${product.name}"?`,
                               confirm: true,
                               change: { status: ProductStatus.APPROVED },
                             });
@@ -192,13 +212,13 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                           title="delete"
                           intent="danger"
                           icon={TrashIcon}
-                          disabled={status === ProductStatus.SERIALIZED}
+                          disabled={product.status === ProductStatus.SERIALIZED}
                           onClick={() => {
                             setDialogOption({
                               action: DialogAction.DELETE,
                               open: true,
-                              path: `/products/${id}`,
-                              message: `Delete "${batch} : ${name}"?`,
+                              path: `/products/${product.id}`,
+                              message: `Delete "${product.batch} : ${product.name}"?`,
                             });
                           }}
                         />
@@ -210,11 +230,23 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Paginate
-          update={(value: IProduct[]) => setProducts(value)}
-          path="/products"
-          total={total}
-        />
+        <Pane display="flex" alignItems="center" justifyContent="space-between">
+          <Pane display="flex" alignItems="center">
+            <Text size={300}>Sort by last update:&nbsp;</Text>
+            <Switch
+              name="sort"
+              title="sort"
+              hasCheckIcon
+              checked={sort}
+              onChange={() => setSort(!sort)}
+            />
+          </Pane>
+          <Paginate
+            update={(value: IProduct[]) => setProducts(value)}
+            path="/products"
+            total={total}
+          />
+        </Pane>
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}
@@ -240,9 +272,9 @@ export default function ProductPage({ data, total }: ProductPageProps) {
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() => setViewInfo({ open: false, id: '' })}
+        onCloseComplete={() => setViewInfo({ open: false, product: init })}
       >
-        <ViewInfo id={viewInfo.id} />
+        <ViewInfo product={viewInfo.product} />
       </Dialog>
     </BaseLayout>
   );

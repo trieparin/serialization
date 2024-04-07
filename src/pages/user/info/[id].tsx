@@ -164,7 +164,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
               }
             />
             <TextInputField
-              label="Confirm Password"
+              label="Confirm New Password"
               type="password"
               id="pwd"
               defaultValue={defaultValues?.pwd}
