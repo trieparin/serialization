@@ -6,6 +6,7 @@ export * from './PageTitle';
 export * from './Paginate';
 export * from './ProductForm';
 export * from './SaveCancel';
+export * from './SerialInfo';
 export * from './TableSearch';
 export * from './TableSelect';
 export * from './ViewInfo';
