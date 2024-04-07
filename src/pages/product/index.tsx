@@ -23,7 +23,9 @@ import {
   IconButton,
   LabelIcon,
   Pane,
+  Switch,
   Table,
+  Text,
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
@@ -66,6 +68,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     open: false,
     product: init,
   });
+  const [sort, setSort] = useState(true);
 
   const getAllProducts = async () => {
     const fch = customFetch();
@@ -119,11 +122,11 @@ export default function ProductPage({ data, total }: ProductPageProps) {
           >
             <Table.TextHeaderCell>
               Batch ID
-              <TableSearch placeholder="Batch ID" find="batch" />
+              <TableSearch placeholder="Batch ID..." find="batch" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Name
-              <TableSearch placeholder="Name" find="name" />
+              <TableSearch placeholder="Name..." find="name" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>
@@ -227,11 +230,23 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Paginate
-          update={(value: IProduct[]) => setProducts(value)}
-          path="/products"
-          total={total}
-        />
+        <Pane display="flex" alignItems="center" justifyContent="space-between">
+          <Pane display="flex" alignItems="center">
+            <Text size={300}>Sort by last update:&nbsp;</Text>
+            <Switch
+              name="sort"
+              title="sort"
+              hasCheckIcon
+              checked={sort}
+              onChange={() => setSort(!sort)}
+            />
+          </Pane>
+          <Paginate
+            update={(value: IProduct[]) => setProducts(value)}
+            path="/products"
+            total={total}
+          />
+        </Pane>
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}

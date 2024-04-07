@@ -22,7 +22,9 @@ import {
   IconButton,
   LabelIcon,
   Pane,
+  Switch,
   Table,
+  Text,
   TrashIcon,
   majorScale,
 } from 'evergreen-ui';
@@ -48,6 +50,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     label: '',
     serials: [''],
   });
+  const [sort, setSort] = useState(true);
 
   const getAllSerials = async () => {
     const fch = customFetch();
@@ -79,7 +82,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
           >
             <Table.TextHeaderCell>
               Label
-              <TableSearch placeholder="Label" find="label" />
+              <TableSearch placeholder="Label..." find="label" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Serial Amounts</Table.TextHeaderCell>
             <Table.TextHeaderCell>
@@ -178,11 +181,23 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Paginate
-          update={(value: ISerialize[]) => setSerials(value)}
-          path="/serials"
-          total={total}
-        />
+        <Pane display="flex" alignItems="center" justifyContent="space-between">
+          <Pane display="flex" alignItems="center">
+            <Text size={300}>Sort by last update:&nbsp;</Text>
+            <Switch
+              name="sort"
+              title="sort"
+              hasCheckIcon
+              checked={sort}
+              onChange={() => setSort(!sort)}
+            />
+          </Pane>
+          <Paginate
+            update={(value: ISerialize[]) => setSerials(value)}
+            path="/serials"
+            total={total}
+          />
+        </Pane>
       </Pane>
       <ConfirmDialog
         action={dialogOption.action}

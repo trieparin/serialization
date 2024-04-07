@@ -67,11 +67,11 @@ export default function UserPage({ data, total }: UserPageProps) {
           >
             <Table.TextHeaderCell>
               Email
-              <TableSearch placeholder="Email" find="email" />
+              <TableSearch placeholder="Email..." find="email" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Name
-              <TableSearch placeholder="Name" find="name" />
+              <TableSearch placeholder="Name..." find="name" />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Role
