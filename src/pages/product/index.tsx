@@ -57,17 +57,6 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     setProducts(data);
   };
 
-  const renderStatus = (status: string) => {
-    switch (status) {
-      case ProductStatus.CREATED:
-        return <Badge color="yellow">{status}</Badge>;
-      case ProductStatus.APPROVED:
-        return <Badge color="blue">{status}</Badge>;
-      default:
-        return <Badge color="green">{status}</Badge>;
-    }
-  };
-
   const openInfo = async (id: string) => {
     setViewInfo({ open: true, id });
   };
@@ -92,6 +81,17 @@ export default function ProductPage({ data, total }: ProductPageProps) {
       status: SerializeStatus.LABELED,
       serials,
     };
+  };
+
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case ProductStatus.CREATED:
+        return <Badge color="yellow">{status}</Badge>;
+      case ProductStatus.APPROVED:
+        return <Badge color="blue">{status}</Badge>;
+      default:
+        return <Badge color="green">{status}</Badge>;
+    }
   };
 
   return (
