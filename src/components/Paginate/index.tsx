@@ -5,23 +5,36 @@ import { useState } from 'react';
 
 interface PaginateProps {
   update: (value: []) => void;
+  query: string;
   path: string;
   total: number;
 }
 
-export const Paginate = ({ update, path, total }: PaginateProps) => {
+export const Paginate = ({ update, query, path, total }: PaginateProps) => {
   const [page, setPage] = useState(1);
 
   const updateData = async (offset: number) => {
     const fch = customFetch();
     if (offset > 1) {
-      const { data }: { data: [] } = await fch.get(
-        `${path}?offset=${(offset - 1) * PageSize.PER_PAGE}`
-      );
-      update(data);
+      if (query) {
+        const { data }: { data: [] } = await fch.get(
+          `${path}?${query}&offset=${(offset - 1) * PageSize.PER_PAGE}`
+        );
+        update(data);
+      } else {
+        const { data }: { data: [] } = await fch.get(
+          `${path}?offset=${(offset - 1) * PageSize.PER_PAGE}`
+        );
+        update(data);
+      }
     } else {
-      const { data }: { data: [] } = await fch.get(path);
-      update(data);
+      if (query) {
+        const { data }: { data: [] } = await fch.get(`${path}/filter?${query}`);
+        update(data);
+      } else {
+        const { data }: { data: [] } = await fch.get(path);
+        update(data);
+      }
     }
   };
 
