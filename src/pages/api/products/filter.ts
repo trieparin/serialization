@@ -126,7 +126,6 @@ export default async function handler(
       res.status(400).json({});
     }
   } catch (e) {
-    console.log(e);
     res.status(401).json({});
   }
 }
