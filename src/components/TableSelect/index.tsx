@@ -1,10 +1,22 @@
 import { Select } from 'evergreen-ui';
+import { ChangeEvent } from 'react';
 
-export const TableSelect = ({ options }: { options: object }) => {
+interface TableSelectProps {
+  options: object;
+  dispatch: (value: string) => void;
+}
+
+export const TableSelect = ({ options, dispatch }: TableSelectProps) => {
   return (
     <>
       <br />
-      <Select size="small" className="table-select">
+      <Select
+        size="small"
+        className="table-select"
+        onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+          dispatch(event.currentTarget.value);
+        }}
+      >
         <option value="">Any</option>
         {Object.values(options).map((option) => (
           <option key={option} value={option}>
