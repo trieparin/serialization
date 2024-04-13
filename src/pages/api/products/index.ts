@@ -12,18 +12,10 @@ export default async function handler(
     const products = db.collection('products');
     if (req.method === 'GET') {
       const data: IProduct[] = [];
-      const { batch, offset } = req.query;
+      const { offset } = req.query;
       const amount = await products.count().get();
       const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-      if (batch) {
-        const snapshot = await products
-          .where('batch', '>=', batch)
-          .where('batch', '<=', `${batch}~`)
-          .get();
-        snapshot.forEach((doc) => {
-          data.push({ id: doc.id, ...(doc.data() as IProduct) });
-        });
-      } else if (offset) {
+      if (offset) {
         const snapshot = await products
           .limit(PageSize.PER_PAGE)
           .offset(parseInt(offset as string))
