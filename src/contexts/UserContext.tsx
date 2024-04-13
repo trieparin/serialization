@@ -1,14 +1,14 @@
 import { auth } from '@/firebase/config';
 import { IUser, Role } from '@/models/user.model';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ReactNode, createContext, useMemo, useState } from 'react';
+import { ReactNode, createContext, useEffect, useState } from 'react';
 
 export const UserContext = createContext<IUser>({ uid: '' });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<IUser>({ uid: '' });
 
-  useMemo(() => {
+  useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const token = await user.getIdToken();

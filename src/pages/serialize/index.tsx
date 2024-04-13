@@ -8,9 +8,15 @@ import {
 } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
+import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
+import {
+  DialogAction,
+  IFormAction,
+  IFormDialog,
+  PageSize,
+} from '@/models/form.model';
 import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
@@ -29,7 +35,13 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import { useContext, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 
 interface SerializePageProps {
   data: ISerialize[];
@@ -37,6 +49,24 @@ interface SerializePageProps {
 }
 
 export default function SerializePage({ data, total }: SerializePageProps) {
+  const filterReducer = (state: object, action: IFormAction) => {
+    const { type, payload } = action;
+    switch (type) {
+      case 'FILTER_LABEL':
+        return {
+          ...state,
+          label: payload,
+        };
+      case 'FILTER_STATUS':
+        return {
+          ...state,
+          status: payload,
+        };
+      default:
+        return { ...state };
+    }
+  };
+
   const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
   const [dialogOption, setDialogOption] = useState<IFormDialog>({
@@ -51,11 +81,33 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     serials: [''],
   });
   const [sort, setSort] = useState(true);
+  const [page, setPage] = useState(total);
+  const [state, dispatch] = useReducer(filterReducer, {});
 
-  const getAllSerials = async () => {
+  const debounceFilter = useCallback(() => {
+    const timeout = setTimeout(() => {
+      const query = convertQuery(state);
+      if (query) filterSerials(query);
+      if (!query && Object.keys(state).length) getSerials();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [state]);
+
+  const getSerials = async () => {
     const fch = customFetch();
-    const { data }: { data: ISerialize[] } = await fch.get('/serials');
+    const { data, total }: SerializePageProps = await fch.get('/serials');
     setSerials(data);
+    setPage(total);
+  };
+
+  const filterSerials = async (query: string) => {
+    const fch = customFetch();
+    const { data }: { data: ISerialize[] } = await fch.get(
+      `/serials/filter?${query}`
+    );
+    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    setSerials(data);
+    setPage(total);
   };
 
   const renderStatus = (status: string) => {
@@ -68,6 +120,8 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         return <Badge color="teal">{status}</Badge>;
     }
   };
+
+  useEffect(() => debounceFilter(), [debounceFilter]);
 
   return (
     <BaseLayout>
@@ -82,12 +136,22 @@ export default function SerializePage({ data, total }: SerializePageProps) {
           >
             <Table.TextHeaderCell>
               Label
-              <TableSearch placeholder="Label..." find="label" />
+              <TableSearch
+                placeholder="Label..."
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_LABEL', payload: value });
+                }}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Serial Amounts</Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Status
-              <TableSelect options={SerializeStatus} />
+              <TableSelect
+                options={SerializeStatus}
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_STATUS', payload: value });
+                }}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
               Actions
@@ -194,8 +258,9 @@ export default function SerializePage({ data, total }: SerializePageProps) {
           </Pane>
           <Paginate
             update={(value: ISerialize[]) => setSerials(value)}
+            query={convertQuery(state)}
             path="/serials"
-            total={total}
+            total={page}
           />
         </Pane>
       </Pane>
@@ -207,7 +272,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         confirm={dialogOption.confirm}
         change={dialogOption.change}
         redirect={dialogOption.redirect}
-        update={getAllSerials}
+        update={getSerials}
         reset={() => {
           setDialogOption({
             action: DialogAction.DELETE,
@@ -243,8 +308,9 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
 
     const data: ISerialize[] = [];
     const snapshot = db.collection('serials');
+    const amount = await snapshot.count().get();
+    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
     const select = await snapshot.get();
-    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as ISerialize) });
     });

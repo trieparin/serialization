@@ -7,9 +7,15 @@ import {
 } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
+import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
+import {
+  DialogAction,
+  IFormAction,
+  IFormDialog,
+  PageSize,
+} from '@/models/form.model';
 import { IUser, Role } from '@/models/user.model';
 import {
   Badge,
@@ -22,7 +28,13 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 
 interface UserPageProps {
   data: IUser[];
@@ -30,6 +42,24 @@ interface UserPageProps {
 }
 
 export default function UserPage({ data, total }: UserPageProps) {
+  const filterReducer = (state: object, action: IFormAction) => {
+    const { type, payload } = action;
+    switch (type) {
+      case 'FILTER_EMAIL':
+        return {
+          ...state,
+          email: payload,
+        };
+      case 'FILTER_ROLE':
+        return {
+          ...state,
+          role: payload,
+        };
+      default:
+        return { ...state };
+    }
+  };
+
   const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUser[]>(data);
@@ -39,11 +69,31 @@ export default function UserPage({ data, total }: UserPageProps) {
     path: '',
     message: '',
   });
+  const [page, setPage] = useState(total);
+  const [state, dispatch] = useReducer(filterReducer, {});
 
-  const getAllUsers = async () => {
+  const debounceFilter = useCallback(() => {
+    const timeout = setTimeout(() => {
+      const query = convertQuery(state);
+      if (query) filterUsers(query);
+      if (!query && Object.keys(state).length) getUsers();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [state]);
+
+  const getUsers = async () => {
     const fch = customFetch();
-    const { data }: { data: IUser[] } = await fch.get('/users');
+    const { data, total }: UserPageProps = await fch.get('/users');
     setUsers(data);
+    setPage(total);
+  };
+
+  const filterUsers = async (query: string) => {
+    const fch = customFetch();
+    const { data }: { data: IUser[] } = await fch.get(`/users/filter?${query}`);
+    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    setUsers(data);
+    setPage(total);
   };
 
   const renderRole = (role: string) => {
@@ -53,6 +103,8 @@ export default function UserPage({ data, total }: UserPageProps) {
       return <Badge color="neutral">{role}</Badge>;
     }
   };
+
+  useEffect(() => debounceFilter(), [debounceFilter]);
 
   return (
     <BaseLayout>
@@ -67,15 +119,22 @@ export default function UserPage({ data, total }: UserPageProps) {
           >
             <Table.TextHeaderCell>
               Email
-              <TableSearch placeholder="Email..." find="email" />
+              <TableSearch
+                placeholder="Email..."
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_EMAIL', payload: value });
+                }}
+              />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell>
-              Name
-              <TableSearch placeholder="Name..." find="name" />
-            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Role
-              <TableSelect options={Role} />
+              <TableSelect
+                options={Role}
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_ROLE', payload: value });
+                }}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
               Actions
@@ -120,8 +179,9 @@ export default function UserPage({ data, total }: UserPageProps) {
         </Table>
         <Paginate
           update={(value: IUser[]) => setUsers(value)}
+          query={convertQuery(state)}
           path="/users"
-          total={total}
+          total={page}
         />
       </Pane>
       <ConfirmDialog
@@ -129,7 +189,7 @@ export default function UserPage({ data, total }: UserPageProps) {
         open={dialogOption.open}
         path={dialogOption.path}
         message={dialogOption.message}
-        update={getAllUsers}
+        update={getUsers}
         reset={() =>
           setDialogOption({
             action: DialogAction.DELETE,
@@ -153,8 +213,9 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
 
     const data: IUser[] = [];
     const snapshot = db.collection('users').orderBy('role');
+    const amount = await snapshot.count().get();
+    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
     const select = await snapshot.limit(PageSize.PER_PAGE).get();
-    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
     select.forEach((doc) => {
       data.push({ uid: doc.id, ...doc.data() });
     });

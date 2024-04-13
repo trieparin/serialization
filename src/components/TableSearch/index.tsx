@@ -2,16 +2,22 @@ import { Table, minorScale } from 'evergreen-ui';
 
 interface TableSearchProps {
   placeholder: string;
-  find: string;
+  dispatch: (value: string) => void;
+  hidden?: boolean;
 }
 
-export const TableSearch = ({ placeholder, find }: TableSearchProps) => {
+export const TableSearch = ({
+  placeholder,
+  dispatch,
+  hidden,
+}: TableSearchProps) => {
   return (
     <Table.SearchHeaderCell
       placeholder={placeholder}
-      onChange={(value: string) => `${find}=${value}`}
+      onChange={(value: string) => dispatch(value)}
       padding={0}
       marginY={minorScale(1)}
+      display={hidden && 'none'}
     />
   );
 };

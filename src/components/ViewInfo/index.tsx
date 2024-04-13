@@ -1,4 +1,4 @@
-import { formatDate } from '@/helpers/form.helper';
+import { formatDate } from '@/helpers/convert.helper';
 import { IProduct } from '@/models/product.model';
 import {
   Heading,

@@ -8,9 +8,15 @@ import {
 } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
+import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { DialogAction, IFormDialog, PageSize } from '@/models/form.model';
+import {
+  DialogAction,
+  IFormAction,
+  IFormDialog,
+  PageSize,
+} from '@/models/form.model';
 import { IProduct, ProductStatus, ProductType } from '@/models/product.model';
 import { SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
@@ -31,7 +37,13 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { useContext, useState } from 'react';
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+  useState,
+} from 'react';
 
 interface ProductPageProps {
   data: IProduct[];
@@ -55,6 +67,30 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     ingredients: [{ ingredient: '', quantity: 0, uom: '' }],
     status: ProductStatus.CREATED,
   };
+
+  const filterReducer = (state: object, action: IFormAction) => {
+    const { type, payload } = action;
+    switch (type) {
+      case 'FILTER_BATCH':
+        return {
+          ...state,
+          batch: payload,
+        };
+      case 'FILTER_NAME':
+        return {
+          ...state,
+          name: payload,
+        };
+      case 'FILTER_STATUS':
+        return {
+          ...state,
+          status: payload,
+        };
+      default:
+        return { ...state };
+    }
+  };
+
   const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
@@ -69,11 +105,33 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     product: init,
   });
   const [sort, setSort] = useState(true);
+  const [page, setPage] = useState(total);
+  const [state, dispatch] = useReducer(filterReducer, {});
 
-  const getAllProducts = async () => {
+  const debounceFilter = useCallback(() => {
+    const timeout = setTimeout(() => {
+      const query = convertQuery(state);
+      if (query) filterProducts(query);
+      if (!query && Object.keys(state).length) getProducts();
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [state]);
+
+  const getProducts = async () => {
     const fch = customFetch();
-    const { data }: { data: IProduct[] } = await fch.get('/products');
+    const { data, total }: ProductPageProps = await fch.get('/products');
     setProducts(data);
+    setPage(total);
+  };
+
+  const filterProducts = async (query: string) => {
+    const fch = customFetch();
+    const { data }: { data: IProduct[] } = await fch.get(
+      `/products/filter?${query}`
+    );
+    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    setProducts(data);
+    setPage(total);
   };
 
   const generateSerial = (batch: string) => {
@@ -109,6 +167,8 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     }
   };
 
+  useEffect(() => debounceFilter(), [debounceFilter]);
+
   return (
     <BaseLayout>
       <PageTitle title="All Products" link="/product/create" hasAddButton />
@@ -122,16 +182,33 @@ export default function ProductPage({ data, total }: ProductPageProps) {
           >
             <Table.TextHeaderCell>
               Batch ID
-              <TableSearch placeholder="Batch ID..." find="batch" />
+              <TableSearch
+                placeholder="Batch ID..."
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_BATCH', payload: value });
+                }}
+                hidden={!state.batch && !!state.name}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Name
-              <TableSearch placeholder="Name..." find="name" />
+              <TableSearch
+                placeholder="Name..."
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_NAME', payload: value });
+                }}
+                hidden={!state.name && !!state.batch}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
             <Table.TextHeaderCell>
               Status
-              <TableSelect options={ProductStatus} />
+              <TableSelect
+                options={ProductStatus}
+                dispatch={(value) => {
+                  dispatch({ type: 'FILTER_STATUS', payload: value });
+                }}
+              />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
               Actions
@@ -243,8 +320,9 @@ export default function ProductPage({ data, total }: ProductPageProps) {
           </Pane>
           <Paginate
             update={(value: IProduct[]) => setProducts(value)}
+            query={convertQuery(state)}
             path="/products"
-            total={total}
+            total={page}
           />
         </Pane>
       </Pane>
@@ -256,7 +334,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
         confirm={dialogOption.confirm}
         change={dialogOption.change}
         redirect={dialogOption.redirect}
-        update={getAllProducts}
+        update={getProducts}
         reset={() => {
           setDialogOption({
             action: DialogAction.DELETE,
@@ -290,8 +368,9 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
 
     const data: IProduct[] = [];
     const snapshot = db.collection('products');
+    const amount = await snapshot.count().get();
+    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
     const select = await snapshot.limit(PageSize.PER_PAGE).get();
-    const total = Math.ceil((await snapshot.get()).size / PageSize.PER_PAGE);
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IProduct) });
     });
