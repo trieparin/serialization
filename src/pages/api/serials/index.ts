@@ -13,8 +13,10 @@ export default async function handler(
     const serialize = db.collection('serials');
     const products = db.collection('products');
     if (req.method === 'GET') {
-      const { label, offset } = req.query;
       const data: ISerialize[] = [];
+      const { label, offset } = req.query;
+      const amount = await serialize.count().get();
+      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
       if (label) {
         const snapshot = await serialize
           .where('label', '>=', label)
@@ -37,8 +39,7 @@ export default async function handler(
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });
       }
-
-      res.status(200).json({ data });
+      res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
       const { product } = req.body;
       const { id } = await serialize.add(req.body);

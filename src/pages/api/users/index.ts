@@ -11,16 +11,11 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const users = db.collection('users');
     if (req.method === 'GET') {
-      const { email, offset } = req.query;
       const data: IUser[] = [];
-      if (email) {
-        const snapshot = await users
-          .where('email', '>=', email)
-          .where('email', '<=', `${email}~`)
-          .orderBy('role')
-          .get();
-        snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
-      } else if (offset) {
+      const { offset } = req.query;
+      const amount = await users.orderBy('role').count().get();
+      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
+      if (offset) {
         const snapshot = await users
           .orderBy('role')
           .limit(PageSize.PER_PAGE)
@@ -34,7 +29,7 @@ export default async function handler(
           .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       }
-      res.status(200).json({ data });
+      res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
       const { email, password, firstName, lastName, role } = req.body;
       const { uid } = await admin.createUser({

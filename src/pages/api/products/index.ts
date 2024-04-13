@@ -11,8 +11,10 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const products = db.collection('products');
     if (req.method === 'GET') {
-      const { batch, offset } = req.query;
       const data: IProduct[] = [];
+      const { batch, offset } = req.query;
+      const amount = await products.count().get();
+      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
       if (batch) {
         const snapshot = await products
           .where('batch', '>=', batch)
@@ -35,7 +37,7 @@ export default async function handler(
           data.push({ id: doc.id, ...(doc.data() as IProduct) });
         });
       }
-      res.status(200).json({ data });
+      res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
       await products.add(req.body);
       res.status(201).json({ message: 'Create new product successfully' });
