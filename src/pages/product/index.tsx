@@ -127,7 +127,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   const filterProducts = async (query: string) => {
     const fch = customFetch();
     const { data }: { data: IProduct[] } = await fch.get(
-      `/products/filter${query}`
+      `/products/filter?${query}`
     );
     const total = Math.ceil(data.length / PageSize.PER_PAGE);
     setProducts(data);
@@ -187,6 +187,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_BATCH', payload: value });
                 }}
+                hidden={!state.batch && !!state.name}
               />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>
@@ -196,6 +197,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_NAME', payload: value });
                 }}
+                hidden={!state.name && !!state.batch}
               />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Size (Package)</Table.TextHeaderCell>
