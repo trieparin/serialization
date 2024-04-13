@@ -14,7 +14,7 @@ import {
 } from 'evergreen-ui';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/router';
-import { FocusEvent, useContext, useEffect } from 'react';
+import { FocusEvent, useCallback, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 export default function Home() {
@@ -29,15 +29,14 @@ export default function Home() {
     formState: { isDirty, isValid, isSubmitting, defaultValues },
   } = useForm({ defaultValues: { email: '', password: '' } });
 
-  useEffect(() => {
+  const redirectLogin = useCallback(() => {
     if (role) {
       setCookie('token', token!, 1000 * 60 * 60);
       role === Role.ADMIN
         ? router.replace('/user')
         : router.replace('/product');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, token]);
+  }, [role, token, router]);
 
   const formSubmit = async () => {
     try {
@@ -49,6 +48,8 @@ export default function Home() {
     }
     reset();
   };
+
+  useEffect(() => redirectLogin(), [redirectLogin]);
 
   return (
     <BlankLayout>
