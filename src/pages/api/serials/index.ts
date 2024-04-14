@@ -33,11 +33,17 @@ export default async function handler(
       }
       res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
+      const now = Date.now();
       const { product } = req.body;
-      const { id } = await serialize.add(req.body);
+      const { id } = await serialize.add({
+        ...req.body,
+        created: now,
+        updated: now,
+      });
       await products.doc(product).update({
-        serial: id,
         status: ProductStatus.SERIALIZED,
+        serial: id,
+        updated: now,
       });
       res.status(201).json({ message: 'Create new serialize successfully' });
     } else {

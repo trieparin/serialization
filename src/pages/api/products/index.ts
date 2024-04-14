@@ -31,7 +31,8 @@ export default async function handler(
       }
       res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
-      await products.add(req.body);
+      const now = Date.now();
+      await products.add({ ...req.body, created: now, updated: now });
       res.status(201).json({ message: 'Create new product successfully' });
     } else {
       res.status(400).json({});
