@@ -12,11 +12,15 @@ export default async function handler(
     const products = db.collection('products');
     if (req.method === 'GET') {
       const data: IProduct[] = [];
-      const { offset } = req.query;
-      const amount = await products.count().get();
+      const { offset, sort } = req.query;
+      const amount = await products
+        .orderBy(sort as string, 'desc')
+        .count()
+        .get();
       const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
       if (offset) {
         const snapshot = await products
+          .orderBy(sort as string, 'desc')
           .limit(PageSize.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
@@ -24,7 +28,10 @@ export default async function handler(
           data.push({ id: doc.id, ...(doc.data() as IProduct) });
         });
       } else {
-        const snapshot = await products.limit(PageSize.PER_PAGE).get();
+        const snapshot = await products
+          .orderBy(sort as string, 'desc')
+          .limit(PageSize.PER_PAGE)
+          .get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as IProduct) });
         });
