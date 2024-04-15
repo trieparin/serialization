@@ -307,10 +307,10 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: ISerialize[] = [];
-    const snapshot = db.collection('serials');
+    const snapshot = db.collection('serials').orderBy('updated', 'desc');
     const amount = await snapshot.count().get();
     const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-    const select = await snapshot.get();
+    const select = await snapshot.limit(PageSize.PER_PAGE).get();
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as ISerialize) });
     });

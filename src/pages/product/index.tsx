@@ -367,7 +367,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
     }
 
     const data: IProduct[] = [];
-    const snapshot = db.collection('products');
+    const snapshot = db.collection('products').orderBy('updated', 'desc');
     const amount = await snapshot.count().get();
     const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
     const select = await snapshot.limit(PageSize.PER_PAGE).get();
