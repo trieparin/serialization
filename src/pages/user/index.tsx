@@ -182,6 +182,7 @@ export default function UserPage({ data, total }: UserPageProps) {
           query={convertQuery(state)}
           path="/users"
           total={page}
+          sort={false}
         />
       </Pane>
       <ConfirmDialog
