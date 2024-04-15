@@ -36,6 +36,7 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import {
+  ChangeEvent,
   useCallback,
   useContext,
   useEffect,
@@ -80,7 +81,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     label: '',
     serials: [''],
   });
-  const [sort, setSort] = useState(true);
+  const [sort, setSort] = useState(false);
   const [page, setPage] = useState(total);
   const [state, dispatch] = useReducer(filterReducer, {});
 
@@ -93,9 +94,11 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     return () => clearTimeout(timeout);
   }, [state]);
 
-  const getSerials = async () => {
+  const getSerials = async (sort?: boolean) => {
     const fch = customFetch();
-    const { data, total }: SerializePageProps = await fch.get('/serials');
+    const { data, total }: SerializePageProps = await fch.get(
+      `/serials?sort=${sort ? 'created' : 'updated'}`
+    );
     setSerials(data);
     setPage(total);
   };
@@ -247,13 +250,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         </Table>
         <Pane display="flex" alignItems="center" justifyContent="space-between">
           <Pane display="flex" alignItems="center">
-            <Text size={300}>Sort by last update:&nbsp;</Text>
+            <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
               title="sort"
               hasCheckIcon
               checked={sort}
-              onChange={() => setSort(!sort)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setSort(event.currentTarget.checked);
+                getSerials(event.currentTarget.checked);
+              }}
             />
           </Pane>
           <Paginate
@@ -261,6 +267,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             query={convertQuery(state)}
             path="/serials"
             total={page}
+            sort={sort}
           />
         </Pane>
       </Pane>

@@ -38,6 +38,7 @@ import {
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import {
+  ChangeEvent,
   useCallback,
   useContext,
   useEffect,
@@ -104,7 +105,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     open: false,
     product: init,
   });
-  const [sort, setSort] = useState(true);
+  const [sort, setSort] = useState(false);
   const [page, setPage] = useState(total);
   const [state, dispatch] = useReducer(filterReducer, {});
 
@@ -117,9 +118,11 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     return () => clearTimeout(timeout);
   }, [state]);
 
-  const getProducts = async () => {
+  const getProducts = async (sort?: boolean) => {
     const fch = customFetch();
-    const { data, total }: ProductPageProps = await fch.get('/products');
+    const { data, total }: ProductPageProps = await fch.get(
+      `/products?sort=${sort ? 'created' : 'updated'}`
+    );
     setProducts(data);
     setPage(total);
   };
@@ -309,13 +312,16 @@ export default function ProductPage({ data, total }: ProductPageProps) {
         </Table>
         <Pane display="flex" alignItems="center" justifyContent="space-between">
           <Pane display="flex" alignItems="center">
-            <Text size={300}>Sort by last update:&nbsp;</Text>
+            <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
               title="sort"
               hasCheckIcon
               checked={sort}
-              onChange={() => setSort(!sort)}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                setSort(event.currentTarget.checked);
+                getProducts(event.currentTarget.checked);
+              }}
             />
           </Pane>
           <Paginate
@@ -323,6 +329,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             query={convertQuery(state)}
             path="/products"
             total={page}
+            sort={sort}
           />
         </Pane>
       </Pane>
