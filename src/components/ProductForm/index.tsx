@@ -189,7 +189,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             <IconButton
               type="button"
               name="append"
-              title="append"
+              title="Append"
               size="small"
               intent="success"
               icon={PlusIcon}
@@ -237,7 +237,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
                 transform="translateY(-50%)"
                 type="button"
                 name="remove"
-                title="remove"
+                title="Remove"
                 size="small"
                 intent="danger"
                 icon={MinusIcon}

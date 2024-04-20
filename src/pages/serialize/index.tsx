@@ -17,6 +17,7 @@ import {
   IFormDialog,
   PageSize,
 } from '@/models/form.model';
+import { IProduct } from '@/models/product.model';
 import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
@@ -113,6 +114,23 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     setPage(total);
   };
 
+  const downloadSerials = async (serial: ISerialize) => {
+    const data: Record<string, object> = { serial };
+    const fch = customFetch();
+    const { data: product }: { data: IProduct } = await fch.get(
+      `/products/${serial.product}`
+    );
+    data.product = product;
+    const json = JSON.stringify(data);
+    const blob = new Blob([json], { type: 'application/json' });
+    const objUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = objUrl;
+    anchor.download = `${product.batch}_${product.name}.json`;
+    anchor.click();
+    URL.revokeObjectURL(objUrl);
+  };
+
   const renderStatus = (status: string) => {
     switch (status) {
       case SerializeStatus.LABELED:
@@ -161,20 +179,24 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {serials.map(({ id, label, serials, status }) => (
-              <Table.Row key={id}>
-                <Table.TextCell>{label}</Table.TextCell>
-                <Table.TextCell>{serials.length}</Table.TextCell>
-                <Table.TextCell>{renderStatus(status)}</Table.TextCell>
+            {serials.map((serial) => (
+              <Table.Row key={serial.id}>
+                <Table.TextCell>{serial.label}</Table.TextCell>
+                <Table.TextCell>{serial.serials.length}</Table.TextCell>
+                <Table.TextCell>{renderStatus(serial.status)}</Table.TextCell>
                 <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Pane display="flex" columnGap={majorScale(1)}>
                     <IconButton
                       type="button"
                       name="info"
-                      title="info"
+                      title="Info"
                       icon={LabelIcon}
                       onClick={() => {
-                        setSerialInfo({ open: true, label, serials });
+                        setSerialInfo({
+                          open: true,
+                          label: serial.label,
+                          serials: serial.serials,
+                        });
                       }}
                     />
                     {profile.role === Role.SUPERVISOR && (
@@ -182,23 +204,24 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         <IconButton
                           type="button"
                           name="download"
-                          title="download"
+                          title="Download"
                           icon={CloudDownloadIcon}
-                          disabled={status === SerializeStatus.LABELED}
+                          disabled={serial.status === SerializeStatus.LABELED}
+                          onClick={() => downloadSerials(serial)}
                         />
                         <IconButton
                           type="button"
                           name="verify"
-                          title="verify"
+                          title="Verify"
                           intent="success"
                           icon={EndorsedIcon}
-                          disabled={status !== SerializeStatus.LABELED}
+                          disabled={serial.status !== SerializeStatus.LABELED}
                           onClick={() => {
                             setDialogOption({
                               action: DialogAction.UPDATE,
                               open: true,
-                              path: `/serials/${id}`,
-                              message: `Verify "${label}"?`,
+                              path: `/serials/${serial.id}`,
+                              message: `Verify "${serial.label}"?`,
                               confirm: true,
                               change: { status: SerializeStatus.VERIFIED },
                             });
@@ -207,16 +230,18 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         <IconButton
                           type="button"
                           name="delete"
-                          title="delete"
+                          title="Delete"
                           intent="danger"
                           icon={TrashIcon}
-                          disabled={status === SerializeStatus.DISTRIBUTED}
+                          disabled={
+                            serial.status === SerializeStatus.DISTRIBUTED
+                          }
                           onClick={() => {
                             setDialogOption({
                               action: DialogAction.DELETE,
                               open: true,
-                              path: `/serials/${id}`,
-                              message: `Delete "${label}"?`,
+                              path: `/serials/${serial.id}`,
+                              message: `Delete "${serial.label}"?`,
                             });
                           }}
                         />
@@ -226,16 +251,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                       <IconButton
                         type="button"
                         name="distribute"
-                        title="distribute"
+                        title="Distribute"
                         intent="success"
                         icon={BoxIcon}
-                        disabled={status !== SerializeStatus.VERIFIED}
+                        disabled={serial.status !== SerializeStatus.VERIFIED}
                         onClick={() => {
                           setDialogOption({
                             action: DialogAction.UPDATE,
                             open: true,
-                            path: `/serials/${id}`,
-                            message: `Distribute "${label}"?`,
+                            path: `/serials/${serial.id}`,
+                            message: `Distribute "${serial.label}"?`,
                             confirm: true,
                             change: { status: SerializeStatus.DISTRIBUTED },
                           });
@@ -253,7 +278,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
-              title="sort"
+              title="Sort"
               hasCheckIcon
               checked={sort}
               onChange={(event: ChangeEvent<HTMLInputElement>) => {

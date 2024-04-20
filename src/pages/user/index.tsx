@@ -151,14 +151,14 @@ export default function UserPage({ data, total }: UserPageProps) {
                     <IconButton
                       type="button"
                       name="edit"
-                      title="edit"
+                      title="Edit"
                       icon={EditIcon}
                       onClick={() => router.push(`/user/info/${uid}`)}
                     />
                     <IconButton
                       type="button"
                       name="delete"
-                      title="delete"
+                      title="Delete"
                       intent="danger"
                       icon={TrashIcon}
                       disabled={uid === profile.uid}

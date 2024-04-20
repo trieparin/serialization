@@ -229,7 +229,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                     <IconButton
                       type="button"
                       name="edit"
-                      title="edit"
+                      title="Edit"
                       icon={EditIcon}
                       disabled={product.status !== ProductStatus.CREATED}
                       onClick={() => router.push(`/product/info/${product.id}`)}
@@ -237,7 +237,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                     <IconButton
                       type="button"
                       name="info"
-                      title="info"
+                      title="Info"
                       icon={LabelIcon}
                       onClick={() => setViewInfo({ open: true, product })}
                     />
@@ -245,7 +245,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                       <IconButton
                         type="button"
                         name="barcode"
-                        title="barcode"
+                        title="Barcode"
                         intent="success"
                         icon={BarcodeIcon}
                         disabled={product.status !== ProductStatus.APPROVED}
@@ -271,7 +271,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                         <IconButton
                           type="button"
                           name="verify"
-                          title="verify"
+                          title="Verify"
                           intent="success"
                           icon={EndorsedIcon}
                           disabled={product.status !== ProductStatus.CREATED}
@@ -289,7 +289,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                         <IconButton
                           type="button"
                           name="delete"
-                          title="delete"
+                          title="Delete"
                           intent="danger"
                           icon={TrashIcon}
                           disabled={product.status === ProductStatus.SERIALIZED}
@@ -315,7 +315,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
-              title="sort"
+              title="Sort"
               hasCheckIcon
               checked={sort}
               onChange={(event: ChangeEvent<HTMLInputElement>) => {
