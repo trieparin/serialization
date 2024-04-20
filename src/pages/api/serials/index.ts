@@ -14,11 +14,15 @@ export default async function handler(
     const products = db.collection('products');
     if (req.method === 'GET') {
       const data: ISerialize[] = [];
-      const { offset } = req.query;
-      const amount = await serialize.count().get();
+      const { offset, sort } = req.query;
+      const amount = await serialize
+        .orderBy(sort as string, 'desc')
+        .count()
+        .get();
       const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
       if (offset) {
         const snapshot = await serialize
+          .orderBy(sort as string, 'desc')
           .limit(PageSize.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
@@ -26,18 +30,27 @@ export default async function handler(
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });
       } else {
-        const snapshot = await serialize.limit(PageSize.PER_PAGE).get();
+        const snapshot = await serialize
+          .orderBy(sort as string, 'desc')
+          .limit(PageSize.PER_PAGE)
+          .get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });
       }
       res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
+      const now = Date.now();
       const { product } = req.body;
-      const { id } = await serialize.add(req.body);
+      const { id } = await serialize.add({
+        ...req.body,
+        created: now,
+        updated: now,
+      });
       await products.doc(product).update({
-        serial: id,
         status: ProductStatus.SERIALIZED,
+        serial: id,
+        updated: now,
       });
       res.status(201).json({ message: 'Create new serialize successfully' });
     } else {

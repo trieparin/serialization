@@ -35,4 +35,6 @@ export interface IProduct {
   status: ProductStatus;
   id?: string;
   serial?: string;
+  created?: number;
+  updated?: number;
 }

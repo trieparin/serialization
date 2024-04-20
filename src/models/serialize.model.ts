@@ -10,4 +10,6 @@ export interface ISerialize {
   label: string;
   id?: string;
   product?: string;
+  created?: number;
+  updated?: number;
 }

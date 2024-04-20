@@ -10,12 +10,11 @@ export default async function handler(
     const users = db.collection('users');
     const { id } = req.query;
     switch (req.method) {
-      case 'GET':
-        {
-          const doc = await users.doc(id as string).get();
-          res.status(200).json({ data: doc.exists && doc.data() });
-        }
+      case 'GET': {
+        const doc = await users.doc(id as string).get();
+        res.status(200).json({ data: doc.exists && doc.data() });
         break;
+      }
       case 'PUT':
         await admin.updateUser(id as string, req.body);
         res.status(200).json({ message: 'Change password successfully' });
@@ -41,7 +40,6 @@ export default async function handler(
         break;
       default:
         res.status(400).json({});
-        break;
     }
   } catch (e) {
     res.status(401).json({});

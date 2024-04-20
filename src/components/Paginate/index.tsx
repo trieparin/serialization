@@ -1,17 +1,26 @@
 import customFetch from '@/helpers/fetch.helper';
 import { PageSize } from '@/models/form.model';
 import { Pagination, majorScale } from 'evergreen-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PaginateProps {
   update: (value: []) => void;
   query: string;
   path: string;
   total: number;
+  sort: boolean;
 }
 
-export const Paginate = ({ update, query, path, total }: PaginateProps) => {
+export const Paginate = ({
+  update,
+  query,
+  path,
+  total,
+  sort,
+}: PaginateProps) => {
   const [page, setPage] = useState(1);
+
+  useEffect(() => setPage(1), [sort]);
 
   const updateData = async (offset: number) => {
     const fch = customFetch();
@@ -23,7 +32,9 @@ export const Paginate = ({ update, query, path, total }: PaginateProps) => {
         update(data);
       } else {
         const { data }: { data: [] } = await fch.get(
-          `${path}?offset=${(offset - 1) * PageSize.PER_PAGE}`
+          `${path}?sort=${sort ? 'created' : 'updated'}&offset=${
+            (offset - 1) * PageSize.PER_PAGE
+          }`
         );
         update(data);
       }
@@ -32,7 +43,9 @@ export const Paginate = ({ update, query, path, total }: PaginateProps) => {
         const { data }: { data: [] } = await fch.get(`${path}/filter?${query}`);
         update(data);
       } else {
-        const { data }: { data: [] } = await fch.get(path);
+        const { data }: { data: [] } = await fch.get(
+          `${path}?sort=${sort ? 'created' : 'updated'}`
+        );
         update(data);
       }
     }

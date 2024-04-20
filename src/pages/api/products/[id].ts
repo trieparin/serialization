@@ -10,23 +10,24 @@ export default async function handler(
     const products = db.collection('products');
     const { id } = req.query;
     switch (req.method) {
-      case 'GET':
-        {
-          const doc = await products.doc(id as string).get();
-          res.status(200).json({ data: doc.exists && doc.data() });
-        }
+      case 'GET': {
+        const doc = await products.doc(id as string).get();
+        res.status(200).json({ data: doc.exists && doc.data() });
         break;
-      case 'PATCH':
-        await products.doc(id as string).update(req.body);
+      }
+      case 'PATCH': {
+        await products
+          .doc(id as string)
+          .update({ ...req.body, updated: Date.now() });
         res.status(200).json({ message: 'Update product info successfully' });
         break;
+      }
       case 'DELETE':
         await products.doc(id as string).delete();
         res.status(200).json({ message: 'Delete product successfully' });
         break;
       default:
         res.status(400).json({});
-        break;
     }
   } catch (e) {
     res.status(401).json({});
