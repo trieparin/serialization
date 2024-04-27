@@ -71,9 +71,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
   return (
     <Pane
       is="form"
-      onSubmit={handleSubmit(() => {
-        formSubmit(getValues(), dirtyFields);
-      })}
+      onSubmit={handleSubmit(() => formSubmit(getValues(), dirtyFields))}
     >
       <Pane is="fieldset" border="none">
         <Heading marginBottom={majorScale(2)}>Batch Information</Heading>
@@ -86,6 +84,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Register No."
             type="text"
             id="register"
+            required
             defaultValue={defaultValues?.register}
             {...register('register', {
               required: true,
@@ -98,6 +97,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Product Name"
             type="text"
             id="name"
+            required
             defaultValue={defaultValues?.name}
             {...register('name', {
               required: true,
@@ -109,6 +109,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
           <SelectField
             label="Product Type"
             id="type"
+            required
             defaultValue={defaultValues?.type}
             {...register('type', { required: true })}
           >
@@ -122,6 +123,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Batch No."
             type="text"
             id="batch"
+            required
             defaultValue={defaultValues?.batch}
             {...register('batch', {
               required: true,
@@ -134,6 +136,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Size"
             type="number"
             id="size"
+            required
             defaultValue={defaultValues?.size}
             {...register('size', { required: true, min: 0 })}
           />
@@ -141,6 +144,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Package"
             type="text"
             id="pack"
+            required
             defaultValue={defaultValues?.pack}
             {...register('pack', {
               required: true,
@@ -153,6 +157,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Dosage Form"
             type="text"
             id="dosage"
+            required
             defaultValue={defaultValues?.dosage}
             {...register('dosage', {
               required: true,
@@ -165,6 +170,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Amount"
             type="number"
             id="amount"
+            required
             defaultValue={defaultValues?.amount}
             {...register('amount', { required: true, min: 0 })}
           />
@@ -172,6 +178,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Unit"
             type="text"
             id="unit"
+            required
             defaultValue={defaultValues?.unit}
             {...register('unit', {
               required: true,
@@ -209,6 +216,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
               label="Ingredient Name"
               type="text"
               id={`ingredient-${index}`}
+              required
               {...register(`ingredients.${index}.ingredient`, {
                 required: true,
               })}
@@ -217,6 +225,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
               label="Quantity"
               type="number"
               id={`quantity-${index}`}
+              required
               {...register(`ingredients.${index}.quantity`, {
                 required: true,
                 min: 0,
@@ -226,6 +235,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
               label="Unit of Measurement"
               type="text"
               id={`uom-${index}`}
+              required
               width={fields.length > 1 ? '90%' : '100%'}
               {...register(`ingredients.${index}.uom`, { required: true })}
             />
@@ -256,6 +266,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Manufacturer"
             type="text"
             id="manufacturer"
+            required
             defaultValue={defaultValues?.manufacturer}
             {...register('manufacturer', {
               required: true,
@@ -268,6 +279,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Manufacture Date"
             type="date"
             id="mfd"
+            required
             max={state.exp}
             defaultValue={defaultValues?.mfd}
             {...register('mfd', {
@@ -285,6 +297,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             label="Expiration Date"
             type="date"
             id="exp"
+            required
             min={state.mfd}
             defaultValue={defaultValues?.exp}
             {...register('exp', {

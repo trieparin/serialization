@@ -1,12 +1,12 @@
 import { auth } from '@/firebase/config';
-import { IUser, Role } from '@/models/user.model';
+import { IUserContext, Role } from '@/models/user.model';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
-export const UserContext = createContext<IUser>({ uid: '' });
+export const UserContext = createContext<IUserContext>({});
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [profile, setProfile] = useState<IUser>({ uid: '' });
+  const [profile, setProfile] = useState<IUserContext>({});
 
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
@@ -20,7 +20,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           token,
         });
       } else {
-        setProfile({ uid: '' });
+        setProfile({});
       }
     });
   }, []);

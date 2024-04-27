@@ -1,6 +1,6 @@
 import { admin, db } from '@/firebase/admin';
 import { PageSize } from '@/models/form.model';
-import { IUser } from '@/models/user.model';
+import { IUserContext } from '@/models/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -12,7 +12,7 @@ export default async function handler(
     const users = db.collection('users');
     if (req.method === 'GET') {
       const { email, role, offset } = req.query;
-      const data: IUser[] = [];
+      const data: IUserContext[] = [];
       if (email && role) {
         if (offset) {
           const snapshot = await users

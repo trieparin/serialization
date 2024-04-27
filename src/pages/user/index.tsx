@@ -16,7 +16,7 @@ import {
   IFormDialog,
   PageSize,
 } from '@/models/form.model';
-import { IUser, Role } from '@/models/user.model';
+import { IUser, IUserContext, Role } from '@/models/user.model';
 import {
   Badge,
   EditIcon,
@@ -62,7 +62,7 @@ export default function UserPage({ data, total }: UserPageProps) {
 
   const router = useRouter();
   const profile = useContext(UserContext);
-  const [users, setUsers] = useState<IUser[]>(data);
+  const [users, setUsers] = useState<IUserContext[]>(data);
   const [dialogOption, setDialogOption] = useState<IFormDialog>({
     action: DialogAction.DELETE,
     open: false,
@@ -212,7 +212,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
       return { redirect: { destination: '/no-permission' } };
     }
 
-    const data: IUser[] = [];
+    const data: IUserContext[] = [];
     const snapshot = db.collection('users').orderBy('role');
     const amount = await snapshot.count().get();
     const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
