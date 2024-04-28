@@ -91,6 +91,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
         return { ...state };
     }
   };
+  const [state, dispatch] = useReducer(filterReducer, {});
 
   const router = useRouter();
   const profile = useContext(UserContext);
@@ -107,7 +108,6 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   });
   const [sort, setSort] = useState(false);
   const [page, setPage] = useState(total);
-  const [state, dispatch] = useReducer(filterReducer, {});
 
   const debounceFilter = useCallback(() => {
     const timeout = setTimeout(() => {

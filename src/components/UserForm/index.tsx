@@ -50,9 +50,7 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
     setValue,
     getValues,
     formState: { isDirty, isValid, isSubmitting, dirtyFields, defaultValues },
-  } = useForm({
-    defaultValues: initForm,
-  });
+  } = useForm({ defaultValues: initForm });
 
   return (
     <Pane

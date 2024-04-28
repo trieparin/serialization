@@ -59,6 +59,7 @@ export default function UserPage({ data, total }: UserPageProps) {
         return { ...state };
     }
   };
+  const [state, dispatch] = useReducer(filterReducer, {});
 
   const router = useRouter();
   const profile = useContext(UserContext);
@@ -70,7 +71,6 @@ export default function UserPage({ data, total }: UserPageProps) {
     message: '',
   });
   const [page, setPage] = useState(total);
-  const [state, dispatch] = useReducer(filterReducer, {});
 
   const debounceFilter = useCallback(() => {
     const timeout = setTimeout(() => {

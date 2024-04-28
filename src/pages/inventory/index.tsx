@@ -51,6 +51,7 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
         return { ...state };
     }
   };
+  const [state, dispatch] = useReducer(filterReducer, {});
 
   const [items, setItems] = useState<IItem[]>(data);
   const [dialogOption, setDialogOption] = useState<IFormDialog>({
@@ -60,7 +61,6 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
     message: '',
   });
   const [page, setPage] = useState(total);
-  const [state, dispatch] = useReducer(filterReducer, {});
 
   const debounceFilter = useCallback(() => {
     const timeout = setTimeout(() => {
