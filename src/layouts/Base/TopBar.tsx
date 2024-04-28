@@ -1,6 +1,6 @@
 import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
-import { IUser } from '@/models/user.model';
+import { IUserContext } from '@/models/user.model';
 import {
   Avatar,
   Button,
@@ -18,7 +18,7 @@ import { signOut } from 'firebase/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-export const TopBar = ({ profile }: { profile: IUser }) => {
+export const TopBar = ({ profile }: { profile: IUserContext }) => {
   const router = useRouter();
 
   const handleLogout = async () => {

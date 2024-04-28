@@ -1,6 +1,6 @@
 import { admin, db } from '@/firebase/admin';
 import { PageSize } from '@/models/form.model';
-import { IUser } from '@/models/user.model';
+import { IUserContext } from '@/models/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -11,7 +11,7 @@ export default async function handler(
     await admin.verifyIdToken(req.cookies.token!);
     const users = db.collection('users');
     if (req.method === 'GET') {
-      const data: IUser[] = [];
+      const data: IUserContext[] = [];
       const { offset } = req.query;
       const amount = await users.orderBy('role').count().get();
       const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);

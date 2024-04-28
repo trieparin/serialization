@@ -5,11 +5,19 @@ export enum Role {
 }
 
 export interface IUser {
-  uid: string;
   email?: string;
   displayName?: string;
   firstName?: string;
   lastName?: string;
   role?: Role;
+}
+
+export interface IUserForm extends IUser {
+  password?: string;
+  pwd?: string;
+}
+
+export interface IUserContext extends IUser {
+  uid?: string;
   token?: string;
 }

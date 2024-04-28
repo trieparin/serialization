@@ -9,4 +9,5 @@ export * from './SaveCancel';
 export * from './SerialInfo';
 export * from './TableSearch';
 export * from './TableSelect';
+export * from './UserForm';
 export * from './ViewInfo';
