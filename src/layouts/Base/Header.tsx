@@ -27,18 +27,22 @@ export const Header = ({ profile }: { profile: IUser }) => {
           columnGap={majorScale(1)}
         >
           {profile.role === Role.ADMIN ? (
-            <NavLink href="/user">Users</NavLink>
+            <>
+              <NavLink href="/inventory">Inventory</NavLink>
+              <Text color="muted">|</Text>
+              <NavLink href="/user">User</NavLink>
+            </>
           ) : (
             <>
               <NavLink href="/product">Product</NavLink>
               <Text color="muted">|</Text>
               <NavLink href="/serialize">Serialize</NavLink>
-            </>
-          )}
-          {profile.role === Role.SUPERVISOR && (
-            <>
-              <Text color="muted">|</Text>
-              <NavLink href="/summary">Summary</NavLink>
+              {profile.role === Role.SUPERVISOR && (
+                <>
+                  <Text color="muted">|</Text>
+                  <NavLink href="/summary">Summary</NavLink>
+                </>
+              )}
             </>
           )}
         </Pane>

@@ -24,7 +24,6 @@ interface UserFormProps {
 }
 
 export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
-  const pwdRegEx = regExPassword();
   const profile = useContext(UserContext);
   const formReducer = (state: object, action: IFormAction) => {
     const { type, payload } = action;
@@ -44,6 +43,7 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
     }
   };
   const [state, dispatch] = useReducer(formReducer, {});
+
   const {
     register,
     handleSubmit,
@@ -53,6 +53,7 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
   } = useForm({
     defaultValues: initForm,
   });
+
   return (
     <Pane
       is="form"
@@ -79,13 +80,14 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             })}
           />
           <TextInputField
-            label="New Password"
+            label={`${edit ? 'New ' : ''}Password`}
             type="password"
             id="password"
             required={!edit}
             defaultValue={defaultValues?.password}
             {...register('password', {
-              pattern: pwdRegEx,
+              required: !edit,
+              pattern: regExPassword(),
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
                   type: 'SET_PASSWORD',
@@ -104,12 +106,13 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             }
           />
           <TextInputField
-            label="Confirm New Password"
+            label={`Confirm ${edit ? 'New ' : ''}Password`}
             type="password"
             id="pwd"
             required={!edit}
             defaultValue={defaultValues?.pwd}
             {...register('pwd', {
+              required: !edit,
               validate: () => state.pwd === state.password,
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
                 dispatch({
@@ -135,7 +138,8 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             required
             defaultValue={defaultValues?.firstName}
             {...register('firstName', {
-              validate: () => formHasChange(dirtyFields),
+              required: true,
+              validate: () => edit && formHasChange(dirtyFields),
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
                 setValue('firstName', event.currentTarget.value.trim());
               },
@@ -148,7 +152,8 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             required
             defaultValue={defaultValues?.lastName}
             {...register('lastName', {
-              validate: () => formHasChange(dirtyFields),
+              required: true,
+              validate: () => edit && formHasChange(dirtyFields),
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
                 setValue('lastName', event.currentTarget.value.trim());
               },
@@ -162,7 +167,7 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             {...register('role', {
               required: true,
               disabled: profile.role !== Role.ADMIN,
-              validate: () => formHasChange(dirtyFields),
+              validate: () => edit && formHasChange(dirtyFields),
             })}
           >
             {Object.values(Role).map((role) => (
