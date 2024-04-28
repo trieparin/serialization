@@ -103,6 +103,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
           <Controller
             name="register"
             control={control}
+            rules={{ required: true }}
             render={({ field }) => {
               const { onChange, ...rest } = field;
               return (
@@ -136,19 +137,6 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
               );
             }}
           />
-          {/* <TextInputField
-            label="Register No."
-            type="text"
-            id="register"
-            required
-            defaultValue={defaultValues?.register}
-            {...register('register', {
-              required: true,
-              onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                setValue('register', event.currentTarget.value.trim());
-              },
-            })}
-          /> */}
           <TextInputField
             label="Product Name"
             type="text"
@@ -193,6 +181,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             type="number"
             id="size"
             required
+            min={0}
             defaultValue={defaultValues?.size}
             {...register('size', { required: true, min: 0 })}
           />
@@ -227,6 +216,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             type="number"
             id="amount"
             required
+            min={0}
             defaultValue={defaultValues?.amount}
             {...register('amount', { required: true, min: 0 })}
           />
@@ -260,28 +250,60 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             />
           )}
         </Pane>
-        {fields.map((field, index) => (
+        {fields.map((item, index) => (
           <Pane
-            key={field.id}
+            key={item.id}
             position="relative"
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
             columnGap={majorScale(3)}
           >
-            <TextInputField
-              label="Ingredient Name"
-              type="text"
-              id={`ingredient-${index}`}
-              required
-              {...register(`ingredients.${index}.ingredient`, {
-                required: true,
-              })}
+            <Controller
+              name={`ingredients.${index}.ingredient`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => {
+                const { onChange, ...rest } = field;
+                return (
+                  <Autocomplete
+                    {...rest}
+                    items={items}
+                    position="bottom-left"
+                    onChange={(selected) => {
+                      onChange(() =>
+                        setValue(`ingredients.${index}.ingredient`, selected)
+                      );
+                    }}
+                    initialInputValue={item.ingredient}
+                  >
+                    {({ getInputProps, getRef, inputValue }) => (
+                      <TextInputField
+                        label="Ingredient Name"
+                        type="text"
+                        required
+                        ref={getRef}
+                        {...getInputProps({
+                          id: `ingredients.${index}.ingredient`,
+                          onChange: () => {
+                            debounceSearch({
+                              name: inputValue,
+                              type: ItemType.INGREDIENT,
+                            });
+                          },
+                        })}
+                      />
+                    )}
+                  </Autocomplete>
+                );
+              }}
             />
             <TextInputField
               label="Quantity"
               type="number"
               id={`quantity-${index}`}
               required
+              min={0}
+              defaultValue={item.quantity}
               {...register(`ingredients.${index}.quantity`, {
                 required: true,
                 min: 0,
@@ -292,8 +314,17 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
               type="text"
               id={`uom-${index}`}
               required
+              defaultValue={item.uom}
               width={fields.length > 1 ? '90%' : '100%'}
-              {...register(`ingredients.${index}.uom`, { required: true })}
+              {...register(`ingredients.${index}.uom`, {
+                required: true,
+                onBlur: (event: FocusEvent<HTMLInputElement>) => {
+                  setValue(
+                    `ingredients.${index}.uom`,
+                    event.currentTarget.value.trim()
+                  );
+                },
+              })}
             />
             {fields.length > 1 && (
               <IconButton
