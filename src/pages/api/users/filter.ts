@@ -19,7 +19,6 @@ export default async function handler(
             .where('role', '==', role)
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
@@ -29,7 +28,6 @@ export default async function handler(
             .where('role', '==', role)
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
@@ -39,7 +37,6 @@ export default async function handler(
           const snapshot = await users
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
@@ -48,7 +45,6 @@ export default async function handler(
           const snapshot = await users
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
@@ -57,7 +53,6 @@ export default async function handler(
         if (offset) {
           const snapshot = await users
             .where('role', '==', role)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
@@ -65,7 +60,6 @@ export default async function handler(
         } else {
           const snapshot = await users
             .where('role', '==', role)
-            .orderBy('role')
             .limit(PageSize.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));

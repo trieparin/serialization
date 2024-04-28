@@ -5,7 +5,6 @@ import {
   TableSearch,
   TableSelect,
 } from '@/components';
-import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
@@ -16,10 +15,10 @@ import {
   IFormDialog,
   PageSize,
 } from '@/models/form.model';
-import { IUser, IUserContext, Role } from '@/models/user.model';
+import { IItem, ItemType } from '@/models/inventory.model';
+import { Role } from '@/models/user.model';
 import {
   Badge,
-  EditIcon,
   IconButton,
   Pane,
   Table,
@@ -27,33 +26,26 @@ import {
   majorScale,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import { useRouter } from 'next/router';
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useReducer,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useReducer, useState } from 'react';
 
-interface UserPageProps {
-  data: IUser[];
+interface InventoryPageProps {
+  data: IItem[];
   total: number;
 }
 
-export default function UserPage({ data, total }: UserPageProps) {
+export default function InventoryPage({ data, total }: InventoryPageProps) {
   const filterReducer = (state: object, action: IFormAction) => {
     const { type, payload } = action;
     switch (type) {
-      case 'FILTER_EMAIL':
+      case 'FILTER_NAME':
         return {
           ...state,
-          email: payload,
+          name: payload,
         };
-      case 'FILTER_ROLE':
+      case 'FILTER_TYPE':
         return {
           ...state,
-          role: payload,
+          type: payload,
         };
       default:
         return { ...state };
@@ -61,9 +53,7 @@ export default function UserPage({ data, total }: UserPageProps) {
   };
   const [state, dispatch] = useReducer(filterReducer, {});
 
-  const router = useRouter();
-  const profile = useContext(UserContext);
-  const [users, setUsers] = useState<IUserContext[]>(data);
+  const [items, setItems] = useState<IItem[]>(data);
   const [dialogOption, setDialogOption] = useState<IFormDialog>({
     action: DialogAction.DELETE,
     open: false,
@@ -75,32 +65,32 @@ export default function UserPage({ data, total }: UserPageProps) {
   const debounceFilter = useCallback(() => {
     const timeout = setTimeout(() => {
       const query = convertQuery(state);
-      if (query) filterUsers(query);
-      if (!query && Object.keys(state).length) getUsers();
+      if (query) filterItems(query);
+      if (!query && Object.keys(state).length) getItems();
     }, 500);
     return () => clearTimeout(timeout);
   }, [state]);
 
-  const getUsers = async () => {
+  const getItems = async () => {
     const fch = customFetch();
-    const { data, total }: UserPageProps = await fch.get('/users');
-    setUsers(data);
+    const { data, total }: InventoryPageProps = await fch.get('/items');
+    setItems(data);
     setPage(total);
   };
 
-  const filterUsers = async (query: string) => {
+  const filterItems = async (query: string) => {
     const fch = customFetch();
-    const { data }: { data: IUser[] } = await fch.get(`/users/filter?${query}`);
+    const { data }: { data: IItem[] } = await fch.get(`/items/filter?${query}`);
     const total = Math.ceil(data.length / PageSize.PER_PAGE);
-    setUsers(data);
+    setItems(data);
     setPage(total);
   };
 
-  const renderRole = (role: string) => {
-    if (role === Role.ADMIN) {
-      return <Badge color="red">{role}</Badge>;
+  const renderType = (type: string) => {
+    if (type === ItemType.REG_NO) {
+      return <Badge color="red">{type}</Badge>;
     } else {
-      return <Badge color="neutral">{role}</Badge>;
+      return <Badge color="neutral">{type}</Badge>;
     }
   };
 
@@ -108,7 +98,7 @@ export default function UserPage({ data, total }: UserPageProps) {
 
   return (
     <BaseLayout>
-      <PageTitle title="All Users" link="/user/create" hasAddButton />
+      <PageTitle title="All Items" link="/inventory/create" hasAddButton />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head
@@ -118,21 +108,21 @@ export default function UserPage({ data, total }: UserPageProps) {
             alignItems="flex-start"
           >
             <Table.TextHeaderCell>
-              Email
+              Name
               <TableSearch
-                placeholder="Email..."
+                placeholder="Name..."
                 dispatch={(value) => {
-                  dispatch({ type: 'FILTER_EMAIL', payload: value });
+                  dispatch({ type: 'FILTER_NAME', payload: value });
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell>Name</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Note</Table.TextHeaderCell>
             <Table.TextHeaderCell>
-              Role
+              Type
               <TableSelect
-                options={Role}
+                options={ItemType}
                 dispatch={(value) => {
-                  dispatch({ type: 'FILTER_ROLE', payload: value });
+                  dispatch({ type: 'FILTER_TYPE', payload: value });
                 }}
               />
             </Table.TextHeaderCell>
@@ -141,46 +131,36 @@ export default function UserPage({ data, total }: UserPageProps) {
             </Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
-            {users?.map(({ uid, email, firstName, lastName, role }) => (
-              <Table.Row key={uid}>
-                <Table.TextCell>{email}</Table.TextCell>
-                <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
-                <Table.TextCell>{renderRole(role!)}</Table.TextCell>
+            {items?.map(({ id, name, note, type }) => (
+              <Table.Row key={id}>
+                <Table.TextCell>{name}</Table.TextCell>
+                <Table.TextCell>{note}</Table.TextCell>
+                <Table.TextCell>{renderType(type)}</Table.TextCell>
                 <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
-                    <IconButton
-                      type="button"
-                      name="edit"
-                      title="Edit"
-                      icon={EditIcon}
-                      onClick={() => router.push(`/user/info/${uid}`)}
-                    />
-                    <IconButton
-                      type="button"
-                      name="delete"
-                      title="Delete"
-                      intent="danger"
-                      icon={TrashIcon}
-                      disabled={uid === profile.uid}
-                      onClick={() => {
-                        setDialogOption({
-                          action: DialogAction.DELETE,
-                          open: true,
-                          path: `/users/${uid}`,
-                          message: `Confirm delete "${firstName} ${lastName}"?`,
-                        });
-                      }}
-                    />
-                  </Pane>
+                  <IconButton
+                    type="button"
+                    name="delete"
+                    title="Delete"
+                    intent="danger"
+                    icon={TrashIcon}
+                    onClick={() => {
+                      setDialogOption({
+                        action: DialogAction.DELETE,
+                        open: true,
+                        path: `/items/${id}`,
+                        message: `Confirm delete "${type} : ${name}"?`,
+                      });
+                    }}
+                  />
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table>
         <Paginate
-          update={(value: IUser[]) => setUsers(value)}
+          update={(value: IItem[]) => setItems(value)}
           query={convertQuery(state)}
-          path="/users"
+          path="/items"
           total={page}
           sort={false}
         />
@@ -190,7 +170,7 @@ export default function UserPage({ data, total }: UserPageProps) {
         open={dialogOption.open}
         path={dialogOption.path}
         message={dialogOption.message}
-        update={getUsers}
+        update={getItems}
         reset={() =>
           setDialogOption({
             action: DialogAction.DELETE,
@@ -212,13 +192,13 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
       return { redirect: { destination: '/no-permission' } };
     }
 
-    const data: IUserContext[] = [];
-    const snapshot = db.collection('users').orderBy('role');
+    const data: IItem[] = [];
+    const snapshot = db.collection('items').orderBy('type');
     const amount = await snapshot.count().get();
     const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
     const select = await snapshot.limit(PageSize.PER_PAGE).get();
     select.forEach((doc) => {
-      data.push({ uid: doc.id, ...doc.data() });
+      data.push({ id: doc.id, ...(doc.data() as IItem) });
     });
 
     return {

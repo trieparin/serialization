@@ -68,6 +68,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         return { ...state };
     }
   };
+  const [state, dispatch] = useReducer(filterReducer, {});
 
   const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
@@ -84,7 +85,6 @@ export default function SerializePage({ data, total }: SerializePageProps) {
   });
   const [sort, setSort] = useState(false);
   const [page, setPage] = useState(total);
-  const [state, dispatch] = useReducer(filterReducer, {});
 
   const debounceFilter = useCallback(() => {
     const timeout = setTimeout(() => {
