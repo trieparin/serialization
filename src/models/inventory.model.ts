@@ -5,7 +5,7 @@ export enum ItemType {
 
 export interface IItem {
   name: string;
+  note: string;
   type: ItemType;
-  note?: string;
   id?: string;
 }
