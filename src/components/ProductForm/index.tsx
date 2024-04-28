@@ -1,7 +1,11 @@
 import { SaveCancel } from '@/components';
+import { convertQuery } from '@/helpers/convert.helper';
+import customFetch from '@/helpers/fetch.helper';
 import { IFormAction } from '@/models/form.model';
+import { IItem, ItemType } from '@/models/inventory.model';
 import { IProduct, ProductType } from '@/models/product.model';
 import {
+  Autocomplete,
   Heading,
   IconButton,
   MinusIcon,
@@ -11,8 +15,8 @@ import {
   TextInputField,
   majorScale,
 } from 'evergreen-ui';
-import { FocusEvent, useReducer } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { FocusEvent, useCallback, useReducer, useState } from 'react';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 
 interface ProductFormProps {
   initForm: IProduct;
@@ -45,6 +49,15 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     exp: initForm.exp,
   });
 
+  const [items, setItems] = useState<string[]>([]);
+  const debounceSearch = useCallback((search: Record<string, string>) => {
+    const timeout = setTimeout(() => {
+      const query = convertQuery(search);
+      searchItem(query);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const {
     register,
     handleSubmit,
@@ -57,6 +70,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     name: 'ingredients',
     control,
   });
+
   const addIngredient = () => {
     if (fields.length < 3) {
       append({ ingredient: '', quantity: 0, uom: '' });
@@ -66,6 +80,12 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     if (fields.length > 1) {
       remove(index);
     }
+  };
+  const searchItem = async (query: string) => {
+    const fch = customFetch();
+    const { data }: { data: IItem[] } = await fch.get(`/items/filter?${query}`);
+    const items = data.map((item) => item.name);
+    setItems(items);
   };
 
   return (
@@ -80,7 +100,43 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
           gridTemplateColumns="repeat(3, minmax(0, 1fr))"
           columnGap={majorScale(3)}
         >
-          <TextInputField
+          <Controller
+            name="register"
+            control={control}
+            render={({ field }) => {
+              const { onChange, ...rest } = field;
+              return (
+                <Autocomplete
+                  {...rest}
+                  items={items}
+                  position="bottom-left"
+                  onChange={(selected) => {
+                    onChange(() => setValue('register', selected));
+                  }}
+                  initialInputValue={defaultValues?.register}
+                >
+                  {({ getInputProps, getRef, inputValue }) => (
+                    <TextInputField
+                      label="Register No."
+                      type="text"
+                      required
+                      ref={getRef}
+                      {...getInputProps({
+                        id: 'register',
+                        onChange: () => {
+                          debounceSearch({
+                            name: inputValue,
+                            type: ItemType.REG_NO,
+                          });
+                        },
+                      })}
+                    />
+                  )}
+                </Autocomplete>
+              );
+            }}
+          />
+          {/* <TextInputField
             label="Register No."
             type="text"
             id="register"
@@ -92,7 +148,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
                 setValue('register', event.currentTarget.value.trim());
               },
             })}
-          />
+          /> */}
           <TextInputField
             label="Product Name"
             type="text"
