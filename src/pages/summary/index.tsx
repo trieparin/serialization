@@ -86,7 +86,7 @@ export default function SummaryPage() {
           ...serials
             .filter((serial) => serial.status === SerializeStatus.DISTRIBUTED)
             .map((serial) => {
-              return new Date(serial.updated as number).getMonth().toString();
+              return new Date(serial.updated!).getMonth().toString();
             }),
         ]
       );
@@ -264,9 +264,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
       return { redirect: { destination: '/no-permission' } };
     }
 
-    return {
-      props: {},
-    };
+    return { props: {} };
   } catch (e) {
     return { redirect: { destination: '/' } };
   }
