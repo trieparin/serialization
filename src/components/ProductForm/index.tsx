@@ -49,15 +49,6 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     exp: initForm.exp,
   });
 
-  const [items, setItems] = useState<string[]>([]);
-  const debounceSearch = useCallback((search: Record<string, string>) => {
-    const timeout = setTimeout(() => {
-      const query = convertQuery(search);
-      searchItem(query);
-    }, 500);
-    return () => clearTimeout(timeout);
-  }, []);
-
   const {
     register,
     handleSubmit,
@@ -71,6 +62,21 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     control,
   });
 
+  const [items, setItems] = useState<string[]>([]);
+  const searchItem = async (query: string) => {
+    const fch = customFetch();
+    const { data }: { data: IItem[] } = await fch.get(`/items/filter?${query}`);
+    const items = data.map((item) => item.name);
+    setItems(items);
+  };
+  const debounceSearch = useCallback((search: Record<string, string>) => {
+    const timeout = setTimeout(() => {
+      const query = convertQuery(search);
+      searchItem(query);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, []);
+
   const addIngredient = () => {
     if (fields.length < 3) {
       append({ ingredient: '', quantity: 0, uom: '' });
@@ -80,12 +86,6 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
     if (fields.length > 1) {
       remove(index);
     }
-  };
-  const searchItem = async (query: string) => {
-    const fch = customFetch();
-    const { data }: { data: IItem[] } = await fch.get(`/items/filter?${query}`);
-    const items = data.map((item) => item.name);
-    setItems(items);
   };
 
   return (
