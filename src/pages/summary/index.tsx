@@ -51,24 +51,15 @@ export default function SummaryPage() {
   const [serialStatus, setSerialStatus] = useState({});
   const [productStatus, setProductStatus] = useState({});
   const [productAmount, setProductAmount] = useState({});
+  const [distribute, setDistribute] = useState({});
 
-  const convertToKnownObj = (items: string[], counts: string[]) => {
+  const convertToCountObj = (items: string[], counts: string[]) => {
     const convert = items.reduce(
       (total, value) => ({ ...total, [value]: 0 }),
       {} as Record<string, number>
     );
     counts.forEach((count) => (convert[count] += 1));
     return convert;
-  };
-  const convertToUnknownObj = (items: string[]) => {
-    return items.reduce((total, value) => {
-      return (
-        total[value as keyof object]
-          ? (total[value as keyof object] += 1)
-          : (total[value as keyof object] = 1),
-        total
-      );
-    }, {} as Record<string, number>);
   };
 
   useEffect(() => {
@@ -77,20 +68,32 @@ export default function SummaryPage() {
       const { products, serials }: ISummary = await fch.get(
         `/summary?year=${year}`
       );
-      const srlStatus: Record<string, number> = convertToKnownObj(
+      const srlStatus: Record<string, number> = convertToCountObj(
         Object.values(SerializeStatus),
         [...serials.map((serial) => serial.status)]
       );
-      const prdStatus: Record<string, number> = convertToKnownObj(
+      const prdStatus: Record<string, number> = convertToCountObj(
         Object.values(ProductStatus),
         [...products.map((product) => product.status)]
       );
-      const prdCount = convertToUnknownObj([
-        ...products.map((product) => product.name),
-      ]);
+      const prdCount = convertToCountObj(
+        [...new Set(products.map((product) => product.name))],
+        [...products.map((product) => product.name)]
+      );
+      const distCount = convertToCountObj(
+        Array.from({ length: 12 }, (_, index) => index.toString()),
+        [
+          ...serials
+            .filter((serial) => serial.status === SerializeStatus.DISTRIBUTED)
+            .map((serial) => {
+              return new Date(serial.updated as number).getMonth().toString();
+            }),
+        ]
+      );
       setSerialStatus(srlStatus);
       setProductStatus(prdStatus);
       setProductAmount(prdCount);
+      setDistribute(distCount);
     };
     getSummary();
   }, [year]);
@@ -239,7 +242,7 @@ export default function SummaryPage() {
               ],
               datasets: [
                 {
-                  data: [65, 59, 80, 81, 56, 55, 40, 34, 98, 56, 75, 75],
+                  data: Object.values(distribute),
                   backgroundColor: '#E7E4F9',
                   borderColor: '#6E62B6',
                   borderWidth: 1,
