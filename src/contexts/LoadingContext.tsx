@@ -1,12 +1,12 @@
 import { ReactNode, createContext, useMemo, useState } from 'react';
 
-interface LoadingContextType {
+interface ILoadingContext {
   loading: boolean;
   startLoading: () => void;
   stopLoading: () => void;
 }
 
-export const LoadingContext = createContext<LoadingContextType>(null!);
+export const LoadingContext = createContext<ILoadingContext>(null!);
 
 export const LoadingProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
