@@ -1,6 +1,9 @@
 import { PageTitle } from '@/components';
 import { admin } from '@/firebase/admin';
+import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { IProduct, ProductStatus } from '@/models/product.model';
+import { ISerialize, SerializeStatus } from '@/models/serialize.model';
 import { Role } from '@/models/user.model';
 import {
   ArcElement,
@@ -14,37 +17,28 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { Card, Pane, majorScale } from 'evergreen-ui';
+import { Card, Pane, Select, Text, majorScale } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Legend,
-  Title,
-  Tooltip
-);
+interface ISummary {
+  products: IProduct[];
+  serials: ISerialize[];
+}
 
 export default function SummaryPage() {
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
+  ChartJS.register(
+    ArcElement,
+    BarElement,
+    LineElement,
+    PointElement,
+    CategoryScale,
+    LinearScale,
+    Legend,
+    Title,
+    Tooltip
+  );
   const baseOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -52,10 +46,42 @@ export default function SummaryPage() {
       padding: 8,
     },
   };
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
+  const [product, setProduct] = useState<IProduct[]>([]);
+  const [serial, setSerial] = useState<ISerialize[]>([]);
+
+  useEffect(() => {
+    const getSummary = async () => {
+      const fch = customFetch();
+      const { products, serials }: ISummary = await fch.get(
+        `/summary?year=${year}`
+      );
+      setProduct(products);
+      setSerial(serials);
+    };
+    getSummary();
+  }, [year]);
 
   return (
     <BaseLayout>
       <PageTitle title="Summary" />
+      <Pane textAlign="right" marginBottom={majorScale(2)}>
+        <Text>Select Year:</Text>
+        <Select
+          marginLeft={majorScale(1)}
+          value={year}
+          onChange={(event: ChangeEvent<HTMLSelectElement>) => {
+            setYear(parseInt(event.currentTarget.value));
+          }}
+        >
+          {[...Array(5)].map((_, index) => (
+            <option key={index} value={currentYear - index}>
+              {currentYear - index}
+            </option>
+          ))}
+        </Select>
+      </Pane>
       <Pane marginBottom={majorScale(2)} className="summary-layout">
         <Card elevation={1} paddingX={majorScale(2)} className="summary-pie">
           <Doughnut
@@ -72,7 +98,9 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: ['Labeled', 'Verified', 'Distributed'],
+              labels: [
+                ...Object.values(SerializeStatus).map((status) => status),
+              ],
               datasets: [
                 {
                   data: [224, 94, 67],
@@ -99,7 +127,7 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: ['Created', 'Approved', 'Serialized'],
+              labels: [...Object.values(ProductStatus).map((status) => status)],
               datasets: [
                 {
                   data: [146, 79, 33],
@@ -126,18 +154,7 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: [
-                'Product 1',
-                'Product 2',
-                'Product 3',
-                'Product 4',
-                'Product 5',
-                'Product 6',
-                'Product 7',
-                'Product 8',
-                'Product 9',
-                'Product 10',
-              ],
+              labels: [...new Set(product.map((item) => item.name))],
               datasets: [
                 {
                   data: [65, 59, 80, 81, 56, 55, 40, 59, 34, 34],
@@ -176,7 +193,20 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: months,
+              labels: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+              ],
               datasets: [
                 {
                   data: [65, 59, 80, 81, 56, 55, 40, 34, 98, 56, 75, 75],

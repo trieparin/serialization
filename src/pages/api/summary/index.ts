@@ -27,7 +27,7 @@ export default async function handler(
         .where('created', '<=', end)
         .get();
       serialSnap.forEach((doc) => serials.push(doc.data() as ISerialize));
-      res.status(200).json({ data: { products, serials } });
+      res.status(200).json({ products, serials });
     } else {
       res.status(400).json({});
     }
