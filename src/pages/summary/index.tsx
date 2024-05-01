@@ -48,8 +48,28 @@ export default function SummaryPage() {
   };
   const currentYear = new Date().getFullYear();
   const [year, setYear] = useState(currentYear);
-  const [product, setProduct] = useState<IProduct[]>([]);
-  const [serial, setSerial] = useState<ISerialize[]>([]);
+  const [serialStatus, setSerialStatus] = useState({});
+  const [productStatus, setProductStatus] = useState({});
+  const [productAmount, setProductAmount] = useState({});
+
+  const convertToKnownObj = (items: string[], counts: string[]) => {
+    const convert = items.reduce(
+      (total, value) => ({ ...total, [value]: 0 }),
+      {} as Record<string, number>
+    );
+    counts.forEach((count) => (convert[count] += 1));
+    return convert;
+  };
+  const convertToUnknownObj = (items: string[]) => {
+    return items.reduce((total, value) => {
+      return (
+        total[value as keyof object]
+          ? (total[value as keyof object] += 1)
+          : (total[value as keyof object] = 1),
+        total
+      );
+    }, {} as Record<string, number>);
+  };
 
   useEffect(() => {
     const getSummary = async () => {
@@ -57,8 +77,20 @@ export default function SummaryPage() {
       const { products, serials }: ISummary = await fch.get(
         `/summary?year=${year}`
       );
-      setProduct(products);
-      setSerial(serials);
+      const srlStatus: Record<string, number> = convertToKnownObj(
+        Object.values(SerializeStatus),
+        [...serials.map((serial) => serial.status)]
+      );
+      const prdStatus: Record<string, number> = convertToKnownObj(
+        Object.values(ProductStatus),
+        [...products.map((product) => product.status)]
+      );
+      const prdCount = convertToUnknownObj([
+        ...products.map((product) => product.name),
+      ]);
+      setSerialStatus(srlStatus);
+      setProductStatus(prdStatus);
+      setProductAmount(prdCount);
     };
     getSummary();
   }, [year]);
@@ -67,7 +99,7 @@ export default function SummaryPage() {
     <BaseLayout>
       <PageTitle title="Summary" />
       <Pane textAlign="right" marginBottom={majorScale(2)}>
-        <Text>Select Year:</Text>
+        <Text>Select Year :</Text>
         <Select
           marginLeft={majorScale(1)}
           value={year}
@@ -98,12 +130,10 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: [
-                ...Object.values(SerializeStatus).map((status) => status),
-              ],
+              labels: Object.keys(serialStatus),
               datasets: [
                 {
-                  data: [224, 94, 67],
+                  data: Object.values(serialStatus),
                   backgroundColor: ['#F8E3DA', '#E7E4F9', '#D3F5F7'],
                   borderColor: ['#996A13', '#6E62B6', '#0F5156'],
                   borderWidth: 1,
@@ -127,10 +157,10 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: [...Object.values(ProductStatus).map((status) => status)],
+              labels: Object.keys(productStatus),
               datasets: [
                 {
-                  data: [146, 79, 33],
+                  data: Object.values(productStatus),
                   backgroundColor: ['#FFEFD2', '#D6E0FF', '#DCF2EA'],
                   borderColor: ['#66460D', '#2952CC', '#317159'],
                   borderWidth: 1,
@@ -154,10 +184,10 @@ export default function SummaryPage() {
               },
             }}
             data={{
-              labels: [...new Set(product.map((item) => item.name))],
+              labels: Object.keys(productAmount),
               datasets: [
                 {
-                  data: [65, 59, 80, 81, 56, 55, 40, 59, 34, 34],
+                  data: Object.values(productAmount),
                   backgroundColor: [
                     '#F9DADA',
                     '#F8E3DA',
