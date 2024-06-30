@@ -38,7 +38,7 @@ export const ViewInfo = ({ product }: { product: IProduct }) => {
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Package Info:</Heading>
-        <Text>{`${product.dosage} of ${product.amount} ${product.unit} / Package`}</Text>
+        <Text>{`${product.unit} of ${product.amount} ${product.dosage} / Package`}</Text>
       </Pane>
       <Pane gridColumn="span 2">
         <Heading marginBottom={majorScale(1)}>Active Ingredients:</Heading>
