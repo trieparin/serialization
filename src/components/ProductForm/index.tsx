@@ -199,15 +199,15 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             })}
           />
           <TextInputField
-            label="Dosage Form"
+            label="Unit"
             type="text"
-            id="dosage"
+            id="unit"
             required
-            defaultValue={defaultValues?.dosage}
-            {...register('dosage', {
+            defaultValue={defaultValues?.unit}
+            {...register('unit', {
               required: true,
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                setValue('dosage', event.currentTarget.value.trim());
+                setValue('unit', event.currentTarget.value.trim());
               },
             })}
           />
@@ -221,15 +221,15 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             {...register('amount', { required: true, min: 0 })}
           />
           <TextInputField
-            label="Unit"
+            label="Dosage Form"
             type="text"
-            id="unit"
+            id="dosage"
             required
-            defaultValue={defaultValues?.unit}
-            {...register('unit', {
+            defaultValue={defaultValues?.dosage}
+            {...register('dosage', {
               required: true,
               onBlur: (event: FocusEvent<HTMLInputElement>) => {
-                setValue('unit', event.currentTarget.value.trim());
+                setValue('dosage', event.currentTarget.value.trim());
               },
             })}
           />
