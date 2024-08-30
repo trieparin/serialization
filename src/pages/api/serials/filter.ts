@@ -9,13 +9,13 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const serialize = db.collection('serials');
+    const serials = db.collection('serials');
     if (req.method === 'GET') {
       const data: ISerialize[] = [];
       const { label, status, offset } = req.query;
       if (label && status) {
         if (offset) {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('status', '==', status)
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
@@ -26,7 +26,7 @@ export default async function handler(
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });
           });
         } else {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('status', '==', status)
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
@@ -38,7 +38,7 @@ export default async function handler(
         }
       } else if (label) {
         if (offset) {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
             .limit(PageSize.PER_PAGE)
@@ -48,7 +48,7 @@ export default async function handler(
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });
           });
         } else {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
             .limit(PageSize.PER_PAGE)
@@ -59,7 +59,7 @@ export default async function handler(
         }
       } else {
         if (offset) {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('status', '==', status)
             .limit(PageSize.PER_PAGE)
             .offset(parseInt(offset as string))
@@ -68,7 +68,7 @@ export default async function handler(
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });
           });
         } else {
-          const snapshot = await serialize
+          const snapshot = await serials
             .where('status', '==', status)
             .limit(PageSize.PER_PAGE)
             .get();

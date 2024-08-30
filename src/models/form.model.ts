@@ -15,6 +15,7 @@ export interface IFormAction {
 
 export interface IFormMessage {
   message: string;
+  data?: Record<string, unknown>;
 }
 
 export interface IFormDialog {

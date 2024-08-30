@@ -1,4 +1,5 @@
 export * from './ConfirmDialog';
+export * from './DistributeDialog';
 export * from './ErrorPage';
 export * from './Logo';
 export * from './NavLink';
