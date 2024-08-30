@@ -10,18 +10,18 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const serialize = db.collection('serials');
+    const serials = db.collection('serials');
     const products = db.collection('products');
     if (req.method === 'GET') {
       const data: ISerialize[] = [];
       const { offset, sort } = req.query;
-      const amount = await serialize
+      const amount = await serials
         .orderBy(sort as string, 'desc')
         .count()
         .get();
       const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
       if (offset) {
-        const snapshot = await serialize
+        const snapshot = await serials
           .orderBy(sort as string, 'desc')
           .limit(PageSize.PER_PAGE)
           .offset(parseInt(offset as string))
@@ -30,7 +30,7 @@ export default async function handler(
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
         });
       } else {
-        const snapshot = await serialize
+        const snapshot = await serials
           .orderBy(sort as string, 'desc')
           .limit(PageSize.PER_PAGE)
           .get();
@@ -42,7 +42,7 @@ export default async function handler(
     } else if (req.method === 'POST') {
       const now = Date.now();
       const { product } = req.body;
-      const { id } = await serialize.add({
+      const { id } = await serials.add({
         ...req.body,
         created: now,
         updated: now,
