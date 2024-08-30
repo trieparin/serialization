@@ -96,12 +96,13 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
-  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+  const defaultOption = {
     action: DialogAction.DELETE,
     open: false,
     path: '',
     message: '',
-  });
+  };
+  const [dialogOption, setDialogOption] = useState<IFormDialog>(defaultOption);
   const [viewInfo, setViewInfo] = useState({
     open: false,
     product: init,
@@ -342,14 +343,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
         change={dialogOption.change}
         redirect={dialogOption.redirect}
         update={getProducts}
-        reset={() => {
-          setDialogOption({
-            action: DialogAction.DELETE,
-            open: false,
-            path: '',
-            message: '',
-          });
-        }}
+        reset={() => setDialogOption(defaultOption)}
       />
       <Dialog
         isShown={viewInfo.open}

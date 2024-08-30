@@ -64,12 +64,13 @@ export default function UserPage({ data, total }: UserPageProps) {
   const router = useRouter();
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUserContext[]>(data);
-  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+  const defaultOption = {
     action: DialogAction.DELETE,
     open: false,
     path: '',
     message: '',
-  });
+  };
+  const [dialogOption, setDialogOption] = useState<IFormDialog>(defaultOption);
   const [page, setPage] = useState(total);
 
   const debounceFilter = useCallback(() => {
@@ -191,14 +192,7 @@ export default function UserPage({ data, total }: UserPageProps) {
         path={dialogOption.path}
         message={dialogOption.message}
         update={getUsers}
-        reset={() =>
-          setDialogOption({
-            action: DialogAction.DELETE,
-            open: false,
-            path: '',
-            message: '',
-          })
-        }
+        reset={() => setDialogOption(defaultOption)}
       />
     </BaseLayout>
   );

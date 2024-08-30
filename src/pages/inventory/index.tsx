@@ -54,12 +54,13 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
   const [state, dispatch] = useReducer(filterReducer, {});
 
   const [items, setItems] = useState<IItem[]>(data);
-  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+  const defaultOption = {
     action: DialogAction.DELETE,
     open: false,
     path: '',
     message: '',
-  });
+  };
+  const [dialogOption, setDialogOption] = useState<IFormDialog>(defaultOption);
   const [page, setPage] = useState(total);
 
   const debounceFilter = useCallback(() => {
@@ -171,14 +172,7 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
         path={dialogOption.path}
         message={dialogOption.message}
         update={getItems}
-        reset={() =>
-          setDialogOption({
-            action: DialogAction.DELETE,
-            open: false,
-            path: '',
-            message: '',
-          })
-        }
+        reset={() => setDialogOption(defaultOption)}
       />
     </BaseLayout>
   );
