@@ -1,5 +1,6 @@
 import { admin, db } from '@/firebase/admin';
 import { ProductStatus } from '@/models/product.model';
+import { ethers } from 'ethers';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -10,6 +11,7 @@ export default async function handler(
   try {
     await admin.verifyIdToken(req.cookies.token!);
     const serials = db.collection('serials');
+    const products = db.collection('products');
     const { id } = req.query;
     switch (req.method) {
       case 'GET': {
@@ -21,7 +23,16 @@ export default async function handler(
         await serials
           .doc(id as string)
           .update({ ...req.body, updated: Date.now() });
-        res.status(200).json({ message: 'Update serials status successfully' });
+        const serial = (await serials.doc(id as string).get()).data();
+        const product = (await products.doc(serial?.product).get()).data();
+        const [productHash, serialHash] = await Promise.all([
+          ethers.hashMessage(JSON.stringify(product)),
+          ethers.hashMessage(JSON.stringify(serial)),
+        ]);
+        res.status(200).json({
+          message: 'Update serials status successfully',
+          data: { productHash, serialHash },
+        });
         break;
       }
       case 'DELETE': {

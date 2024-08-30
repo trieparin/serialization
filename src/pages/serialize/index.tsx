@@ -34,6 +34,7 @@ import {
   Text,
   TrashIcon,
   majorScale,
+  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import {
@@ -256,14 +257,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         icon={BoxIcon}
                         disabled={serial.status !== SerializeStatus.VERIFIED}
                         onClick={() => {
-                          setDialogOption({
-                            action: DialogAction.UPDATE,
-                            open: true,
-                            path: `/serials/${serial.id}`,
-                            message: `Distribute "${serial.label}"?`,
-                            confirm: true,
-                            change: { status: SerializeStatus.DISTRIBUTED },
-                          });
+                          window.ethereum && window.ethereum.isMetaMask
+                            ? setDialogOption({
+                                action: DialogAction.UPDATE,
+                                open: true,
+                                path: `/serials/${serial.id}`,
+                                message: `Distribute "${serial.label}"?`,
+                                confirm: true,
+                                change: { status: SerializeStatus.DISTRIBUTED },
+                              })
+                            : toaster.danger('Please install MetaMask.');
                         }}
                       />
                     )}

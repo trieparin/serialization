@@ -2,7 +2,6 @@ import { admin, db } from '@/firebase/admin';
 import { PageSize } from '@/models/form.model';
 import { ProductStatus } from '@/models/product.model';
 import { ISerialize } from '@/models/serialize.model';
-import { ethers } from 'ethers';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -53,16 +52,7 @@ export default async function handler(
         serial: id,
         updated: now,
       });
-      const [productData, serialData] = await Promise.all([
-        (await products.doc(product).get()).data(),
-        (await serials.doc(id).get()).data(),
-      ]);
-      const hashProduct = ethers.hashMessage(JSON.stringify(productData));
-      const hashSerial = ethers.hashMessage(JSON.stringify(serialData));
-      res.status(201).json({
-        message: 'Create new serialize successfully',
-        data: { hashProduct, hashSerial },
-      });
+      res.status(201).json({ message: 'Create new serialize successfully' });
     } else {
       res.status(400).json({});
     }

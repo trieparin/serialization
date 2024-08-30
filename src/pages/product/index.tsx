@@ -34,7 +34,6 @@ import {
   Text,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -251,22 +250,20 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                         icon={BarcodeIcon}
                         disabled={product.status !== ProductStatus.APPROVED}
                         onClick={() => {
-                          window.ethereum && window.ethereum.isMetaMask
-                            ? setDialogOption({
-                                action: DialogAction.CREATE,
-                                open: true,
-                                path: '/serials',
-                                message: `Serialize "${product.batch} : ${product.name}"?`,
-                                confirm: true,
-                                change: serializeProduct(
-                                  product.id!,
-                                  product.name,
-                                  product.batch,
-                                  product.size
-                                ),
-                                redirect: '/serialize',
-                              })
-                            : toaster.danger('Please install MetaMask.');
+                          setDialogOption({
+                            action: DialogAction.CREATE,
+                            open: true,
+                            path: '/serials',
+                            message: `Serialize "${product.batch} : ${product.name}"?`,
+                            confirm: true,
+                            change: serializeProduct(
+                              product.id!,
+                              product.name,
+                              product.batch,
+                              product.size
+                            ),
+                            redirect: '/serialize',
+                          });
                         }}
                       />
                     ) : (
