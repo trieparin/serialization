@@ -1,5 +1,6 @@
 import {
   ConfirmDialog,
+  DistributeDialog,
   PageTitle,
   Paginate,
   SerialInfo,
@@ -73,12 +74,14 @@ export default function SerializePage({ data, total }: SerializePageProps) {
 
   const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
-  const [dialogOption, setDialogOption] = useState<IFormDialog>({
+  const defaultOption = {
     action: DialogAction.DELETE,
     open: false,
     path: '',
     message: '',
-  });
+  };
+  const [dialogOption, setDialogOption] = useState<IFormDialog>(defaultOption);
+  const [distOption, setDistOption] = useState<IFormDialog>(defaultOption);
   const [serialInfo, setSerialInfo] = useState({
     open: false,
     label: '',
@@ -258,13 +261,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         disabled={serial.status !== SerializeStatus.VERIFIED}
                         onClick={() => {
                           window.ethereum && window.ethereum.isMetaMask
-                            ? setDialogOption({
-                                action: DialogAction.UPDATE,
+                            ? setDistOption({
+                                action: DialogAction.CREATE,
                                 open: true,
-                                path: `/serials/${serial.id}`,
+                                path: `/distributes`,
                                 message: `Distribute "${serial.label}"?`,
-                                confirm: true,
-                                change: { status: SerializeStatus.DISTRIBUTED },
+                                change: {
+                                  status: SerializeStatus.DISTRIBUTED,
+                                  serial: serial.id,
+                                  product: serial.product,
+                                },
                               })
                             : toaster.danger('Please install MetaMask.');
                         }}
@@ -308,14 +314,17 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         change={dialogOption.change}
         redirect={dialogOption.redirect}
         update={getSerials}
-        reset={() => {
-          setDialogOption({
-            action: DialogAction.DELETE,
-            open: false,
-            path: '',
-            message: '',
-          });
-        }}
+        reset={() => setDialogOption(defaultOption)}
+      />
+      <DistributeDialog
+        action={distOption.action}
+        open={distOption.open}
+        path={distOption.path}
+        message={distOption.message}
+        change={distOption.change}
+        redirect={distOption.redirect}
+        update={getSerials}
+        reset={() => setDistOption(defaultOption)}
       />
       <Dialog
         isShown={serialInfo.open}
@@ -323,9 +332,9 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         hasCancel={false}
         title="Product Info"
         confirmLabel="Close"
-        onCloseComplete={() =>
-          setSerialInfo({ open: false, label: '', serials: [''] })
-        }
+        onCloseComplete={() => {
+          setSerialInfo({ open: false, label: '', serials: [''] });
+        }}
       >
         <SerialInfo label={serialInfo.label} serials={serialInfo.serials} />
       </Dialog>
