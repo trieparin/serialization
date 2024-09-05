@@ -272,7 +272,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                                   product: serial.product,
                                 },
                               })
-                            : toaster.danger('Please install MetaMask.');
+                            : toaster.warning('Please install MetaMask.');
                         }}
                       />
                     )}
