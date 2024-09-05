@@ -41,7 +41,7 @@ export const TopBar = ({ profile }: { profile: IUserContext }) => {
         className="container"
       >
         <Text color="white" size={300} textTransform="uppercase">
-          DPU | WE 670 Project
+          DPU | Master&apos;s Degree Project
         </Text>
         <Pane display="flex" alignItems="center">
           <Avatar name={profile.displayName} size={minorScale(5)} />

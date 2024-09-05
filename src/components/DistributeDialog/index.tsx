@@ -1,9 +1,16 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
 import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
-import { Dialog, toaster } from 'evergreen-ui';
+import {
+  Dialog,
+  majorScale,
+  Pane,
+  Text,
+  TextInputField,
+  toaster,
+} from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
+import { FocusEvent, useContext, useState } from 'react';
 
 interface DistributeDialogProps extends IFormDialog {
   update: () => void;
@@ -22,6 +29,7 @@ export const DistributeDialog = ({
 }: DistributeDialogProps) => {
   const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
+  const [receiver, setReceiver] = useState('');
 
   const handleAction = async (close: () => void) => {
     startLoading();
@@ -43,6 +51,7 @@ export const DistributeDialog = ({
     } catch (e) {
       toaster.danger('An error occurred');
     }
+    setReceiver('');
     stopLoading();
   };
 
@@ -54,10 +63,25 @@ export const DistributeDialog = ({
       intent="success"
       confirmLabel="Confirm"
       isConfirmLoading={loading}
+      isConfirmDisabled={!receiver}
       onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
     >
-      {message}
+      <Text display="inline-block" marginBottom={majorScale(1)}>
+        {message}
+      </Text>
+      <Pane is="fieldset" border="none" disabled={loading}>
+        <TextInputField
+          label="Receiver Address"
+          type="text"
+          id="receiver"
+          required
+          value={receiver}
+          onChange={(e: FocusEvent<HTMLInputElement>) => {
+            setReceiver(e.currentTarget.value.trim());
+          }}
+        />
+      </Pane>
     </Dialog>
   );
 };
