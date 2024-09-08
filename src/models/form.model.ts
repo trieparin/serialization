@@ -24,6 +24,6 @@ export interface IFormDialog {
   path: string;
   message: string;
   confirm?: boolean;
-  change?: object;
+  change?: Record<string, unknown>;
   redirect?: string;
 }

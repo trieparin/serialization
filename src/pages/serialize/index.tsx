@@ -267,7 +267,6 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                                 path: `/distributes`,
                                 message: `Distribute "${serial.label}"?`,
                                 change: {
-                                  status: SERIALIZE_STATUS.DISTRIBUTED,
                                   product: serial.product,
                                   serial: serial.id,
                                 },
