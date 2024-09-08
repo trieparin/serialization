@@ -1,6 +1,6 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
+import { DIALOG_ACTION, IFormDialog, IFormMessage } from '@/models/form.model';
 import {
   Dialog,
   majorScale,
@@ -35,10 +35,11 @@ export const DistributeDialog = ({
     startLoading();
     try {
       const fch = customFetch();
-      if (action === DialogAction.CREATE) {
-        const { message }: IFormMessage = await fch.post(path, change!);
+      if (action === DIALOG_ACTION.CREATE) {
+        const { message, data }: IFormMessage = await fch.post(path, change!);
         toaster.success(message);
-      } else if (action === DialogAction.UPDATE) {
+        console.log(data);
+      } else if (action === DIALOG_ACTION.UPDATE) {
         const { message }: IFormMessage = await fch.patch(path, change!);
         toaster.success(message);
       } else {

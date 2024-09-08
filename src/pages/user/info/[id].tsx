@@ -7,7 +7,7 @@ import customFetch from '@/helpers/fetch.helper';
 import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormMessage } from '@/models/form.model';
-import { IUser, IUserForm, Role } from '@/models/user.model';
+import { IUser, IUserForm, ROLE } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { signOut } from 'firebase/auth';
 import { GetServerSidePropsContext } from 'next';
@@ -40,8 +40,8 @@ export default function UserInfo({ params, data }: UserInfoProps) {
         if (data?.displayName !== displayName) {
           user.displayName = displayName;
         }
-        if (data?.role !== role && profile.role === Role.ADMIN) {
-          user.role = role as Role;
+        if (data?.role !== role && profile.role === ROLE.ADMIN) {
+          user.role = role as ROLE;
         }
         const { message }: IFormMessage = await fch.patch(
           `/users/${params.id}`,
@@ -64,7 +64,7 @@ export default function UserInfo({ params, data }: UserInfoProps) {
           toaster.success(message);
         }
       }
-      router.push(profile.role === Role.ADMIN ? '/user' : '/product');
+      router.push(profile.role === ROLE.ADMIN ? '/user' : '/product');
     } catch (e) {
       toaster.danger('An error occurred');
     }

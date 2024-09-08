@@ -1,5 +1,5 @@
 import { Logo, NavLink } from '@/components';
-import { IUser, Role } from '@/models/user.model';
+import { IUser, ROLE } from '@/models/user.model';
 import { Pane, Text, majorScale } from 'evergreen-ui';
 
 export const Header = ({ profile }: { profile: IUser }) => {
@@ -26,7 +26,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
           alignItems="center"
           columnGap={majorScale(1)}
         >
-          {profile.role === Role.ADMIN ? (
+          {profile.role === ROLE.ADMIN ? (
             <>
               <NavLink href="/inventory">Inventory</NavLink>
               <Text color="muted">|</Text>
@@ -37,7 +37,7 @@ export const Header = ({ profile }: { profile: IUser }) => {
               <NavLink href="/product">Product</NavLink>
               <Text color="muted">|</Text>
               <NavLink href="/serialize">Serialize</NavLink>
-              {profile.role === Role.SUPERVISOR && (
+              {profile.role === ROLE.SUPERVISOR && (
                 <>
                   <Text color="muted">|</Text>
                   <NavLink href="/summary">Summary</NavLink>

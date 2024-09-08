@@ -3,7 +3,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { auth } from '@/firebase/config';
 import { setCookie } from '@/helpers/cookie.helper';
 import { BlankLayout } from '@/layouts';
-import { Role } from '@/models/user.model';
+import { ROLE } from '@/models/user.model';
 import {
   Button,
   Card,
@@ -44,7 +44,7 @@ export default function Home() {
     const redirectLogin = () => {
       if (role) {
         setCookie('token', token!, 1000 * 60 * 60);
-        role === Role.ADMIN
+        role === ROLE.ADMIN
           ? router.replace('/user')
           : router.replace('/product');
       }

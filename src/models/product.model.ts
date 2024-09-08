@@ -1,4 +1,4 @@
-export enum ProductType {
+export enum PRODUCT_TYPE {
   NON_DRUG = 'Non-Drug',
   HOUSEHOLD_REMEDY = 'Household Remedy',
   NON_DANGEROUS_DRUG = 'Non-Dangerous Drug',
@@ -6,7 +6,7 @@ export enum ProductType {
   SPECIALLY_CONTROLLED_DRUG = 'Specially Controlled Drug',
 }
 
-export enum ProductStatus {
+export enum PRODUCT_STATUS {
   CREATED = 'Created',
   APPROVED = 'Approved',
   SERIALIZED = 'Serialized',
@@ -21,7 +21,7 @@ export interface IIngredient {
 export interface IProduct {
   register: string;
   name: string;
-  type: ProductType;
+  type: PRODUCT_TYPE;
   batch: string;
   size: number;
   pack: string;
@@ -32,7 +32,7 @@ export interface IProduct {
   mfd: string;
   exp: string;
   ingredients: IIngredient[];
-  status: ProductStatus;
+  status: PRODUCT_STATUS;
   id?: string;
   serial?: string;
   created?: number;

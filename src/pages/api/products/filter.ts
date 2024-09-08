@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { IProduct } from '@/models/product.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('batch', '>=', batch)
             .where('batch', '<=', `${batch}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -30,7 +30,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('batch', '>=', batch)
             .where('batch', '<=', `${batch}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as IProduct) });
@@ -42,7 +42,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('name', '>=', name)
             .where('name', '<=', `${name}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -53,7 +53,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('name', '>=', name)
             .where('name', '<=', `${name}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as IProduct) });
@@ -64,7 +64,7 @@ export default async function handler(
           const snapshot = await products
             .where('batch', '>=', batch)
             .where('batch', '<=', `${batch}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -74,7 +74,7 @@ export default async function handler(
           const snapshot = await products
             .where('batch', '>=', batch)
             .where('batch', '<=', `${batch}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as IProduct) });
@@ -85,7 +85,7 @@ export default async function handler(
           const snapshot = await products
             .where('name', '>=', name)
             .where('name', '<=', `${name}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -95,7 +95,7 @@ export default async function handler(
           const snapshot = await products
             .where('name', '>=', name)
             .where('name', '<=', `${name}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as IProduct) });
@@ -105,7 +105,7 @@ export default async function handler(
         if (offset) {
           const snapshot = await products
             .where('status', '==', status)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -114,7 +114,7 @@ export default async function handler(
         } else {
           const snapshot = await products
             .where('status', '==', status)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as IProduct) });

@@ -13,14 +13,14 @@ import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import {
-  DialogAction,
+  DIALOG_ACTION,
   IFormAction,
   IFormDialog,
-  PageSize,
+  PAGE_SIZE,
 } from '@/models/form.model';
 import { IProduct } from '@/models/product.model';
-import { ISerialize, SerializeStatus } from '@/models/serialize.model';
-import { Role } from '@/models/user.model';
+import { ISerialize, SERIALIZE_STATUS } from '@/models/serialize.model';
+import { ROLE } from '@/models/user.model';
 import {
   Badge,
   BoxIcon,
@@ -75,7 +75,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
   const profile = useContext(UserContext);
   const [serials, setSerials] = useState<ISerialize[]>(data);
   const defaultOption = {
-    action: DialogAction.DELETE,
+    action: DIALOG_ACTION.DELETE,
     open: false,
     path: '',
     message: '',
@@ -113,7 +113,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     const { data }: { data: ISerialize[] } = await fch.get(
       `/serials/filter?${query}`
     );
-    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    const total = Math.ceil(data.length / PAGE_SIZE.PER_PAGE);
     setSerials(data);
     setPage(total);
   };
@@ -137,9 +137,9 @@ export default function SerializePage({ data, total }: SerializePageProps) {
 
   const renderStatus = (status: string) => {
     switch (status) {
-      case SerializeStatus.LABELED:
+      case SERIALIZE_STATUS.LABELED:
         return <Badge color="orange">{status}</Badge>;
-      case SerializeStatus.VERIFIED:
+      case SERIALIZE_STATUS.VERIFIED:
         return <Badge color="purple">{status}</Badge>;
       default:
         return <Badge color="teal">{status}</Badge>;
@@ -172,7 +172,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             <Table.TextHeaderCell>
               Status
               <TableSelect
-                options={SerializeStatus}
+                options={SERIALIZE_STATUS}
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_STATUS', payload: value });
                 }}
@@ -203,14 +203,14 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         });
                       }}
                     />
-                    {profile.role === Role.SUPERVISOR && (
+                    {profile.role === ROLE.SUPERVISOR && (
                       <>
                         <IconButton
                           type="button"
                           name="download"
                           title="Download"
                           icon={CloudDownloadIcon}
-                          disabled={serial.status === SerializeStatus.LABELED}
+                          disabled={serial.status === SERIALIZE_STATUS.LABELED}
                           onClick={() => downloadSerials(serial)}
                         />
                         <IconButton
@@ -219,15 +219,15 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                           title="Verify"
                           intent="success"
                           icon={EndorsedIcon}
-                          disabled={serial.status !== SerializeStatus.LABELED}
+                          disabled={serial.status !== SERIALIZE_STATUS.LABELED}
                           onClick={() => {
                             setDialogOption({
-                              action: DialogAction.UPDATE,
+                              action: DIALOG_ACTION.UPDATE,
                               open: true,
                               path: `/serials/${serial.id}`,
                               message: `Verify "${serial.label}"?`,
                               confirm: true,
-                              change: { status: SerializeStatus.VERIFIED },
+                              change: { status: SERIALIZE_STATUS.VERIFIED },
                             });
                           }}
                         />
@@ -238,11 +238,11 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                           intent="danger"
                           icon={TrashIcon}
                           disabled={
-                            serial.status === SerializeStatus.DISTRIBUTED
+                            serial.status === SERIALIZE_STATUS.DISTRIBUTED
                           }
                           onClick={() => {
                             setDialogOption({
-                              action: DialogAction.DELETE,
+                              action: DIALOG_ACTION.DELETE,
                               open: true,
                               path: `/serials/${serial.id}`,
                               message: `Delete "${serial.label}"?`,
@@ -251,23 +251,23 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         />
                       </>
                     )}
-                    {profile.role === Role.OPERATOR && (
+                    {profile.role === ROLE.OPERATOR && (
                       <IconButton
                         type="button"
                         name="distribute"
                         title="Distribute"
                         intent="success"
                         icon={BoxIcon}
-                        disabled={serial.status !== SerializeStatus.VERIFIED}
+                        disabled={serial.status !== SERIALIZE_STATUS.VERIFIED}
                         onClick={() => {
                           window.ethereum && window.ethereum.isMetaMask
                             ? setDistOption({
-                                action: DialogAction.CREATE,
+                                action: DIALOG_ACTION.CREATE,
                                 open: true,
                                 path: `/distributes`,
                                 message: `Distribute "${serial.label}"?`,
                                 change: {
-                                  status: SerializeStatus.DISTRIBUTED,
+                                  status: SERIALIZE_STATUS.DISTRIBUTED,
                                   serial: serial.id,
                                   product: serial.product,
                                 },
@@ -346,15 +346,15 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role === Role.ADMIN) {
+    if (role === ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     const data: ISerialize[] = [];
     const snapshot = db.collection('serials').orderBy('updated', 'desc');
     const amount = await snapshot.count().get();
-    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
+    const select = await snapshot.limit(PAGE_SIZE.PER_PAGE).get();
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as ISerialize) });
     });

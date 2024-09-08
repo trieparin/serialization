@@ -12,14 +12,14 @@ import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import {
-  DialogAction,
+  DIALOG_ACTION,
   IFormAction,
   IFormDialog,
-  PageSize,
+  PAGE_SIZE,
 } from '@/models/form.model';
-import { IProduct, ProductStatus, ProductType } from '@/models/product.model';
-import { SerializeStatus } from '@/models/serialize.model';
-import { Role } from '@/models/user.model';
+import { IProduct, PRODUCT_STATUS, PRODUCT_TYPE } from '@/models/product.model';
+import { SERIALIZE_STATUS } from '@/models/serialize.model';
+import { ROLE } from '@/models/user.model';
 import {
   Badge,
   BarcodeIcon,
@@ -55,7 +55,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   const init = {
     register: '',
     name: '',
-    type: ProductType.NON_DRUG,
+    type: PRODUCT_TYPE.NON_DRUG,
     batch: '',
     size: 0,
     pack: '',
@@ -66,7 +66,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     mfd: '',
     exp: '',
     ingredients: [{ ingredient: '', quantity: 0, uom: '' }],
-    status: ProductStatus.CREATED,
+    status: PRODUCT_STATUS.CREATED,
   };
 
   const filterReducer = (state: object, action: IFormAction) => {
@@ -97,7 +97,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
   const profile = useContext(UserContext);
   const [products, setProducts] = useState<IProduct[]>(data);
   const defaultOption = {
-    action: DialogAction.DELETE,
+    action: DIALOG_ACTION.DELETE,
     open: false,
     path: '',
     message: '',
@@ -133,7 +133,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     const { data }: { data: IProduct[] } = await fch.get(
       `/products/filter?${query}`
     );
-    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    const total = Math.ceil(data.length / PAGE_SIZE.PER_PAGE);
     setProducts(data);
     setPage(total);
   };
@@ -155,16 +155,16 @@ export default function ProductPage({ data, total }: ProductPageProps) {
     return {
       product: id,
       label: `${batch} : ${name}`,
-      status: SerializeStatus.LABELED,
+      status: SERIALIZE_STATUS.LABELED,
       serials,
     };
   };
 
   const renderStatus = (status: string) => {
     switch (status) {
-      case ProductStatus.CREATED:
+      case PRODUCT_STATUS.CREATED:
         return <Badge color="yellow">{status}</Badge>;
-      case ProductStatus.APPROVED:
+      case PRODUCT_STATUS.APPROVED:
         return <Badge color="blue">{status}</Badge>;
       default:
         return <Badge color="green">{status}</Badge>;
@@ -208,7 +208,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             <Table.TextHeaderCell>
               Status
               <TableSelect
-                options={ProductStatus}
+                options={PRODUCT_STATUS}
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_STATUS', payload: value });
                 }}
@@ -232,7 +232,7 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                       name="edit"
                       title="Edit"
                       icon={EditIcon}
-                      disabled={product.status !== ProductStatus.CREATED}
+                      disabled={product.status !== PRODUCT_STATUS.CREATED}
                       onClick={() => router.push(`/product/info/${product.id}`)}
                     />
                     <IconButton
@@ -242,17 +242,17 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                       icon={LabelIcon}
                       onClick={() => setViewInfo({ open: true, product })}
                     />
-                    {profile.role === Role.OPERATOR ? (
+                    {profile.role === ROLE.OPERATOR ? (
                       <IconButton
                         type="button"
                         name="barcode"
                         title="Barcode"
                         intent="success"
                         icon={BarcodeIcon}
-                        disabled={product.status !== ProductStatus.APPROVED}
+                        disabled={product.status !== PRODUCT_STATUS.APPROVED}
                         onClick={() => {
                           setDialogOption({
-                            action: DialogAction.CREATE,
+                            action: DIALOG_ACTION.CREATE,
                             open: true,
                             path: '/serials',
                             message: `Serialize "${product.batch} : ${product.name}"?`,
@@ -275,15 +275,15 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                           title="Verify"
                           intent="success"
                           icon={EndorsedIcon}
-                          disabled={product.status !== ProductStatus.CREATED}
+                          disabled={product.status !== PRODUCT_STATUS.CREATED}
                           onClick={() => {
                             setDialogOption({
-                              action: DialogAction.UPDATE,
+                              action: DIALOG_ACTION.UPDATE,
                               open: true,
                               path: `/products/${product.id}`,
                               message: `Approve "${product.batch} : ${product.name}"?`,
                               confirm: true,
-                              change: { status: ProductStatus.APPROVED },
+                              change: { status: PRODUCT_STATUS.APPROVED },
                             });
                           }}
                         />
@@ -293,10 +293,12 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                           title="Delete"
                           intent="danger"
                           icon={TrashIcon}
-                          disabled={product.status === ProductStatus.SERIALIZED}
+                          disabled={
+                            product.status === PRODUCT_STATUS.SERIALIZED
+                          }
                           onClick={() => {
                             setDialogOption({
-                              action: DialogAction.DELETE,
+                              action: DIALOG_ACTION.DELETE,
                               open: true,
                               path: `/products/${product.id}`,
                               message: `Delete "${product.batch} : ${product.name}"?`,
@@ -363,15 +365,15 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role === Role.ADMIN) {
+    if (role === ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     const data: IProduct[] = [];
     const snapshot = db.collection('products').orderBy('updated', 'desc');
     const amount = await snapshot.count().get();
-    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
+    const select = await snapshot.limit(PAGE_SIZE.PER_PAGE).get();
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IProduct) });
     });

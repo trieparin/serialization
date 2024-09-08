@@ -1,5 +1,5 @@
 import customFetch from '@/helpers/fetch.helper';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { Pagination, majorScale } from 'evergreen-ui';
 import { useEffect, useState } from 'react';
 
@@ -27,13 +27,13 @@ export const Paginate = ({
     if (offset > 1) {
       if (query) {
         const { data }: { data: [] } = await fch.get(
-          `${path}?${query}&offset=${(offset - 1) * PageSize.PER_PAGE}`
+          `${path}?${query}&offset=${(offset - 1) * PAGE_SIZE.PER_PAGE}`
         );
         update(data);
       } else {
         const { data }: { data: [] } = await fch.get(
           `${path}?sort=${sort ? 'created' : 'updated'}&offset=${
-            (offset - 1) * PageSize.PER_PAGE
+            (offset - 1) * PAGE_SIZE.PER_PAGE
           }`
         );
         update(data);

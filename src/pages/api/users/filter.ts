@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { IUserContext } from '@/models/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
             .where('role', '==', role)
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
@@ -28,7 +28,7 @@ export default async function handler(
             .where('role', '==', role)
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
         }
@@ -37,7 +37,7 @@ export default async function handler(
           const snapshot = await users
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
@@ -45,7 +45,7 @@ export default async function handler(
           const snapshot = await users
             .where('email', '>=', email)
             .where('email', '<=', `${email}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
         }
@@ -53,14 +53,14 @@ export default async function handler(
         if (offset) {
           const snapshot = await users
             .where('role', '==', role)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
         } else {
           const snapshot = await users
             .where('role', '==', role)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
         }

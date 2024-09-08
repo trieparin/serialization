@@ -1,4 +1,4 @@
-export enum ItemType {
+export enum ITEM_TYPE {
   INGREDIENT = 'Ingredient',
   REG_NO = 'Register No.',
 }
@@ -6,6 +6,6 @@ export enum ItemType {
 export interface IItem {
   name: string;
   note: string;
-  type: ItemType;
+  type: ITEM_TYPE;
   id?: string;
 }

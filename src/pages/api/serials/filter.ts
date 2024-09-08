@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { ISerialize } from '@/models/serialize.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -30,7 +30,7 @@ export default async function handler(
             .where('status', '==', status)
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });
@@ -41,7 +41,7 @@ export default async function handler(
           const snapshot = await serials
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -51,7 +51,7 @@ export default async function handler(
           const snapshot = await serials
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });
@@ -61,7 +61,7 @@ export default async function handler(
         if (offset) {
           const snapshot = await serials
             .where('status', '==', status)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
@@ -70,7 +70,7 @@ export default async function handler(
         } else {
           const snapshot = await serials
             .where('status', '==', status)
-            .limit(PageSize.PER_PAGE)
+            .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
             data.push({ id: doc.id, ...(doc.data() as ISerialize) });

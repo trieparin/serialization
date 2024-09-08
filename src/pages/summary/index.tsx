@@ -2,9 +2,9 @@ import { PageTitle } from '@/components';
 import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
-import { IProduct, ProductStatus } from '@/models/product.model';
-import { ISerialize, SerializeStatus } from '@/models/serialize.model';
-import { Role } from '@/models/user.model';
+import { IProduct, PRODUCT_STATUS } from '@/models/product.model';
+import { ISerialize, SERIALIZE_STATUS } from '@/models/serialize.model';
+import { ROLE } from '@/models/user.model';
 import {
   ArcElement,
   BarElement,
@@ -69,11 +69,11 @@ export default function SummaryPage() {
         `/summary?year=${year}`
       );
       const srlStatus: Record<string, number> = convertToCountObj(
-        Object.values(SerializeStatus),
+        Object.values(SERIALIZE_STATUS),
         [...serials.map((serial) => serial.status)]
       );
       const prdStatus: Record<string, number> = convertToCountObj(
-        Object.values(ProductStatus),
+        Object.values(PRODUCT_STATUS),
         [...products.map((product) => product.status)]
       );
       const prdCount = convertToCountObj(
@@ -84,7 +84,7 @@ export default function SummaryPage() {
         Array.from({ length: 12 }, (_, index) => index.toString()),
         [
           ...serials
-            .filter((serial) => serial.status === SerializeStatus.DISTRIBUTED)
+            .filter((serial) => serial.status === SERIALIZE_STATUS.DISTRIBUTED)
             .map((serial) => {
               return new Date(serial.updated!).getMonth().toString();
             }),
@@ -260,7 +260,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role !== Role.SUPERVISOR) {
+    if (role !== ROLE.SUPERVISOR) {
       return { redirect: { destination: '/no-permission' } };
     }
 

@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { IUserContext } from '@/models/user.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -14,18 +14,18 @@ export default async function handler(
       const data: IUserContext[] = [];
       const { offset } = req.query;
       const amount = await users.orderBy('role').count().get();
-      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
+      const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
       if (offset) {
         const snapshot = await users
           .orderBy('role')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       } else {
         const snapshot = await users
           .orderBy('role')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .get();
         snapshot.forEach((doc) => data.push({ uid: doc.id, ...doc.data() }));
       }

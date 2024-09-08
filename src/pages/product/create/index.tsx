@@ -3,8 +3,8 @@ import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormMessage } from '@/models/form.model';
-import { ProductStatus, ProductType } from '@/models/product.model';
-import { Role } from '@/models/user.model';
+import { PRODUCT_STATUS, PRODUCT_TYPE } from '@/models/product.model';
+import { ROLE } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -25,7 +25,7 @@ export default function ProductCreate() {
   const initForm = {
     register: '',
     name: '',
-    type: ProductType.NON_DRUG,
+    type: PRODUCT_TYPE.NON_DRUG,
     batch: '',
     size: 0,
     pack: '',
@@ -36,7 +36,7 @@ export default function ProductCreate() {
     mfd: '',
     exp: '',
     ingredients: [{ ingredient: '', quantity: 0, uom: '' }],
-    status: ProductStatus.CREATED,
+    status: PRODUCT_STATUS.CREATED,
   };
 
   return (
@@ -51,7 +51,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role === Role.ADMIN) {
+    if (role === ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
     return { props: {} };

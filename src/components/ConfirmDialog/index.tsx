@@ -1,6 +1,6 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { DialogAction, IFormDialog, IFormMessage } from '@/models/form.model';
+import { DIALOG_ACTION, IFormDialog, IFormMessage } from '@/models/form.model';
 import { Dialog, toaster } from 'evergreen-ui';
 import { useRouter } from 'next/router';
 import { useContext } from 'react';
@@ -28,10 +28,10 @@ export const ConfirmDialog = ({
     startLoading();
     try {
       const fch = customFetch();
-      if (action === DialogAction.CREATE) {
+      if (action === DIALOG_ACTION.CREATE) {
         const { message }: IFormMessage = await fch.post(path, change!);
         toaster.success(message);
-      } else if (action === DialogAction.UPDATE) {
+      } else if (action === DIALOG_ACTION.UPDATE) {
         const { message }: IFormMessage = await fch.patch(path, change!);
         toaster.success(message);
       } else {

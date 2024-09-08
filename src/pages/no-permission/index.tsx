@@ -1,7 +1,7 @@
 import { ErrorPage } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { BlankLayout } from '@/layouts';
-import { Role } from '@/models/user.model';
+import { ROLE } from '@/models/user.model';
 import { useContext } from 'react';
 
 export default function NoPermission() {
@@ -11,7 +11,7 @@ export default function NoPermission() {
       <ErrorPage
         title="No Permission Access"
         message="You do not have permission to access this page."
-        path={role === Role.ADMIN ? '/user' : '/product'}
+        path={role === ROLE.ADMIN ? '/user' : '/product'}
         back="Back to main page"
       />
     </BlankLayout>

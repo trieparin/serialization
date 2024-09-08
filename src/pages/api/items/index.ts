@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { IItem } from '@/models/inventory.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -14,11 +14,11 @@ export default async function handler(
       const data: IItem[] = [];
       const { offset } = req.query;
       const amount = await items.orderBy('type').count().get();
-      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
+      const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
       if (offset) {
         const snapshot = await items
           .orderBy('type')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
         snapshot.forEach((doc) => {
@@ -27,7 +27,7 @@ export default async function handler(
       } else {
         const snapshot = await items
           .orderBy('type')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as IItem) });

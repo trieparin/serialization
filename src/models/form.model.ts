@@ -1,8 +1,8 @@
-export enum PageSize {
+export enum PAGE_SIZE {
   PER_PAGE = 10,
 }
 
-export enum DialogAction {
+export enum DIALOG_ACTION {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
@@ -19,7 +19,7 @@ export interface IFormMessage {
 }
 
 export interface IFormDialog {
-  action: DialogAction;
+  action: DIALOG_ACTION;
   open: boolean;
   path: string;
   message: string;
