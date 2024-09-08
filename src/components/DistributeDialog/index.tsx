@@ -1,6 +1,6 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { DIALOG_ACTION, IFormDialog, IFormMessage } from '@/models/form.model';
+import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import {
   Dialog,
   majorScale,
@@ -10,7 +10,7 @@ import {
   toaster,
 } from 'evergreen-ui';
 import { useRouter } from 'next/router';
-import { FocusEvent, useContext, useState } from 'react';
+import { FocusEvent, useContext, useReducer } from 'react';
 
 interface DistributeDialogProps extends IFormDialog {
   update: () => void;
@@ -20,7 +20,6 @@ interface DistributeDialogProps extends IFormDialog {
 export const DistributeDialog = ({
   update,
   reset,
-  action,
   open,
   path,
   message,
@@ -29,30 +28,44 @@ export const DistributeDialog = ({
 }: DistributeDialogProps) => {
   const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
-  const [receiver, setReceiver] = useState('');
+  const formReducer = (state: object, action: IFormAction) => {
+    const { type, payload } = action;
+    switch (type) {
+      case 'SET_ADDRESS':
+        return {
+          ...state,
+          address: payload,
+        };
+      case 'SET_COMPANY':
+        return {
+          ...state,
+          company: payload,
+        };
+      case 'RESET':
+        return {
+          address: '',
+          company: '',
+        };
+      default:
+        return { ...state };
+    }
+  };
+  const [state, dispatch] = useReducer(formReducer, {});
 
   const handleAction = async (close: () => void) => {
     startLoading();
     try {
       const fch = customFetch();
-      if (action === DIALOG_ACTION.CREATE) {
-        const { message, data }: IFormMessage = await fch.post(path, change!);
-        toaster.success(message);
-        console.log(data);
-      } else if (action === DIALOG_ACTION.UPDATE) {
-        const { message }: IFormMessage = await fch.patch(path, change!);
-        toaster.success(message);
-      } else {
-        const { message }: IFormMessage = await fch.del(path);
-        toaster.success(message);
-      }
+      const distribute = { ...change, receiver: state };
+      const { message, data }: IFormMessage = await fch.post(path, distribute);
+      toaster.success(message);
       update();
       close();
+      dispatch({ type: 'RESET', payload: '' });
       redirect && router.push(redirect);
     } catch (e) {
       toaster.danger('An error occurred');
     }
-    setReceiver('');
     stopLoading();
   };
 
@@ -64,7 +77,7 @@ export const DistributeDialog = ({
       intent="success"
       confirmLabel="Confirm"
       isConfirmLoading={loading}
-      isConfirmDisabled={!receiver}
+      isConfirmDisabled={!state.address && !state.company}
       onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
     >
@@ -75,11 +88,27 @@ export const DistributeDialog = ({
         <TextInputField
           label="Receiver Address"
           type="text"
-          id="receiver"
+          id="address"
           required
-          value={receiver}
-          onChange={(e: FocusEvent<HTMLInputElement>) => {
-            setReceiver(e.currentTarget.value.trim());
+          value={state.address}
+          onChange={(event: FocusEvent<HTMLInputElement>) => {
+            dispatch({
+              type: 'SET_ADDRESS',
+              payload: event.currentTarget.value.trim(),
+            });
+          }}
+        />
+        <TextInputField
+          label="Receiver Company"
+          type="text"
+          id="company"
+          required
+          value={state.company}
+          onChange={(event: FocusEvent<HTMLInputElement>) => {
+            dispatch({
+              type: 'SET_COMPANY',
+              payload: event.currentTarget.value.trim(),
+            });
           }}
         />
       </Pane>

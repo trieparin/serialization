@@ -268,8 +268,8 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                                 message: `Distribute "${serial.label}"?`,
                                 change: {
                                   status: SERIALIZE_STATUS.DISTRIBUTED,
-                                  serial: serial.id,
                                   product: serial.product,
+                                  serial: serial.id,
                                 },
                               })
                             : toaster.warning('Please install MetaMask.');
