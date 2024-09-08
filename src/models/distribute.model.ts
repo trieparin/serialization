@@ -13,7 +13,7 @@ export interface ICompanyInfo {
 export interface IDistributeInfo {
   from: ICompanyInfo;
   to: ICompanyInfo;
-  serials: string[];
+  shipment: string[];
   date: string;
 }
 

@@ -1,6 +1,10 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
+import { ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
+import { IProduct } from '@/models/product.model';
+import { ISerialize, SERIALIZE_STATUS } from '@/models/serialize.model';
+import { ethers } from 'ethers';
 import {
   Dialog,
   majorScale,
@@ -56,8 +60,37 @@ export const DistributeDialog = ({
     startLoading();
     try {
       const fch = customFetch();
-      const distribute = { ...change, receiver: state };
+      await fch.patch(`/serials/${change?.serial}`, {
+        status: SERIALIZE_STATUS.DISTRIBUTED,
+      });
+      const [productData, serializeData] = await Promise.all([
+        (await fch.get(`/products/${change?.product}`)) as IProduct,
+        (await fch.get(`/serials/${change?.serial}`)) as ISerialize,
+      ]);
+      const [productHash, serializeHash] = await Promise.all([
+        ethers.hashMessage(JSON.stringify(productData)),
+        ethers.hashMessage(JSON.stringify(serializeData)),
+      ]);
+      const { manufacturer } = productData;
+      // TODO Deploy smart contract
+      console.log({ productHash, serializeHash });
+      const distribute = {
+        contract: '',
+        product: change?.product,
+        serialize: change?.serial,
+        info: {
+          sender: {
+            address: '',
+            company: manufacturer,
+            role: ROLE.MANUFACTURER,
+          },
+          receiver: { ...state, role: ROLE.DISTRIBUTOR },
+          shipment: serializeData.serials,
+        },
+      };
       const { message, data }: IFormMessage = await fch.post(path, distribute);
+      // TODO Update contract distribute
+      console.log(data);
       toaster.success(message);
       update();
       close();
