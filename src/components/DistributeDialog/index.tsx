@@ -67,13 +67,14 @@ export const DistributeDialog = ({
           await fch.get(`/products/${change?.product}`),
           await fch.get(`/serials/${change?.serial}`),
         ]);
-      const [productHash, serializeHash] = await Promise.all([
+      const [productHash, serializeHash, inventoryHash] = await Promise.all([
         ethers.hashMessage(JSON.stringify(productData)),
         ethers.hashMessage(JSON.stringify(serializeData)),
+        ethers.hashMessage(JSON.stringify(serializeData.serials)),
       ]);
       const { manufacturer } = productData;
       // TODO Deploy smart contract
-      console.log({ productHash, serializeHash });
+      console.log({ productHash, serializeHash, inventoryHash });
       const distribute = {
         contract: '',
         product: change?.product,
