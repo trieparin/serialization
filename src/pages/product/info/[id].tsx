@@ -56,7 +56,7 @@ export async function getServerSideProps({
       .collection('/products')
       .doc(params?.id as string)
       .get();
-    const data = doc.exists && doc.data();
+    const data = doc.data();
 
     return {
       props: {

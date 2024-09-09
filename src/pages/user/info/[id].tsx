@@ -90,7 +90,7 @@ export async function getServerSideProps({
       .collection('/users')
       .doc(params?.id as string)
       .get();
-    const data = doc.exists && doc.data();
+    const data = doc.data();
 
     return {
       props: {

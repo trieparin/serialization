@@ -12,7 +12,7 @@ export default async function handler(
     switch (req.method) {
       case 'GET': {
         const doc = await distributes.doc(id as string).get();
-        res.status(200).json({ data: doc.exists && doc.data() });
+        res.status(200).json({ data: doc.data() });
         break;
       }
       case 'PATCH': {
