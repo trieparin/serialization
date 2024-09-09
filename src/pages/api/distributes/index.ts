@@ -10,16 +10,15 @@ export default async function handler(
     const distributes = db.collection('distributes');
     if (req.method === 'POST') {
       const { contract, product, serialize, info } = req.body;
-      const distribution = {
+      const { id } = await distributes.add({
         distributes: [{ ...info, date: new Date().toISOString() }],
         serialize,
         product,
         contract,
-      };
-      const { id } = await distributes.add(distribution);
+      });
       res.status(201).json({
         message: 'Create new distribution successfully',
-        data: { id, distribution },
+        data: { id },
       });
     } else {
       res.status(400).json({});

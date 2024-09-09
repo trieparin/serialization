@@ -1,9 +1,8 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { ROLE } from '@/models/distribute.model';
+import { IDistributeInfo, ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
-import { IProduct } from '@/models/product.model';
-import { ISerialize, SERIALIZE_STATUS } from '@/models/serialize.model';
+import { SERIALIZE_STATUS } from '@/models/serialize.model';
 import { ethers } from 'ethers';
 import {
   Dialog,
@@ -63,10 +62,11 @@ export const DistributeDialog = ({
       await fch.patch(`/serials/${change?.serial}`, {
         status: SERIALIZE_STATUS.DISTRIBUTED,
       });
-      const [productData, serializeData] = await Promise.all([
-        (await fch.get(`/products/${change?.product}`)) as IProduct,
-        (await fch.get(`/serials/${change?.serial}`)) as ISerialize,
-      ]);
+      const [{ data: productData }, { data: serializeData }] =
+        await Promise.all([
+          await fch.get(`/products/${change?.product}`),
+          await fch.get(`/serials/${change?.serial}`),
+        ]);
       const [productHash, serializeHash] = await Promise.all([
         ethers.hashMessage(JSON.stringify(productData)),
         ethers.hashMessage(JSON.stringify(serializeData)),
@@ -89,8 +89,14 @@ export const DistributeDialog = ({
         },
       };
       const { message, data }: IFormMessage = await fch.post(path, distribute);
+      const { data: distributeData } = (await fch.get(
+        `/distributes/${data?.id}`
+      )) as IFormMessage;
+      const distributeHash = ethers.hashMessage(
+        JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
+      );
       // TODO Update contract distribute
-      console.log(data);
+      console.log({ distributeHash });
       toaster.success(message);
       update();
       close();
@@ -110,7 +116,7 @@ export const DistributeDialog = ({
       intent="success"
       confirmLabel="Confirm"
       isConfirmLoading={loading}
-      isConfirmDisabled={!state.address && !state.company}
+      isConfirmDisabled={!state.address || !state.company}
       onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
     >
@@ -124,7 +130,7 @@ export const DistributeDialog = ({
           id="address"
           required
           value={state.address}
-          onChange={(event: FocusEvent<HTMLInputElement>) => {
+          onBlur={(event: FocusEvent<HTMLInputElement>) => {
             dispatch({
               type: 'SET_ADDRESS',
               payload: event.currentTarget.value.trim(),
@@ -137,7 +143,7 @@ export const DistributeDialog = ({
           id="company"
           required
           value={state.company}
-          onChange={(event: FocusEvent<HTMLInputElement>) => {
+          onBlur={(event: FocusEvent<HTMLInputElement>) => {
             dispatch({
               type: 'SET_COMPANY',
               payload: event.currentTarget.value.trim(),
