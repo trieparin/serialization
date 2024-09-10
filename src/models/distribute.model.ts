@@ -21,5 +21,6 @@ export interface IDistributeContract {
   contract: string;
   product: string;
   serialize: string;
+  catalogs: Record<string, string[]>;
   distributes: IDistributeInfo[];
 }

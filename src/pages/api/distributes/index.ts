@@ -12,6 +12,7 @@ export default async function handler(
       const { contract, product, serialize, info } = req.body;
       const { id } = await distributes.add({
         distributes: [{ ...info, date: new Date().toISOString() }],
+        catalogs: { [info.sender.address]: [] },
         serialize,
         product,
         contract,

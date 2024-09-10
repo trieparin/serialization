@@ -67,21 +67,34 @@ export const DistributeDialog = ({
           await fch.get(`/products/${change?.product}`),
           await fch.get(`/serials/${change?.serial}`),
         ]);
-      const [productHash, serializeHash, inventoryHash] = await Promise.all([
+      const [productHash, serializeHash, catalogHash] = await Promise.all([
         ethers.hashMessage(JSON.stringify(productData)),
         ethers.hashMessage(JSON.stringify(serializeData)),
         ethers.hashMessage(JSON.stringify(serializeData.serials)),
       ]);
       const { manufacturer } = productData;
       // TODO Deploy smart contract
-      console.log({ productHash, serializeHash, inventoryHash });
+      console.log({
+        product: {
+          data: productData,
+          hash: productHash,
+        },
+        serialize: {
+          data: serializeData,
+          hash: serializeHash,
+        },
+        catalog: {
+          data: serializeData.serials,
+          hash: catalogHash,
+        },
+      });
       const distribute = {
-        contract: '',
+        contract: '0x123',
         product: change?.product,
         serialize: change?.serial,
         info: {
           sender: {
-            address: '',
+            address: '0x456',
             company: manufacturer,
             role: ROLE.MANUFACTURER,
           },
@@ -97,7 +110,12 @@ export const DistributeDialog = ({
         JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
       );
       // TODO Update contract distribute
-      console.log({ distributeHash });
+      console.log({
+        distribute: {
+          data: distributeData,
+          hash: distributeHash,
+        },
+      });
       toaster.success(message);
       update();
       close();
