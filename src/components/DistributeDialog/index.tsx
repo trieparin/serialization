@@ -103,16 +103,27 @@ export const DistributeDialog = ({
         },
       };
       const { message, data }: IFormMessage = await fch.post(path, distribute);
-      const { data: distributeData } = (await fch.get(
+      const { data: distributeData }: IFormMessage = await fch.get(
         `/distributes/${data?.id}`
-      )) as IFormMessage;
-      const distributeHash = ethers.hashMessage(
-        JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
       );
+      const [updateHash, distributeHash] = await Promise.all([
+        ethers.hashMessage(
+          JSON.stringify(
+            (distributeData?.catalogs as Record<string, string[]>)['0x456']
+          )
+        ),
+        ethers.hashMessage(
+          JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
+        ),
+      ]);
       // TODO Update contract distribute
       console.log({
+        catalog: {
+          data: (distributeData?.catalogs as Record<string, string[]>)['0x456'],
+          hash: updateHash,
+        },
         distribute: {
-          data: distributeData,
+          data: (distributeData?.distributes as IDistributeInfo[])[0],
           hash: distributeHash,
         },
       });
