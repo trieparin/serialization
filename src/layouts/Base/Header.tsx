@@ -37,6 +37,8 @@ export const Header = ({ profile }: { profile: IUser }) => {
               <NavLink href="/product">Product</NavLink>
               <Text color="muted">|</Text>
               <NavLink href="/serialize">Serialize</NavLink>
+              <Text color="muted">|</Text>
+              <NavLink href="/distribute">Distribute</NavLink>
               {profile.role === ROLE.SUPERVISOR && (
                 <>
                   <Text color="muted">|</Text>

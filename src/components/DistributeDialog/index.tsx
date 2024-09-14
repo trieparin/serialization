@@ -89,6 +89,7 @@ export const DistributeDialog = ({
         },
       });
       const distribute = {
+        label: serializeData.label,
         contract: '0x123',
         product: change?.product,
         serialize: change?.serial,

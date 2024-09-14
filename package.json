@@ -15,13 +15,14 @@
     "ethers": "^6.13.2",
     "evergreen-ui": "^7.1.9",
     "firebase": "^10.13.1",
-    "firebase-admin": "^12.4.0",
-    "next": "^14.2.9",
+    "firebase-admin": "^12.5.0",
+    "next": "^14.2.11",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
-    "react-is": "^18.3.1"
+    "react-is": "^18.3.1",
+    "react-qr-code": "^2.0.15"
   },
   "devDependencies": {
     "@types/node": "^20.16.5",
@@ -31,8 +32,8 @@
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.0",
-    "eslint-config-next": "^14.2.9",
-    "turbo": "^2.1.1",
+    "eslint-config-next": "^14.2.11",
+    "turbo": "^2.1.2",
     "typescript": "^5.6.2"
   },
   "packageManager": "yarn@4.4.1"

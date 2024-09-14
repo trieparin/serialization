@@ -24,7 +24,7 @@ import { ROLE } from '@/models/user.model';
 import {
   Badge,
   BoxIcon,
-  CloudDownloadIcon,
+  CompressedIcon,
   Dialog,
   EndorsedIcon,
   IconButton,
@@ -209,7 +209,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                           type="button"
                           name="download"
                           title="Download"
-                          icon={CloudDownloadIcon}
+                          icon={CompressedIcon}
                           disabled={serial.status === SERIALIZE_STATUS.LABELED}
                           onClick={() => downloadSerials(serial)}
                         />
