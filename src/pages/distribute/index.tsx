@@ -1,7 +1,7 @@
 import { PageTitle, Paginate, TableSearch } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
-import { convertQuery } from '@/helpers/convert.helper';
+import { convertQuery, downloadFile } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IDistribute } from '@/models/distribute.model';
@@ -10,6 +10,7 @@ import { ROLE } from '@/models/user.model';
 import {
   CompressedIcon,
   Dialog,
+  Heading,
   HelperManagementIcon,
   IconButton,
   Pane,
@@ -51,7 +52,7 @@ export default function DistributePage({ data, total }: DistributePageProps) {
 
   const profile = useContext(UserContext);
   const [distributes, setDistributes] = useState<IDistribute[]>(data);
-  const [qrInfo, setQRInfo] = useState({ open: false, id: '' });
+  const [qrInfo, setQRInfo] = useState({ open: false, id: '', label: '' });
   const [sort, setSort] = useState(false);
   const [page, setPage] = useState(total);
 
@@ -93,6 +94,22 @@ export default function DistributePage({ data, total }: DistributePageProps) {
     anchor.download = `${label}.json`;
     anchor.click();
     URL.revokeObjectURL(objUrl);
+  };
+
+  const downloadQR = (label: string) => {
+    const qrCode = document.getElementById('QRCode');
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const img = new Image();
+    img.onload = () => {
+      const context = canvas.getContext('2d');
+      context?.drawImage(img, 0, 0);
+      downloadFile(canvas.toDataURL('image/png'), `${label}.png`);
+    };
+    img.src = `data:image/svg+xml;base64,${window.btoa(
+      qrCode?.outerHTML as string
+    )}`;
   };
 
   useEffect(() => debounceFilter(), [debounceFilter]);
@@ -144,7 +161,13 @@ export default function DistributePage({ data, total }: DistributePageProps) {
                       title="QR Code"
                       intent="success"
                       icon={HelperManagementIcon}
-                      onClick={() => setQRInfo({ open: true, id: dist.id! })}
+                      onClick={() =>
+                        setQRInfo({
+                          open: true,
+                          id: dist.id!,
+                          label: dist.label,
+                        })
+                      }
                     />
                   </Pane>
                 </Table.Cell>
@@ -181,10 +204,12 @@ export default function DistributePage({ data, total }: DistributePageProps) {
         title="Download or Scan QR"
         intent="success"
         confirmLabel="Download"
-        onCloseComplete={() => setQRInfo({ open: false, id: '' })}
+        onConfirm={() => downloadQR(qrInfo.label)}
+        onCloseComplete={() => setQRInfo({ open: false, id: '', label: '' })}
       >
-        <Pane textAlign="center">
-          <QRCode value={`/distribute/${qrInfo.id}`} />
+        <Pane textAlign="center" padding={majorScale(2)}>
+          <QRCode id="QRCode" value={`/distribute/${qrInfo.id}`} />
+          <Heading is="h3">{qrInfo.label}</Heading>
         </Pane>
       </Dialog>
     </BaseLayout>

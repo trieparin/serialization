@@ -9,7 +9,7 @@ import {
 } from '@/components';
 import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
-import { convertQuery } from '@/helpers/convert.helper';
+import { convertQuery, downloadFile } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import {
@@ -128,10 +128,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
     const json = JSON.stringify(data);
     const blob = new Blob([json], { type: 'application/json' });
     const objUrl = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = objUrl;
-    anchor.download = `${product.batch}_${product.name}.json`;
-    anchor.click();
+    downloadFile(objUrl, `${product.batch}_${product.name}.json`);
     URL.revokeObjectURL(objUrl);
   };
 
