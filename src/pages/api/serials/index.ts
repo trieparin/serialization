@@ -1,6 +1,6 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
-import { ProductStatus } from '@/models/product.model';
+import { PAGE_SIZE } from '@/models/form.model';
+import { PRODUCT_STATUS } from '@/models/product.model';
 import { ISerialize } from '@/models/serialize.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,11 +19,11 @@ export default async function handler(
         .orderBy(sort as string, 'desc')
         .count()
         .get();
-      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
+      const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
       if (offset) {
         const snapshot = await serials
           .orderBy(sort as string, 'desc')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
         snapshot.forEach((doc) => {
@@ -32,7 +32,7 @@ export default async function handler(
       } else {
         const snapshot = await serials
           .orderBy(sort as string, 'desc')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as ISerialize) });
@@ -48,7 +48,7 @@ export default async function handler(
         updated: now,
       });
       await products.doc(product).update({
-        status: ProductStatus.SERIALIZED,
+        status: PRODUCT_STATUS.SERIALIZED,
         serial: id,
         updated: now,
       });

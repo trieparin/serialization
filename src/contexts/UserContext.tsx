@@ -1,5 +1,5 @@
 import { auth } from '@/firebase/config';
-import { IUserContext, Role } from '@/models/user.model';
+import { IUserContext, ROLE } from '@/models/user.model';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ReactNode, createContext, useEffect, useState } from 'react';
 
@@ -16,7 +16,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setProfile({
           uid: user.uid,
           displayName: user.displayName!,
-          role: result.claims.role as Role,
+          role: result.claims.role as ROLE,
           token,
         });
       } else {

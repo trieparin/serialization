@@ -11,12 +11,12 @@ import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import {
-  DialogAction,
+  DIALOG_ACTION,
   IFormAction,
   IFormDialog,
-  PageSize,
+  PAGE_SIZE,
 } from '@/models/form.model';
-import { IUser, IUserContext, Role } from '@/models/user.model';
+import { IUser, IUserContext, ROLE } from '@/models/user.model';
 import {
   Badge,
   EditIcon,
@@ -65,7 +65,7 @@ export default function UserPage({ data, total }: UserPageProps) {
   const profile = useContext(UserContext);
   const [users, setUsers] = useState<IUserContext[]>(data);
   const defaultOption = {
-    action: DialogAction.DELETE,
+    action: DIALOG_ACTION.DELETE,
     open: false,
     path: '',
     message: '',
@@ -92,13 +92,13 @@ export default function UserPage({ data, total }: UserPageProps) {
   const filterUsers = async (query: string) => {
     const fch = customFetch();
     const { data }: { data: IUser[] } = await fch.get(`/users/filter?${query}`);
-    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    const total = Math.ceil(data.length / PAGE_SIZE.PER_PAGE);
     setUsers(data);
     setPage(total);
   };
 
   const renderRole = (role: string) => {
-    if (role === Role.ADMIN) {
+    if (role === ROLE.ADMIN) {
       return <Badge color="red">{role}</Badge>;
     } else {
       return <Badge color="neutral">{role}</Badge>;
@@ -131,7 +131,7 @@ export default function UserPage({ data, total }: UserPageProps) {
             <Table.TextHeaderCell>
               Role
               <TableSelect
-                options={Role}
+                options={ROLE}
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_ROLE', payload: value });
                 }}
@@ -165,7 +165,7 @@ export default function UserPage({ data, total }: UserPageProps) {
                       disabled={uid === profile.uid}
                       onClick={() => {
                         setDialogOption({
-                          action: DialogAction.DELETE,
+                          action: DIALOG_ACTION.DELETE,
                           open: true,
                           path: `/users/${uid}`,
                           message: `Confirm delete "${firstName} ${lastName}"?`,
@@ -202,15 +202,15 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role !== Role.ADMIN) {
+    if (role !== ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     const data: IUserContext[] = [];
     const snapshot = db.collection('users').orderBy('role');
     const amount = await snapshot.count().get();
-    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
+    const select = await snapshot.limit(PAGE_SIZE.PER_PAGE).get();
     select.forEach((doc) => {
       data.push({ uid: doc.id, ...doc.data() });
     });

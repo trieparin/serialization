@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { ProductStatus } from '@/models/product.model';
+import { PRODUCT_STATUS } from '@/models/product.model';
 import { FieldValue } from 'firebase-admin/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -14,7 +14,7 @@ export default async function handler(
     switch (req.method) {
       case 'GET': {
         const doc = await serials.doc(id as string).get();
-        res.status(200).json({ data: doc.exists && doc.data() });
+        res.status(200).json({ data: doc.data() });
         break;
       }
       case 'PATCH': {
@@ -28,7 +28,7 @@ export default async function handler(
         const serial = serials.doc(id as string);
         const product = (await serial.get()).data();
         await db.collection('products').doc(product?.product).update({
-          status: ProductStatus.APPROVED,
+          status: PRODUCT_STATUS.APPROVED,
           serial: FieldValue.delete(),
           updated: Date.now(),
         });

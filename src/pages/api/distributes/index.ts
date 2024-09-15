@@ -1,5 +1,6 @@
 import { admin, db } from '@/firebase/admin';
-import { ethers } from 'ethers';
+import { IDistribute } from '@/models/distribute.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -8,29 +9,50 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const serials = db.collection('serials');
-    const products = db.collection('products');
     const distributes = db.collection('distributes');
     if (req.method === 'GET') {
-      res.status(200).json({});
+      const data: IDistribute[] = [];
+      const { offset, sort } = req.query;
+      const amount = await distributes
+        .orderBy(sort as string, 'desc')
+        .count()
+        .get();
+      const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
+      if (offset) {
+        const snapshot = await distributes
+          .orderBy(sort as string, 'desc')
+          .limit(PAGE_SIZE.PER_PAGE)
+          .offset(parseInt(offset as string))
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as IDistribute) });
+        });
+      } else {
+        const snapshot = await distributes
+          .orderBy(sort as string, 'desc')
+          .limit(PAGE_SIZE.PER_PAGE)
+          .get();
+        snapshot.forEach((doc) => {
+          data.push({ id: doc.id, ...(doc.data() as IDistribute) });
+        });
+      }
+      res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
-      const { status, serial, product } = req.body;
-      await serials.doc(serial).update({ updated: Date.now(), status });
-      const [productData, serialData] = await Promise.all([
-        (await products.doc(product).get()).data(),
-        (await serials.doc(serial).get()).data(),
-      ]);
-      const [productHash, serialHash] = await Promise.all([
-        ethers.hashMessage(JSON.stringify(productData)),
-        ethers.hashMessage(JSON.stringify(serialData)),
-      ]);
+      const now = Date.now();
+      const { label, contract, product, serialize, info } = req.body;
       const { id } = await distributes.add({
-        product: productData,
-        serial: serialData,
+        created: now,
+        updated: now,
+        distributes: [{ ...info, date: new Date().toISOString() }],
+        catalogs: { [info.sender.address]: [] },
+        serialize,
+        product,
+        contract,
+        label,
       });
       res.status(201).json({
-        message: 'Create new distribute successfully',
-        data: { id, productHash, serialHash },
+        message: 'Create new distribution successfully',
+        data: { id },
       });
     } else {
       res.status(400).json({});

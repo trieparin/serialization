@@ -10,13 +10,13 @@ import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import {
-  DialogAction,
+  DIALOG_ACTION,
   IFormAction,
   IFormDialog,
-  PageSize,
+  PAGE_SIZE,
 } from '@/models/form.model';
-import { IItem, ItemType } from '@/models/inventory.model';
-import { Role } from '@/models/user.model';
+import { IItem, ITEM_TYPE } from '@/models/inventory.model';
+import { ROLE } from '@/models/user.model';
 import {
   Badge,
   IconButton,
@@ -55,7 +55,7 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
 
   const [items, setItems] = useState<IItem[]>(data);
   const defaultOption = {
-    action: DialogAction.DELETE,
+    action: DIALOG_ACTION.DELETE,
     open: false,
     path: '',
     message: '',
@@ -82,13 +82,13 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
   const filterItems = async (query: string) => {
     const fch = customFetch();
     const { data }: { data: IItem[] } = await fch.get(`/items/filter?${query}`);
-    const total = Math.ceil(data.length / PageSize.PER_PAGE);
+    const total = Math.ceil(data.length / PAGE_SIZE.PER_PAGE);
     setItems(data);
     setPage(total);
   };
 
   const renderType = (type: string) => {
-    if (type === ItemType.REG_NO) {
+    if (type === ITEM_TYPE.REG_NO) {
       return <Badge color="red">{type}</Badge>;
     } else {
       return <Badge color="neutral">{type}</Badge>;
@@ -121,7 +121,7 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
             <Table.TextHeaderCell>
               Type
               <TableSelect
-                options={ItemType}
+                options={ITEM_TYPE}
                 dispatch={(value) => {
                   dispatch({ type: 'FILTER_TYPE', payload: value });
                 }}
@@ -146,7 +146,7 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
                     icon={TrashIcon}
                     onClick={() => {
                       setDialogOption({
-                        action: DialogAction.DELETE,
+                        action: DIALOG_ACTION.DELETE,
                         open: true,
                         path: `/items/${id}`,
                         message: `Confirm delete "${type} : ${name}"?`,
@@ -182,15 +182,15 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role !== Role.ADMIN) {
+    if (role !== ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     const data: IItem[] = [];
     const snapshot = db.collection('items').orderBy('type');
     const amount = await snapshot.count().get();
-    const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
-    const select = await snapshot.limit(PageSize.PER_PAGE).get();
+    const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
+    const select = await snapshot.limit(PAGE_SIZE.PER_PAGE).get();
     select.forEach((doc) => {
       data.push({ id: doc.id, ...(doc.data() as IItem) });
     });

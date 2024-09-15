@@ -2,8 +2,8 @@ import { SaveCancel } from '@/components';
 import { convertQuery } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
 import { IFormAction } from '@/models/form.model';
-import { IItem, ItemType } from '@/models/inventory.model';
-import { IProduct, ProductType } from '@/models/product.model';
+import { IItem, ITEM_TYPE } from '@/models/inventory.model';
+import { IProduct, PRODUCT_TYPE } from '@/models/product.model';
 import {
   Autocomplete,
   Heading,
@@ -127,7 +127,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
                         onChange: () => {
                           debounceSearch({
                             name: inputValue,
-                            type: ItemType.REG_NO,
+                            type: ITEM_TYPE.REG_NO,
                           });
                         },
                       })}
@@ -157,7 +157,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             defaultValue={defaultValues?.type}
             {...register('type', { required: true })}
           >
-            {Object.values(ProductType).map((type) => (
+            {Object.values(PRODUCT_TYPE).map((type) => (
               <option key={type} value={type}>
                 {type}
               </option>
@@ -287,7 +287,7 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
                           onChange: () => {
                             debounceSearch({
                               name: inputValue,
-                              type: ItemType.INGREDIENT,
+                              type: ITEM_TYPE.INGREDIENT,
                             });
                           },
                         })}

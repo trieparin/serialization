@@ -6,7 +6,7 @@ import {
   regExPassword,
 } from '@/helpers/form.helper';
 import { IFormAction } from '@/models/form.model';
-import { IUserForm, Role } from '@/models/user.model';
+import { IUserForm, ROLE } from '@/models/user.model';
 import {
   Pane,
   SelectField,
@@ -164,11 +164,11 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             defaultValue={defaultValues?.role}
             {...register('role', {
               required: true,
-              disabled: profile.role !== Role.ADMIN,
+              disabled: profile.role !== ROLE.ADMIN,
               validate: () => edit && formHasChange(dirtyFields),
             })}
           >
-            {Object.values(Role).map((role) => (
+            {Object.values(ROLE).map((role) => (
               <option key={role} value={role}>
                 {role}
               </option>

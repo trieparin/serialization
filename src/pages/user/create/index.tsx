@@ -3,7 +3,7 @@ import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormMessage } from '@/models/form.model';
-import { IUserForm, Role } from '@/models/user.model';
+import { IUserForm, ROLE } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -15,7 +15,7 @@ export default function UserCreate() {
     pwd: '',
     firstName: '',
     lastName: '',
-    role: Role.OPERATOR,
+    role: ROLE.OPERATOR,
   };
   const router = useRouter();
 
@@ -49,7 +49,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role !== Role.ADMIN) {
+    if (role !== ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
     return { props: {} };

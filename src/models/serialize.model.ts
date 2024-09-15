@@ -1,4 +1,4 @@
-export enum SerializeStatus {
+export enum SERIALIZE_STATUS {
   LABELED = 'Labeled',
   VERIFIED = 'Verified',
   DISTRIBUTED = 'Distributed',
@@ -6,7 +6,7 @@ export enum SerializeStatus {
 
 export interface ISerialize {
   serials: string[];
-  status: SerializeStatus;
+  status: SERIALIZE_STATUS;
   label: string;
   id?: string;
   product?: string;

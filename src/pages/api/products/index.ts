@@ -1,5 +1,5 @@
 import { admin, db } from '@/firebase/admin';
-import { PageSize } from '@/models/form.model';
+import { PAGE_SIZE } from '@/models/form.model';
 import { IProduct } from '@/models/product.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -17,11 +17,11 @@ export default async function handler(
         .orderBy(sort as string, 'desc')
         .count()
         .get();
-      const total = Math.ceil(amount.data().count / PageSize.PER_PAGE);
+      const total = Math.ceil(amount.data().count / PAGE_SIZE.PER_PAGE);
       if (offset) {
         const snapshot = await products
           .orderBy(sort as string, 'desc')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .offset(parseInt(offset as string))
           .get();
         snapshot.forEach((doc) => {
@@ -30,7 +30,7 @@ export default async function handler(
       } else {
         const snapshot = await products
           .orderBy(sort as string, 'desc')
-          .limit(PageSize.PER_PAGE)
+          .limit(PAGE_SIZE.PER_PAGE)
           .get();
         snapshot.forEach((doc) => {
           data.push({ id: doc.id, ...(doc.data() as IProduct) });

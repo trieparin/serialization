@@ -5,7 +5,7 @@ import { formChangeValue } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormMessage } from '@/models/form.model';
 import { IProduct } from '@/models/product.model';
-import { Role } from '@/models/user.model';
+import { ROLE } from '@/models/user.model';
 import { toaster } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
@@ -48,7 +48,7 @@ export async function getServerSideProps({
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role === Role.ADMIN) {
+    if (role === ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
 
@@ -56,7 +56,7 @@ export async function getServerSideProps({
       .collection('/products')
       .doc(params?.id as string)
       .get();
-    const data = doc.exists && doc.data();
+    const data = doc.data();
 
     return {
       props: {

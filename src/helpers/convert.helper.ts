@@ -16,3 +16,11 @@ export const convertQuery = (value: Record<string, string | undefined>) => {
     })
     .join('&');
 };
+
+export const downloadFile = (href: string, name: string) => {
+  const anchor = document.createElement('a');
+  (anchor.href = href), (anchor.download = name);
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+};

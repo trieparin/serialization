@@ -1,4 +1,4 @@
-export enum Role {
+export enum ROLE {
   OPERATOR = 'Operator',
   SUPERVISOR = 'Supervisor',
   ADMIN = 'Admin',
@@ -9,7 +9,7 @@ export interface IUser {
   displayName?: string;
   firstName?: string;
   lastName?: string;
-  role?: Role;
+  role?: ROLE;
 }
 
 export interface IUserForm extends IUser {

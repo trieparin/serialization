@@ -1,6 +1,6 @@
 import { admin, db } from '@/firebase/admin';
+import { IDistribute } from '@/models/distribute.model';
 import { PAGE_SIZE } from '@/models/form.model';
-import { ISerialize } from '@/models/serialize.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -9,71 +9,48 @@ export default async function handler(
 ) {
   try {
     await admin.verifyIdToken(req.cookies.token!);
-    const serials = db.collection('serials');
+    const distributes = db.collection('distributes');
     if (req.method === 'GET') {
-      const data: ISerialize[] = [];
+      const data: IDistribute[] = [];
       const { label, status, offset } = req.query;
-      if (label && status) {
+      if (label) {
         if (offset) {
-          const snapshot = await serials
-            .where('status', '==', status)
+          const snapshot = await distributes
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
             .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+            data.push({ id: doc.id, ...(doc.data() as IDistribute) });
           });
         } else {
-          const snapshot = await serials
-            .where('status', '==', status)
+          const snapshot = await distributes
             .where('label', '>=', label)
             .where('label', '<=', `${label}~`)
             .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
-          });
-        }
-      } else if (label) {
-        if (offset) {
-          const snapshot = await serials
-            .where('label', '>=', label)
-            .where('label', '<=', `${label}~`)
-            .limit(PAGE_SIZE.PER_PAGE)
-            .offset(parseInt(offset as string))
-            .get();
-          snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
-          });
-        } else {
-          const snapshot = await serials
-            .where('label', '>=', label)
-            .where('label', '<=', `${label}~`)
-            .limit(PAGE_SIZE.PER_PAGE)
-            .get();
-          snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+            data.push({ id: doc.id, ...(doc.data() as IDistribute) });
           });
         }
       } else {
         if (offset) {
-          const snapshot = await serials
+          const snapshot = await distributes
             .where('status', '==', status)
             .limit(PAGE_SIZE.PER_PAGE)
             .offset(parseInt(offset as string))
             .get();
           snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+            data.push({ id: doc.id, ...(doc.data() as IDistribute) });
           });
         } else {
-          const snapshot = await serials
+          const snapshot = await distributes
             .where('status', '==', status)
             .limit(PAGE_SIZE.PER_PAGE)
             .get();
           snapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...(doc.data() as ISerialize) });
+            data.push({ id: doc.id, ...(doc.data() as IDistribute) });
           });
         }
       }

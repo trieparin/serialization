@@ -3,8 +3,8 @@ import { admin } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
 import { IFormMessage } from '@/models/form.model';
-import { ItemType } from '@/models/inventory.model';
-import { Role } from '@/models/user.model';
+import { ITEM_TYPE } from '@/models/inventory.model';
+import { ROLE } from '@/models/user.model';
 import {
   Pane,
   SelectField,
@@ -29,7 +29,7 @@ export default function InventoryCreate() {
     defaultValues: {
       name: '',
       note: '',
-      type: ItemType.INGREDIENT,
+      type: ITEM_TYPE.INGREDIENT,
     },
   });
 
@@ -85,7 +85,7 @@ export default function InventoryCreate() {
               defaultValue={defaultValues?.type}
               {...register('type', { required: true })}
             >
-              {Object.values(ItemType).map((type) => (
+              {Object.values(ITEM_TYPE).map((type) => (
                 <option key={type} value={type}>
                   {type}
                 </option>
@@ -103,7 +103,7 @@ export async function getServerSideProps({ req }: GetServerSidePropsContext) {
   try {
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
-    if (role !== Role.ADMIN) {
+    if (role !== ROLE.ADMIN) {
       return { redirect: { destination: '/no-permission' } };
     }
     return { props: {} };
