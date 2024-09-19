@@ -16,18 +16,15 @@ import { useRouter } from 'next/router';
 import { FocusEvent, useContext, useReducer } from 'react';
 
 interface DistributeDialogProps extends IFormDialog {
-  update: () => void;
   reset: () => void;
 }
 
 export const DistributeDialog = ({
-  update,
   reset,
   open,
   path,
   message,
   change,
-  redirect,
 }: DistributeDialogProps) => {
   const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
@@ -129,10 +126,9 @@ export const DistributeDialog = ({
         },
       });
       toaster.success(message);
-      update();
       close();
       dispatch({ type: 'RESET', payload: '' });
-      redirect && router.push(redirect);
+      router.push('/distribute');
     } catch (e) {
       toaster.danger('An error occurred');
     }

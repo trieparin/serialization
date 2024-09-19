@@ -318,8 +318,6 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         path={distOption.path}
         message={distOption.message}
         change={distOption.change}
-        redirect={distOption.redirect}
-        update={getSerials}
         reset={() => setDistOption(defaultOption)}
       />
       <Dialog
