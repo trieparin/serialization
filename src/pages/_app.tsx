@@ -1,5 +1,6 @@
 import { LoadingProvider } from '@/contexts/LoadingContext';
 import { UserProvider } from '@/contexts/UserContext';
+import { WalletProvider } from '@/contexts/WalletContext';
 import '@/styles/globals.css';
 import { defaultTheme, ThemeProvider } from 'evergreen-ui';
 import type { AppProps } from 'next/app';
@@ -16,9 +17,11 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
       <LoadingProvider>
         <UserProvider>
-          <ThemeProvider value={defaultTheme}>
-            <Component {...pageProps} />
-          </ThemeProvider>
+          <WalletProvider>
+            <ThemeProvider value={defaultTheme}>
+              <Component {...pageProps} />
+            </ThemeProvider>
+          </WalletProvider>
         </UserProvider>
       </LoadingProvider>
     </>
