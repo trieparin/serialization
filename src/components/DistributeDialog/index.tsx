@@ -1,9 +1,11 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
+import { connectWallet } from '@/helpers/wallet.helpers';
 import { IDistributeInfo, ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { SERIALIZE_STATUS } from '@/models/serialize.model';
-import { ethers } from 'ethers';
+import Traceability from '@/Traceability.json';
+import { ContractFactory, hashMessage } from 'ethers';
 import {
   Dialog,
   majorScale,
@@ -53,6 +55,13 @@ export const DistributeDialog = ({
   const [state, dispatch] = useReducer(formReducer, {});
 
   const handleAction = async (close: () => void) => {
+    const { provider, accounts } = await connectWallet();
+    const factory = new ContractFactory(
+      Traceability.abi,
+      Traceability.data.bytecode,
+      accounts[0]
+    );
+    console.log(provider, accounts, factory);
     startLoading();
     try {
       const fch = customFetch();
@@ -65,11 +74,17 @@ export const DistributeDialog = ({
           await fch.get(`/serials/${change?.serial}`),
         ]);
       const [productHash, serializeHash, catalogHash] = await Promise.all([
-        ethers.hashMessage(JSON.stringify(productData)),
-        ethers.hashMessage(JSON.stringify(serializeData)),
-        ethers.hashMessage(JSON.stringify(serializeData.serials)),
+        hashMessage(JSON.stringify(productData)),
+        hashMessage(JSON.stringify(serializeData)),
+        hashMessage(JSON.stringify(serializeData.serials)),
       ]);
       const { manufacturer } = productData;
+      const contract = await factory.deploy(
+        productHash,
+        serializeHash,
+        catalogHash
+      );
+      const address = await contract.getAddress();
       // TODO Deploy smart contract
       console.log({
         product: {
@@ -85,14 +100,18 @@ export const DistributeDialog = ({
           hash: catalogHash,
         },
       });
+      console.log({
+        contract: address,
+      });
+      contract.waitForDeployment();
       const distribute = {
         label: serializeData.label,
-        contract: '0x123',
+        contract: address,
         product: change?.product,
         serialize: change?.serial,
         info: {
           sender: {
-            address: '0x456',
+            address: accounts[0].address,
             company: manufacturer,
             role: ROLE.MANUFACTURER,
           },
@@ -105,19 +124,23 @@ export const DistributeDialog = ({
         `/distributes/${data?.id}`
       );
       const [updateHash, distributeHash] = await Promise.all([
-        ethers.hashMessage(
+        hashMessage(
           JSON.stringify(
-            (distributeData?.catalogs as Record<string, string[]>)['0x456']
+            (distributeData?.catalogs as Record<string, string[]>)[
+              accounts[0].address
+            ]
           )
         ),
-        ethers.hashMessage(
+        hashMessage(
           JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
         ),
       ]);
       // TODO Update contract distribute
       console.log({
         catalog: {
-          data: (distributeData?.catalogs as Record<string, string[]>)['0x456'],
+          data: (distributeData?.catalogs as Record<string, string[]>)[
+            accounts[0].address
+          ],
           hash: updateHash,
         },
         distribute: {
