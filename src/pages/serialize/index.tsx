@@ -11,6 +11,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import { convertQuery, downloadFile } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
+import { checkWallet } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import {
   DIALOG_ACTION,
@@ -257,7 +258,7 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         icon={BoxIcon}
                         disabled={serial.status !== SERIALIZE_STATUS.VERIFIED}
                         onClick={() => {
-                          window.ethereum && window.ethereum.isMetaMask
+                          checkWallet()
                             ? setDistOption({
                                 action: DIALOG_ACTION.CREATE,
                                 open: true,
@@ -318,8 +319,6 @@ export default function SerializePage({ data, total }: SerializePageProps) {
         path={distOption.path}
         message={distOption.message}
         change={distOption.change}
-        redirect={distOption.redirect}
-        update={getSerials}
         reset={() => setDistOption(defaultOption)}
       />
       <Dialog
