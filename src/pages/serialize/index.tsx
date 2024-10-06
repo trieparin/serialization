@@ -11,7 +11,6 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import { convertQuery, downloadFile } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { checkWallet } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import {
   DIALOG_ACTION,
@@ -36,7 +35,6 @@ import {
   Text,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import {
@@ -258,18 +256,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         icon={BoxIcon}
                         disabled={serial.status !== SERIALIZE_STATUS.VERIFIED}
                         onClick={() => {
-                          checkWallet()
-                            ? setDistOption({
-                                action: DIALOG_ACTION.CREATE,
-                                open: true,
-                                path: `/distributes`,
-                                message: `Distribute "${serial.label}"?`,
-                                change: {
-                                  product: serial.product,
-                                  serial: serial.id,
-                                },
-                              })
-                            : toaster.warning('Please install MetaMask.');
+                          setDistOption({
+                            action: DIALOG_ACTION.CREATE,
+                            open: true,
+                            path: `/distributes`,
+                            message: `Distribute "${serial.label}"?`,
+                            change: {
+                              product: serial.product,
+                              serial: serial.id,
+                            },
+                          });
                         }}
                       />
                     )}

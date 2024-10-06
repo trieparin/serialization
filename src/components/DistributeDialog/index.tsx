@@ -5,7 +5,7 @@ import { IDistributeInfo, ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { SERIALIZE_STATUS } from '@/models/serialize.model';
 import Traceability from '@/Traceability.json';
-import { ContractFactory, hashMessage } from 'ethers';
+import { Contract, ContractFactory, hashMessage } from 'ethers';
 import {
   Dialog,
   majorScale,
@@ -55,13 +55,12 @@ export const DistributeDialog = ({
   const [state, dispatch] = useReducer(formReducer, {});
 
   const handleAction = async (close: () => void) => {
-    const { provider, accounts } = await connectWallet();
+    const { accounts } = await connectWallet();
     const factory = new ContractFactory(
       Traceability.abi,
       Traceability.data.bytecode,
       accounts[0]
     );
-    console.log(provider, accounts, factory);
     startLoading();
     try {
       const fch = customFetch();
@@ -135,6 +134,16 @@ export const DistributeDialog = ({
           JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
         ),
       ]);
+      const distribution = new Contract(address, Traceability.abi, accounts[0]);
+      const shipment = await distribution.shipmentRequest(
+        productHash,
+        serializeHash,
+        catalogHash,
+        updateHash,
+        catalogHash,
+        state.address,
+        ROLE.DISTRIBUTOR
+      );
       // TODO Update contract distribute
       console.log({
         catalog: {
@@ -148,6 +157,7 @@ export const DistributeDialog = ({
           hash: distributeHash,
         },
       });
+      console.log(shipment);
       toaster.success(message);
       close();
       dispatch({ type: 'RESET', payload: '' });
@@ -179,7 +189,7 @@ export const DistributeDialog = ({
           type="text"
           id="address"
           required
-          value={state.address}
+          defaultValue={state.address}
           onBlur={(event: FocusEvent<HTMLInputElement>) => {
             dispatch({
               type: 'SET_ADDRESS',
@@ -192,7 +202,7 @@ export const DistributeDialog = ({
           type="text"
           id="company"
           required
-          value={state.company}
+          defaultValue={state.company}
           onBlur={(event: FocusEvent<HTMLInputElement>) => {
             dispatch({
               type: 'SET_COMPANY',

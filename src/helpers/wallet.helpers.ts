@@ -21,3 +21,13 @@ export const connectWallet = async () => {
     };
   }
 };
+
+export const checkWallet = () => {
+  if (
+    process.env.NEXT_PUBLIC_WALLET_MODE === 'live' &&
+    typeof window !== 'undefined' &&
+    window.ethereum
+  ) {
+    return true;
+  }
+};

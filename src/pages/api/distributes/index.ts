@@ -44,7 +44,10 @@ export default async function handler(
         created: now,
         updated: now,
         distributes: [{ ...info, date: new Date().toISOString() }],
-        catalogs: { [info.sender.address]: [] },
+        catalogs: {
+          [info.sender.address]: [],
+          [info.receiver.address]: info.shipment,
+        },
         serialize,
         product,
         contract,
