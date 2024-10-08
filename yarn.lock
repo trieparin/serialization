@@ -1147,6 +1147,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dom-webcodecs@npm:^0.1.12":
+  version: 0.1.13
+  resolution: "@types/dom-webcodecs@npm:0.1.13"
+  checksum: 10/99cb227416725efd4b22175ef18988ae3fc728480fe6ed2192777d7dba52d18af540b4df49fcfa3cf73753d1dcf9d5399b089702bde215d78679284848b078f7
+  languageName: node
+  linkType: hard
+
+"@types/emscripten@npm:^1.39.13":
+  version: 1.39.13
+  resolution: "@types/emscripten@npm:1.39.13"
+  checksum: 10/02c0446150f9cc2c74dc3a551f86ce13df266c33d8b98d11d9f17263e2d98a6a6b4d36bdd15066c4e1547ae1ed2d52eed9420116b4935d119009e0f53ddbb041
+  languageName: node
+  linkType: hard
+
 "@types/express-serve-static-core@npm:^4.17.33":
   version: 4.17.43
   resolution: "@types/express-serve-static-core@npm:4.17.43"
@@ -1240,12 +1254,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.16.10":
-  version: 20.16.10
-  resolution: "@types/node@npm:20.16.10"
+"@types/node@npm:^20.16.11":
+  version: 20.16.11
+  resolution: "@types/node@npm:20.16.11"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10/f0832d16fed07737c2c3edd6cb6414a22e8379173e56e701ab8890b8798c8f9bc37337332631818f813ff7f8c0e168e9900e8f44cdfd2406d15150289c813acc
+  checksum: 10/6d2f92b7b320c32ba0c2bc54d21651bd21690998a2e27f00d15019d4db3e0ec30fce85332efed5e37d4cda078ff93ea86ee3e92b76b7a25a9b92a52a039b60b2
   languageName: node
   linkType: hard
 
@@ -1615,6 +1629,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@yudiel/react-qr-scanner@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "@yudiel/react-qr-scanner@npm:2.0.8"
+  dependencies:
+    barcode-detector: "npm:^2.2.7"
+    webrtc-adapter: "npm:9.0.1"
+  peerDependencies:
+    react: ^17 || ^18
+    react-dom: ^17 || ^18
+  checksum: 10/e5c45982cd7fe6f221ce80b99f1e987b689dbff3a70be5c2fad2c0dda7761f425f9645cb9cb8b21a5c4963615a03820e275e726c689d3cba504208cb7cdaba3d
+  languageName: node
+  linkType: hard
+
 "abort-controller@npm:^3.0.0":
   version: 3.0.0
   resolution: "abort-controller@npm:3.0.0"
@@ -1907,6 +1934,16 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 10/9706c088a283058a8a99e0bf91b0a2f75497f185980d9ffa8b304de1d9e58ebda7c72c07ebf01dadedaac5b2907b2c6f566f660d62bd336c3468e960403b9d65
+  languageName: node
+  linkType: hard
+
+"barcode-detector@npm:^2.2.7":
+  version: 2.2.10
+  resolution: "barcode-detector@npm:2.2.10"
+  dependencies:
+    "@types/dom-webcodecs": "npm:^0.1.12"
+    zxing-wasm: "npm:1.2.14"
+  checksum: 10/829883edcd279097bbed193f9aea27c6248cea473b3eacc903438ea95e405f5d03ad5913776696d3257a29b949d1433eb4d2c97f520bc77c3bc1ff1e736caac0
   languageName: node
   linkType: hard
 
@@ -4822,6 +4859,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sdp@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "sdp@npm:3.2.0"
+  checksum: 10/3ea337c24f91f7429c79b97f1a16c19a5abb3b6672ce7c05cc931314af1318cdf3a7a88e66ea1ee71e05bf41bf3a20d5940b1c93f3099e820cec60068ddbd9b4
+  languageName: node
+  linkType: hard
+
 "semver@npm:^6.3.1":
   version: 6.3.1
   resolution: "semver@npm:6.3.1"
@@ -4846,12 +4890,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "serialization@workspace:."
   dependencies:
-    "@types/node": "npm:^20.16.10"
+    "@types/node": "npm:^20.16.11"
     "@types/react": "npm:^18.3.11"
     "@types/react-dom": "npm:^18.3.0"
     "@types/react-is": "npm:^18.3.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.18.0"
     "@typescript-eslint/parser": "npm:^7.18.0"
+    "@yudiel/react-qr-scanner": "npm:^2.0.8"
     chart.js: "npm:^4.4.4"
     eslint: "npm:^8.57.1"
     eslint-config-next: "npm:^14.2.14"
@@ -5463,6 +5508,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"webrtc-adapter@npm:9.0.1":
+  version: 9.0.1
+  resolution: "webrtc-adapter@npm:9.0.1"
+  dependencies:
+    sdp: "npm:^3.2.0"
+  checksum: 10/5e73ddb6fb807e28fc4bb727bdee2717a697bcf24cfbe1e401c5a3c57d61627fa000b6185470ec3c9fcc1dca42093b67776742c7fde7002fbc14da272a020cbf
+  languageName: node
+  linkType: hard
+
 "websocket-driver@npm:>=0.5.1":
   version: 0.7.4
   resolution: "websocket-driver@npm:0.7.4"
@@ -5651,5 +5705,14 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10/f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
+  languageName: node
+  linkType: hard
+
+"zxing-wasm@npm:1.2.14":
+  version: 1.2.14
+  resolution: "zxing-wasm@npm:1.2.14"
+  dependencies:
+    "@types/emscripten": "npm:^1.39.13"
+  checksum: 10/02ea0408553f1aebb412a97c5e11887c58da1b2adff636302232535e752b91bdb3f358411259b6cddd34b341df565336bc03f48895e362f61316018d9bbff8c3
   languageName: node
   linkType: hard
