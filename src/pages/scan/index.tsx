@@ -6,16 +6,6 @@ import { useRouter } from 'next/router';
 
 function ScanPage() {
   const router = useRouter();
-  const signer = async () => {
-    const { accounts } = await connectWallet();
-    if (checkWallet()) {
-      return accounts[0];
-    } else {
-      const number = prompt('Select test account number');
-      return accounts[parseInt(number!)];
-    }
-  };
-
   return (
     <BlankLayout>
       <Card
@@ -35,17 +25,24 @@ function ScanPage() {
         </Heading>
         <Paragraph marginY={majorScale(3)}>Scan QR code to continue</Paragraph>
         <Pane
-          width="80%"
-          marginBottom="40%"
+          width="30%"
           marginX="auto"
+          marginBottom={majorScale(3)}
         >
           <Scanner
-            onScan={async (qrCode) => {
-              console.log(qrCode);
-              const account = await signer();
-              router.push(
-                `/distribute/info/${qrCode}?address=${account.address}`
-              );
+            onScan={async (detected) => {
+              const { accounts } = await connectWallet();
+              const id = detected[0].rawValue;
+              if (checkWallet()) {
+                router.push(
+                  `/distribute/info/${id}?address=${accounts[0].address}`
+                );
+              } else {
+                const idx = parseInt(prompt('Input test account index')!);
+                router.push(
+                  `/distribute/info/${id}?address=${accounts[idx].address}`
+                );
+              }
             }}
           />
         </Pane>

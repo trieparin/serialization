@@ -231,7 +231,7 @@ export default function DistributePage({ data, total }: DistributePageProps) {
         >
           <QRCode
             id="QRCode"
-            value={`/distribute/${qrInfo.id}`}
+            value={qrInfo.id}
           />
           <Heading is="h3">{qrInfo.label}</Heading>
         </Pane>

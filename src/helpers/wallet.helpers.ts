@@ -1,11 +1,19 @@
 import { BrowserProvider, JsonRpcProvider } from 'ethers';
 
-export const connectWallet = async () => {
+export const checkWallet = () => {
   if (
     process.env.NEXT_PUBLIC_WALLET_MODE === 'live' &&
     typeof window !== 'undefined' &&
     window.ethereum
   ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export const connectWallet = async () => {
+  if (checkWallet()) {
     const provider = new BrowserProvider(window.ethereum);
     const accounts = await provider.listAccounts();
     return {
@@ -19,15 +27,5 @@ export const connectWallet = async () => {
       provider,
       accounts,
     };
-  }
-};
-
-export const checkWallet = () => {
-  if (
-    process.env.NEXT_PUBLIC_WALLET_MODE === 'live' &&
-    typeof window !== 'undefined' &&
-    window.ethereum
-  ) {
-    return true;
   }
 };
