@@ -57,7 +57,11 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
       is="form"
       onSubmit={handleSubmit(() => formSubmit(getValues(), dirtyFields))}
     >
-      <Pane is="fieldset" border="none" disabled={isSubmitting}>
+      <Pane
+        is="fieldset"
+        border="none"
+        disabled={isSubmitting}
+      >
         <Pane
           display="grid"
           gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -97,7 +101,10 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             validationMessage={
               !!state.password &&
               !checkPassword(state.password) && (
-                <Text size={300} color="red500">
+                <Text
+                  size={300}
+                  color="red500"
+                >
                   At least 6 characters with one uppercase, lowercase and number
                 </Text>
               )
@@ -123,7 +130,10 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             validationMessage={
               !!state.pwd &&
               state.pwd !== state.password && (
-                <Text size={300} color="red500">
+                <Text
+                  size={300}
+                  color="red500"
+                >
                   Password do not match
                 </Text>
               )
@@ -169,14 +179,20 @@ export const UserForm = ({ initForm, formSubmit, edit }: UserFormProps) => {
             })}
           >
             {Object.values(ROLE).map((role) => (
-              <option key={role} value={role}>
+              <option
+                key={role}
+                value={role}
+              >
                 {role}
               </option>
             ))}
           </SelectField>
         </Pane>
       </Pane>
-      <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
+      <SaveCancel
+        disabled={!isDirty || !isValid}
+        loading={isSubmitting}
+      />
     </Pane>
   );
 };

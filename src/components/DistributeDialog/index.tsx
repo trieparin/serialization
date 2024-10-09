@@ -180,10 +180,17 @@ export const DistributeDialog = ({
       onConfirm={(close) => handleAction(close)}
       onCloseComplete={reset}
     >
-      <Text display="inline-block" marginBottom={majorScale(1)}>
+      <Text
+        display="inline-block"
+        marginBottom={majorScale(1)}
+      >
         {message}
       </Text>
-      <Pane is="fieldset" border="none" disabled={loading}>
+      <Pane
+        is="fieldset"
+        border="none"
+        disabled={loading}
+      >
         <TextInputField
           label="Receiver Address"
           type="text"

@@ -14,7 +14,11 @@ interface SerialInfoProps {
 
 export const SerialInfo = ({ label, serials }: SerialInfoProps) => {
   return (
-    <Pane display="flex" flexFlow="column" rowGap={majorScale(2)}>
+    <Pane
+      display="flex"
+      flexFlow="column"
+      rowGap={majorScale(2)}
+    >
       <Pane>
         <Heading marginBottom={majorScale(1)}>Label:</Heading>
         <Text>{label}</Text>

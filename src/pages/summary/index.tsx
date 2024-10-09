@@ -101,7 +101,10 @@ export default function SummaryPage() {
   return (
     <BaseLayout>
       <PageTitle title="Summary" />
-      <Pane textAlign="right" marginBottom={majorScale(2)}>
+      <Pane
+        textAlign="right"
+        marginBottom={majorScale(2)}
+      >
         <Text>Select Year :</Text>
         <Select
           marginLeft={majorScale(1)}
@@ -111,14 +114,24 @@ export default function SummaryPage() {
           }}
         >
           {[...Array(5)].map((_, index) => (
-            <option key={index} value={currentYear - index}>
+            <option
+              key={index}
+              value={currentYear - index}
+            >
               {currentYear - index}
             </option>
           ))}
         </Select>
       </Pane>
-      <Pane marginBottom={majorScale(2)} className="summary-layout">
-        <Card elevation={1} paddingX={majorScale(2)} className="summary-pie">
+      <Pane
+        marginBottom={majorScale(2)}
+        className="summary-layout"
+      >
+        <Card
+          elevation={1}
+          paddingX={majorScale(2)}
+          className="summary-pie"
+        >
           <Doughnut
             options={{
               ...baseOptions,
@@ -145,7 +158,11 @@ export default function SummaryPage() {
             }}
           />
         </Card>
-        <Card elevation={1} paddingX={majorScale(2)} className="summary-pie">
+        <Card
+          elevation={1}
+          paddingX={majorScale(2)}
+          className="summary-pie"
+        >
           <Doughnut
             options={{
               ...baseOptions,
@@ -172,7 +189,11 @@ export default function SummaryPage() {
             }}
           />
         </Card>
-        <Card elevation={1} paddingX={majorScale(2)} className="summary-bar">
+        <Card
+          elevation={1}
+          paddingX={majorScale(2)}
+          className="summary-bar"
+        >
           <Bar
             options={{
               ...baseOptions,
@@ -211,7 +232,11 @@ export default function SummaryPage() {
             }}
           />
         </Card>
-        <Card elevation={1} paddingX={majorScale(2)} className="summary-line">
+        <Card
+          elevation={1}
+          paddingX={majorScale(2)}
+          className="summary-line"
+        >
           <Line
             options={{
               ...baseOptions,

@@ -36,7 +36,10 @@ export default function ProductInfo({ params, data }: ProductInfoProps) {
   return (
     <BaseLayout>
       <PageTitle title="Edit Product Info" />
-      <ProductForm initForm={data} formSubmit={formSubmit} />
+      <ProductForm
+        initForm={data}
+        formSubmit={formSubmit}
+      />
     </BaseLayout>
   );
 }
@@ -53,7 +56,7 @@ export async function getServerSideProps({
     }
 
     const doc = await db
-      .collection('/products')
+      .collection('products')
       .doc(params?.id as string)
       .get();
     const data = doc.data();

@@ -47,8 +47,14 @@ export default function InventoryCreate() {
   return (
     <BaseLayout>
       <PageTitle title="Create New Item" />
-      <Pane is="form" onSubmit={handleSubmit(formSubmit)}>
-        <Pane is="fieldset" border="none">
+      <Pane
+        is="form"
+        onSubmit={handleSubmit(formSubmit)}
+      >
+        <Pane
+          is="fieldset"
+          border="none"
+        >
           <Pane
             display="grid"
             gridTemplateColumns="repeat(3, minmax(0, 1fr))"
@@ -86,14 +92,20 @@ export default function InventoryCreate() {
               {...register('type', { required: true })}
             >
               {Object.values(ITEM_TYPE).map((type) => (
-                <option key={type} value={type}>
+                <option
+                  key={type}
+                  value={type}
+                >
                   {type}
                 </option>
               ))}
             </SelectField>
           </Pane>
         </Pane>
-        <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
+        <SaveCancel
+          disabled={!isDirty || !isValid}
+          loading={isSubmitting}
+        />
       </Pane>
     </BaseLayout>
   );

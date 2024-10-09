@@ -174,7 +174,11 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -184,8 +188,15 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                 <Table.TextCell>{serial.label}</Table.TextCell>
                 <Table.TextCell>{serial.serials.length}</Table.TextCell>
                 <Table.TextCell>{renderStatus(serial.status)}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
+                  <Pane
+                    display="flex"
+                    columnGap={majorScale(1)}
+                  >
                     <IconButton
                       type="button"
                       name="info"
@@ -275,8 +286,15 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Pane display="flex" alignItems="center" justifyContent="space-between">
-          <Pane display="flex" alignItems="center">
+        <Pane
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Pane
+            display="flex"
+            alignItems="center"
+          >
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
@@ -327,7 +345,10 @@ export default function SerializePage({ data, total }: SerializePageProps) {
           setSerialInfo({ open: false, label: '', serials: [''] });
         }}
       >
-        <SerialInfo label={serialInfo.label} serials={serialInfo.serials} />
+        <SerialInfo
+          label={serialInfo.label}
+          serials={serialInfo.serials}
+        />
       </Dialog>
     </BaseLayout>
   );

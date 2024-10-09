@@ -14,11 +14,18 @@ function ScanPage() {
         minWidth="max-content"
         padding={majorScale(5)}
       >
-        <Heading is="h1" size={900}>
+        <Heading
+          is="h1"
+          size={900}
+        >
           Scan QR
         </Heading>
         <Paragraph marginY={majorScale(3)}>Scan QR code to continue</Paragraph>
-        <Pane width="80%" marginBottom="40%" marginX="auto">
+        <Pane
+          width="80%"
+          marginBottom="40%"
+          marginX="auto"
+        >
           <Scanner
             onScan={(qrCode) => {
               console.log(qrCode);

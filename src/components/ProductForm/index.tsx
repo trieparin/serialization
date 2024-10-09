@@ -93,7 +93,10 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
       is="form"
       onSubmit={handleSubmit(() => formSubmit(getValues(), dirtyFields))}
     >
-      <Pane is="fieldset" border="none">
+      <Pane
+        is="fieldset"
+        border="none"
+      >
         <Heading marginBottom={majorScale(2)}>Batch Information</Heading>
         <Pane
           display="grid"
@@ -158,7 +161,10 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             {...register('type', { required: true })}
           >
             {Object.values(PRODUCT_TYPE).map((type) => (
-              <option key={type} value={type}>
+              <option
+                key={type}
+                value={type}
+              >
                 {type}
               </option>
             ))}
@@ -234,8 +240,15 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
             })}
           />
         </Pane>
-        <Pane display="flex" alignItems="center" justifyContent="space-between">
-          <Heading position="relative" marginBottom={majorScale(2)}>
+        <Pane
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Heading
+            position="relative"
+            marginBottom={majorScale(2)}
+          >
             Active Ingredients
           </Heading>
           {fields.length < 3 && (
@@ -400,7 +413,10 @@ export const ProductForm = ({ initForm, formSubmit }: ProductFormProps) => {
           />
         </Pane>
       </Pane>
-      <SaveCancel disabled={!isDirty || !isValid} loading={isSubmitting} />
+      <SaveCancel
+        disabled={!isDirty || !isValid}
+        loading={isSubmitting}
+      />
     </Pane>
   );
 };

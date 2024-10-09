@@ -40,7 +40,10 @@ export default function UserCreate() {
   return (
     <BaseLayout>
       <PageTitle title="Create New User" />
-      <UserForm initForm={init} formSubmit={formSubmit} />
+      <UserForm
+        initForm={init}
+        formSubmit={formSubmit}
+      />
     </BaseLayout>
   );
 }
