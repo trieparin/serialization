@@ -40,11 +40,21 @@ export const TopBar = ({ profile }: { profile: IUserContext }) => {
         paddingY={majorScale(1)}
         className="container"
       >
-        <Text color="white" size={300} textTransform="uppercase">
+        <Text
+          color="white"
+          size={300}
+          textTransform="uppercase"
+        >
           DPU | Master&apos;s Degree Project
         </Text>
-        <Pane display="flex" alignItems="center">
-          <Avatar name={profile.displayName} size={minorScale(5)} />
+        <Pane
+          display="flex"
+          alignItems="center"
+        >
+          <Avatar
+            name={profile.displayName}
+            size={minorScale(5)}
+          />
           <Popover
             position={Position.BOTTOM_RIGHT}
             content={
