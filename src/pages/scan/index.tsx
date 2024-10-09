@@ -1,8 +1,21 @@
+import { checkWallet, connectWallet } from '@/helpers/wallet.helpers';
 import { BlankLayout } from '@/layouts';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Card, Heading, majorScale, Pane, Paragraph } from 'evergreen-ui';
+import { useRouter } from 'next/router';
 
 function ScanPage() {
+  const router = useRouter();
+  const signer = async () => {
+    const { accounts } = await connectWallet();
+    if (checkWallet()) {
+      return accounts[0];
+    } else {
+      const number = prompt('Select test account number');
+      return accounts[parseInt(number!)];
+    }
+  };
+
   return (
     <BlankLayout>
       <Card
@@ -27,8 +40,12 @@ function ScanPage() {
           marginX="auto"
         >
           <Scanner
-            onScan={(qrCode) => {
+            onScan={async (qrCode) => {
               console.log(qrCode);
+              const account = await signer();
+              router.push(
+                `/distribute/info/${qrCode}?address=${account.address}`
+              );
             }}
           />
         </Pane>
