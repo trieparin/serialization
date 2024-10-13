@@ -31,18 +31,16 @@ function ScanPage() {
         >
           <Scanner
             onScan={async (detected) => {
-              const { accounts } = await connectWallet();
               const id = detected[0].rawValue;
+              const provider = await connectWallet();
+              let signer;
               if (checkWallet()) {
-                router.push(
-                  `/distribute/info/${id}?address=${accounts[0].address}`
-                );
+                signer = await provider.getSigner(0);
               } else {
                 const idx = parseInt(prompt('Input test account index')!);
-                router.push(
-                  `/distribute/info/${id}?address=${accounts[idx].address}`
-                );
+                signer = await provider.getSigner(idx);
               }
+              router.push(`/distribute/info/${id}?address=${signer.address}`);
             }}
           />
         </Pane>
