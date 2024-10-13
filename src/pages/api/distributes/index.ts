@@ -39,15 +39,12 @@ export default async function handler(
       res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
       const now = Date.now();
-      const { label, contract, product, serialize, info } = req.body;
+      const { label, contract, product, serialize, catalogs, info } = req.body;
       const { id } = await distributes.add({
         created: now,
         updated: now,
         distributes: [{ ...info, date: new Date().toISOString() }],
-        catalogs: {
-          [info.sender.address]: [],
-          [info.receiver.address]: info.shipment,
-        },
+        catalogs,
         serialize,
         product,
         contract,

@@ -108,6 +108,7 @@ export const DistributeDialog = ({
         contract: address,
         product: change?.product,
         serialize: change?.serial,
+        catalogs: { [accounts[0].address]: [] },
         info: {
           sender: {
             address: accounts[0].address,
@@ -140,7 +141,6 @@ export const DistributeDialog = ({
         serializeHash,
         catalogHash,
         updateHash,
-        catalogHash,
         state.address,
         ROLE.DISTRIBUTOR
       );
