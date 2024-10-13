@@ -1,11 +1,28 @@
+import { UserContext } from '@/contexts/UserContext';
+import { auth } from '@/firebase/config';
+import { setCookie } from '@/helpers/cookie.helper';
 import { checkWallet, connectWallet } from '@/helpers/wallet.helpers';
 import { BlankLayout } from '@/layouts';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Card, Heading, majorScale, Pane, Paragraph } from 'evergreen-ui';
+import { signInAnonymously } from 'firebase/auth';
 import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
 
-function ScanPage() {
+export default function ScanPage() {
   const router = useRouter();
+  const { token } = useContext(UserContext);
+
+  useEffect(() => {
+    if (!token) {
+      const anonymous = async () => {
+        await signInAnonymously(auth);
+      };
+      anonymous();
+    }
+    setCookie('token', token!, 1000 * 60 * 60);
+  }, [token]);
+
   return (
     <BlankLayout>
       <Card
@@ -48,5 +65,3 @@ function ScanPage() {
     </BlankLayout>
   );
 }
-
-export default ScanPage;

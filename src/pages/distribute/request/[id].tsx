@@ -2,11 +2,14 @@ import { PageTitle, SaveCancel } from '@/components';
 import { db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
 import { BaseLayout } from '@/layouts';
+import { ROLE } from '@/models/distribute.model';
 import { IFormMessage } from '@/models/form.model';
+import { hashMessage } from 'ethers';
 import {
   Heading,
   majorScale,
   Pane,
+  SelectField,
   TagInput,
   TextInputField,
   toaster,
@@ -20,6 +23,8 @@ interface DistributeInfoProps {
   id: string;
   label: string;
   contract: string;
+  product: string;
+  serialize: string;
   catalog: string[];
 }
 
@@ -27,6 +32,8 @@ export default function DistributeInfo({
   id,
   label,
   contract,
+  product,
+  serialize,
   catalog,
 }: DistributeInfoProps) {
   const {
@@ -40,6 +47,7 @@ export default function DistributeInfo({
     defaultValues: {
       address: '',
       company: '',
+      role: ROLE.DISTRIBUTOR,
       shipment: catalog,
     },
   });
@@ -55,6 +63,18 @@ export default function DistributeInfo({
     try {
       // TODO: Distribute
       const fch = customFetch();
+      const distribute = getValues();
+      const [{ data: productData }, { data: serializeData }] =
+        await Promise.all([
+          await fch.get(`/products/${product}`),
+          await fch.get(`/serials/${serialize}`),
+        ]);
+      const [productHash, serializeHash, shipmentHash] = await Promise.all([
+        hashMessage(JSON.stringify(productData)),
+        hashMessage(JSON.stringify(serializeData)),
+        hashMessage(JSON.stringify(distribute.shipment)),
+      ]);
+      console.log(productHash, serializeHash, shipmentHash, contract);
       const { message }: IFormMessage = await fch.patch(
         `/distributes/${id}`,
         getValues()
@@ -90,13 +110,6 @@ export default function DistributeInfo({
             columnGap={majorScale(3)}
           >
             <TextInputField
-              label="Contract Address"
-              type="text"
-              id="contract"
-              disabled
-              defaultValue={contract}
-            />
-            <TextInputField
               label="Receiver Address"
               type="text"
               id="address"
@@ -122,6 +135,26 @@ export default function DistributeInfo({
                 },
               })}
             />
+            <SelectField
+              label="Receiver Role"
+              id="role"
+              required
+              defaultValue={defaultValues?.role}
+              {...register('role', { required: true })}
+            >
+              <option
+                key={ROLE.DISTRIBUTOR}
+                value={ROLE.DISTRIBUTOR}
+              >
+                Distributor
+              </option>
+              <option
+                key={ROLE.PHARMACY}
+                value={ROLE.PHARMACY}
+              >
+                Pharmacy
+              </option>
+            </SelectField>
             <Pane
               gridColumn="span 3"
               marginBottom={majorScale(3)}
@@ -181,6 +214,8 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
       props: {
         id: query.id,
         label: data?.label,
+        product: data?.product,
+        serialize: data?.serialize,
         contract: data?.contract,
         catalog: data?.catalogs[query.address as string],
       },

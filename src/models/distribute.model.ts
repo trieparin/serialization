@@ -1,3 +1,8 @@
+export enum MODE {
+  CONFIRM,
+  REQUEST,
+}
+
 export enum ROLE {
   MANUFACTURER,
   DISTRIBUTOR,

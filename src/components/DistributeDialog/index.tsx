@@ -99,9 +99,7 @@ export const DistributeDialog = ({
           hash: catalogHash,
         },
       });
-      console.log({
-        contract: address,
-      });
+      console.log({ contract: address });
       contract.waitForDeployment();
       const distribute = {
         label: serializeData.label,

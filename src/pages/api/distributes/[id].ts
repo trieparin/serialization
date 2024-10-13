@@ -1,4 +1,5 @@
 import { admin, db } from '@/firebase/admin';
+import { MODE } from '@/models/distribute.model';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -16,7 +17,14 @@ export default async function handler(
         break;
       }
       case 'PATCH': {
-        await distributes.doc(id as string).update({ ...req.body });
+        const { mode, data } = req.body;
+        const [key, value] = Object.entries(data);
+        if (mode === MODE.CONFIRM) {
+          // TODO: Fix update firebase data
+          await distributes
+            .doc(id as string)
+            .update({ [`catalogs.${key}`]: value });
+        }
         res.status(200).json({ message: 'Update distribution successfully' });
         break;
       }
