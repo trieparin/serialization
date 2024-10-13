@@ -14,18 +14,8 @@ export const checkWallet = () => {
 
 export const connectWallet = async () => {
   if (checkWallet()) {
-    const provider = new BrowserProvider(window.ethereum);
-    const accounts = await provider.listAccounts();
-    return {
-      provider,
-      accounts,
-    };
+    return new BrowserProvider(window.ethereum);
   } else {
-    const provider = new JsonRpcProvider('http://127.0.0.1:8545');
-    const accounts = await provider.listAccounts();
-    return {
-      provider,
-      accounts,
-    };
+    return new JsonRpcProvider('http://127.0.0.1:8545');
   }
 };

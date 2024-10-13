@@ -55,12 +55,6 @@ export const DistributeDialog = ({
   const [state, dispatch] = useReducer(formReducer, {});
 
   const handleAction = async (close: () => void) => {
-    const { accounts } = await connectWallet();
-    const factory = new ContractFactory(
-      Traceability.abi,
-      Traceability.data.bytecode,
-      accounts[0]
-    );
     startLoading();
     try {
       const fch = customFetch();
@@ -78,13 +72,19 @@ export const DistributeDialog = ({
         hashMessage(JSON.stringify(serializeData.serials)),
       ]);
       const { manufacturer } = productData;
+      const provider = await connectWallet();
+      const signer = await provider.getSigner(0);
+      const factory = new ContractFactory(
+        Traceability.abi,
+        Traceability.data.bytecode,
+        signer
+      );
       const contract = await factory.deploy(
         productHash,
         serializeHash,
         catalogHash
       );
       const address = await contract.getAddress();
-      // TODO Deploy smart contract
       console.log({
         product: {
           data: productData,
@@ -108,10 +108,10 @@ export const DistributeDialog = ({
         contract: address,
         product: change?.product,
         serialize: change?.serial,
-        catalogs: { [accounts[0].address]: [] },
+        catalogs: { [signer.address]: [] },
         info: {
           sender: {
-            address: accounts[0].address,
+            address: signer.address,
             company: manufacturer,
             role: ROLE.MANUFACTURER,
           },
@@ -127,7 +127,7 @@ export const DistributeDialog = ({
         hashMessage(
           JSON.stringify(
             (distributeData?.catalogs as Record<string, string[]>)[
-              accounts[0].address
+              signer.address
             ]
           )
         ),
@@ -135,7 +135,7 @@ export const DistributeDialog = ({
           JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
         ),
       ]);
-      const distribution = new Contract(address, Traceability.abi, accounts[0]);
+      const distribution = new Contract(address, Traceability.abi, signer);
       const shipment = await distribution.shipmentRequest(
         productHash,
         serializeHash,
@@ -144,11 +144,10 @@ export const DistributeDialog = ({
         state.address,
         ROLE.DISTRIBUTOR
       );
-      // TODO Update contract distribute
       console.log({
         catalog: {
           data: (distributeData?.catalogs as Record<string, string[]>)[
-            accounts[0].address
+            signer.address
           ],
           hash: updateHash,
         },

@@ -11,8 +11,8 @@ export interface ICompanyInfo {
 }
 
 export interface IDistributeInfo {
-  from: ICompanyInfo;
-  to: ICompanyInfo;
+  sender: ICompanyInfo;
+  receiver: ICompanyInfo;
   shipment: string[];
   date: string;
 }
