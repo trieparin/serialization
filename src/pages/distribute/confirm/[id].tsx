@@ -26,6 +26,7 @@ interface DistributeInfoProps {
   contract: string;
   product: string;
   serialize: string;
+  catalogs: Record<string, string[]>;
   distribute: IDistributeInfo;
 }
 
@@ -35,6 +36,7 @@ export default function DistributeInfo({
   contract,
   product,
   serialize,
+  catalogs,
   distribute,
 }: DistributeInfoProps) {
   const router = useRouter();
@@ -74,11 +76,11 @@ export default function DistributeInfo({
         const idx = parseInt(prompt('Input test account index')!);
         signer = await provider.getSigner(idx);
       }
+      const update = { ...catalogs, [signer.address]: distribute.shipment };
       const { message }: IFormMessage = await fch.patch(`/distributes/${id}`, {
         mode: MODE.CONFIRM,
-        data: {
-          [signer.address]: distribute.shipment,
-        },
+        updated: Date.now(),
+        update,
       });
       const distribution = new Contract(contract, Traceability.abi, signer);
       const shipment = await distribution.shipmentConfirm(
@@ -192,6 +194,7 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
         product: data?.product,
         serialize: data?.serialize,
         contract: data?.contract,
+        catalogs: data?.catalogs,
         distribute: getDistribute(),
       },
     };

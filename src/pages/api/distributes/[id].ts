@@ -17,13 +17,9 @@ export default async function handler(
         break;
       }
       case 'PATCH': {
-        const { mode, data } = req.body;
-        const [key, value] = Object.entries(data);
+        const { mode, update } = req.body;
         if (mode === MODE.CONFIRM) {
-          // TODO: Fix update firebase data
-          await distributes
-            .doc(id as string)
-            .update({ [`catalogs.${key}`]: value });
+          await distributes.doc(id as string).update({ catalogs: update });
         }
         res.status(200).json({ message: 'Update distribution successfully' });
         break;
