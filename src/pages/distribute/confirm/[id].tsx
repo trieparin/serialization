@@ -200,6 +200,7 @@ export default function DistributeConfirm({
 export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
+
     const doc = await db
       .collection('distributes')
       .doc(query.id as string)
@@ -211,6 +212,14 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
+    const distribute = getDistribute();
+
+    if (
+      distribute.sender.role === ROLE.MANUFACTURER ||
+      data?.catalogs[distribute.receiver.address]
+    ) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     return {
       props: {
