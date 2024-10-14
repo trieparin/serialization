@@ -23,7 +23,7 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { FocusEvent, useMemo, useState } from 'react';
+import { ChangeEvent, FocusEvent, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 interface DistributeRequestProps {
@@ -107,7 +107,7 @@ export default function DistributeRequest({
         catalogHash,
         updateHash,
         values.address,
-        values.role as ROLE
+        values.role
       );
 
       console.log({
@@ -138,12 +138,12 @@ export default function DistributeRequest({
           sender: {
             address: signer.address,
             company: sender.company,
-            role: sender.role as ROLE,
+            role: sender.role,
           },
           receiver: {
             address: values.address,
             company: values.company,
-            role: values.role as ROLE,
+            role: values.role,
           },
           shipment: values.shipment,
         },
@@ -214,7 +214,12 @@ export default function DistributeRequest({
               id="role"
               required
               defaultValue={defaultValues?.role}
-              {...register('role', { required: true })}
+              {...register('role', {
+                required: true,
+                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
+                  setValue('role', parseInt(event.currentTarget.value));
+                },
+              })}
             >
               <option
                 key={ROLE.DISTRIBUTOR}

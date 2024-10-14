@@ -212,14 +212,6 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
-    const distribute = getDistribute();
-
-    if (
-      distribute.sender.role === ROLE.MANUFACTURER ||
-      data?.catalogs[distribute.receiver.address]
-    ) {
-      return { redirect: { destination: '/no-permission' } };
-    }
 
     return {
       props: {
