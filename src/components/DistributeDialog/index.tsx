@@ -1,7 +1,7 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
 import { connectWallet } from '@/helpers/wallet.helpers';
-import { IDistributeInfo, ROLE } from '@/models/distribute.model';
+import { ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { SERIALIZE_STATUS } from '@/models/serialize.model';
 import Traceability from '@/Traceability.json';
@@ -57,6 +57,7 @@ export const DistributeDialog = ({
   const handleAction = async (close: () => void) => {
     startLoading();
     try {
+      // Get raw product and serial data
       const fch = customFetch();
       await fch.patch(`/serials/${change?.serial}`, {
         status: SERIALIZE_STATUS.DISTRIBUTED,
@@ -66,25 +67,31 @@ export const DistributeDialog = ({
           await fch.get(`/products/${change?.product}`),
           await fch.get(`/serials/${change?.serial}`),
         ]);
-      const [productHash, serializeHash, catalogHash] = await Promise.all([
-        hashMessage(JSON.stringify(productData)),
-        hashMessage(JSON.stringify(serializeData)),
-        hashMessage(JSON.stringify(serializeData.serials)),
-      ]);
       const { manufacturer } = productData;
+
+      // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       const signer = await provider.getSigner(0);
+
+      // Create and deploy smart contract
       const factory = new ContractFactory(
         Traceability.abi,
         Traceability.data.bytecode,
         signer
       );
+      const [productHash, serializeHash, catalogHash] = await Promise.all([
+        hashMessage(JSON.stringify(productData)),
+        hashMessage(JSON.stringify(serializeData)),
+        hashMessage(JSON.stringify(serializeData.serials)),
+      ]);
       const contract = await factory.deploy(
         productHash,
         serializeHash,
         catalogHash
       );
       const address = await contract.getAddress();
+      contract.waitForDeployment();
+
       console.log({
         product: {
           data: productData,
@@ -98,9 +105,30 @@ export const DistributeDialog = ({
           data: serializeData.serials,
           hash: catalogHash,
         },
+        contract: address,
       });
-      console.log({ contract: address });
-      contract.waitForDeployment();
+
+      // Hash and update data in smart contract
+      const updateHash = hashMessage(JSON.stringify([]));
+      const distribution = new Contract(address, Traceability.abi, signer);
+      const transaction = await distribution.shipmentRequest(
+        productHash,
+        serializeHash,
+        catalogHash,
+        updateHash,
+        state.address,
+        ROLE.DISTRIBUTOR
+      );
+
+      console.log({
+        catalog: {
+          data: [],
+          hash: updateHash,
+        },
+        transaction,
+      });
+
+      // Update distribute data in database
       const distribute = {
         label: serializeData.label,
         contract: address,
@@ -117,46 +145,9 @@ export const DistributeDialog = ({
           shipment: serializeData.serials,
         },
       };
-      const { message, data }: IFormMessage = await fch.post(path, distribute);
-      const { data: distributeData }: IFormMessage = await fch.get(
-        `/distributes/${data?.id}`
-      );
-      const [updateHash, distributeHash] = await Promise.all([
-        hashMessage(
-          JSON.stringify(
-            (distributeData?.catalogs as Record<string, string[]>)[
-              signer.address
-            ]
-          )
-        ),
-        hashMessage(
-          JSON.stringify((distributeData?.distributes as IDistributeInfo[])[0])
-        ),
-      ]);
-      const distribution = new Contract(address, Traceability.abi, signer);
-      const shipment = await distribution.shipmentRequest(
-        productHash,
-        serializeHash,
-        catalogHash,
-        updateHash,
-        state.address,
-        ROLE.DISTRIBUTOR
-      );
-      console.log({
-        catalog: {
-          data: (distributeData?.catalogs as Record<string, string[]>)[
-            signer.address
-          ],
-          hash: updateHash,
-        },
-        distribute: {
-          data: (distributeData?.distributes as IDistributeInfo[])[0],
-          hash: distributeHash,
-        },
-      });
-      console.log(shipment);
-      toaster.success(message);
+      const { message }: IFormMessage = await fch.post(path, distribute);
       close();
+      toaster.success(message);
       dispatch({ type: 'RESET', payload: '' });
       router.push('/distribute');
     } catch (e) {

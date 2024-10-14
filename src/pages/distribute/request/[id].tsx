@@ -1,10 +1,17 @@
 import { PageTitle, SaveCancel } from '@/components';
 import { db } from '@/firebase/admin';
 import customFetch from '@/helpers/fetch.helper';
+import { checkWallet, connectWallet } from '@/helpers/wallet.helpers';
 import { BaseLayout } from '@/layouts';
-import { ROLE } from '@/models/distribute.model';
+import {
+  ICompanyInfo,
+  IDistributeInfo,
+  MODE,
+  ROLE,
+} from '@/models/distribute.model';
 import { IFormMessage } from '@/models/form.model';
-import { hashMessage } from 'ethers';
+import Traceability from '@/Traceability.json';
+import { Contract, hashMessage } from 'ethers';
 import {
   Heading,
   majorScale,
@@ -15,27 +22,31 @@ import {
   toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { FocusEvent, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-interface DistributeInfoProps {
+interface DistributeRequestProps {
   id: string;
   label: string;
   contract: string;
   product: string;
   serialize: string;
-  catalog: string[];
+  sender: ICompanyInfo;
+  catalogs: Record<string, string[]>;
 }
 
-export default function DistributeInfo({
+export default function DistributeRequest({
   id,
   label,
   contract,
   product,
   serialize,
-  catalog,
-}: DistributeInfoProps) {
+  sender,
+  catalogs,
+}: DistributeRequestProps) {
+  const catalog = catalogs[sender.address];
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -61,34 +72,97 @@ export default function DistributeInfo({
 
   const formSubmit = async () => {
     try {
-      // TODO: Distribute
+      // Get raw product and serial data
       const fch = customFetch();
-      const distribute = getValues();
+      const values = getValues();
       const [{ data: productData }, { data: serializeData }] =
         await Promise.all([
           await fch.get(`/products/${product}`),
           await fch.get(`/serials/${serialize}`),
         ]);
-      const [productHash, serializeHash, shipmentHash] = await Promise.all([
-        hashMessage(JSON.stringify(productData)),
-        hashMessage(JSON.stringify(serializeData)),
-        hashMessage(JSON.stringify(distribute.shipment)),
-      ]);
-      console.log(productHash, serializeHash, shipmentHash, contract);
+
+      // Connect to wallet eg. MetaMask
+      const provider = await connectWallet();
+      let signer;
+      if (checkWallet()) {
+        signer = await provider.getSigner(0);
+      } else {
+        const idx = parseInt(prompt('Input test account index')!);
+        signer = await provider.getSigner(idx);
+      }
+
+      // Hash and update data in smart contract
+      const update = catalog.filter((item) => !values.shipment.includes(item));
+      const [productHash, serializeHash, catalogHash, updateHash] =
+        await Promise.all([
+          hashMessage(JSON.stringify(productData)),
+          hashMessage(JSON.stringify(serializeData)),
+          hashMessage(JSON.stringify(catalog)),
+          hashMessage(JSON.stringify(update)),
+        ]);
+      const distribution = new Contract(contract, Traceability.abi, signer);
+      const transaction = await distribution.shipmentRequest(
+        productHash,
+        serializeHash,
+        catalogHash,
+        updateHash,
+        values.address,
+        values.role as ROLE
+      );
+
+      console.log({
+        product: {
+          data: productData,
+          hash: productHash,
+        },
+        serialize: {
+          data: serializeData,
+          hash: serializeHash,
+        },
+        catalog: {
+          data: catalog,
+          hash: catalogHash,
+        },
+        update: {
+          data: update,
+          hash: updateHash,
+        },
+        transaction,
+      });
+
+      // Update distribute data in database
+      const distribute = {
+        mode: MODE.REQUEST,
+        catalogs: { ...catalogs, [signer.address]: update },
+        info: {
+          sender: {
+            address: signer.address,
+            company: sender.company,
+            role: sender.role as ROLE,
+          },
+          receiver: {
+            address: values.address,
+            company: values.company,
+            role: values.role as ROLE,
+          },
+          shipment: values.shipment,
+        },
+      };
       const { message }: IFormMessage = await fch.patch(
         `/distributes/${id}`,
-        getValues()
+        distribute
       );
       toaster.success(message);
-      router.push('/scan');
+      router.reload();
     } catch (e) {
+      console.log(e);
       toaster.danger('An error occurred');
     }
   };
 
   return (
     <BaseLayout>
-      <PageTitle title="Distribute Info" />
+      <PageTitle title="Distribute Request" />
       <Heading
         is="h2"
         size={600}
@@ -210,6 +284,12 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
       .get();
     const data = doc.data();
 
+    const getSender = () => {
+      return data?.distributes.filter(
+        ({ receiver }: IDistributeInfo) => receiver.address === query.address
+      )[0].receiver;
+    };
+
     return {
       props: {
         id: query.id,
@@ -217,7 +297,8 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
         product: data?.product,
         serialize: data?.serialize,
         contract: data?.contract,
-        catalog: data?.catalogs[query.address as string],
+        sender: getSender(),
+        catalogs: data?.catalogs,
       },
     };
   } catch (e) {

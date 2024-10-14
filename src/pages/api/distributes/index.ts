@@ -40,7 +40,7 @@ export default async function handler(
     } else if (req.method === 'POST') {
       const now = Date.now();
       const { label, contract, product, serialize, catalogs, info } = req.body;
-      const { id } = await distributes.add({
+      await distributes.add({
         created: now,
         updated: now,
         distributes: [{ ...info, date: new Date().toISOString() }],
@@ -50,10 +50,7 @@ export default async function handler(
         contract,
         label,
       });
-      res.status(201).json({
-        message: 'Create new distribution successfully',
-        data: { id },
-      });
+      res.status(201).json({ message: 'Create new distribution successfully' });
     } else {
       res.status(400).json({});
     }

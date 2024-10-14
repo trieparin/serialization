@@ -47,7 +47,7 @@ export const TopBar = ({ profile }: { profile: IUserContext }) => {
         >
           DPU | Master&apos;s Degree Project
         </Text>
-        {profile.uid && (
+        {profile.role && (
           <Pane
             display="flex"
             alignItems="center"

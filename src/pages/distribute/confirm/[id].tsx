@@ -20,7 +20,7 @@ import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
 import { FormEvent, useContext } from 'react';
 
-interface DistributeInfoProps {
+interface DistributeConfirmProps {
   id: string;
   label: string;
   contract: string;
@@ -30,7 +30,7 @@ interface DistributeInfoProps {
   distribute: IDistributeInfo;
 }
 
-export default function DistributeInfo({
+export default function DistributeConfirm({
   id,
   label,
   contract,
@@ -38,7 +38,7 @@ export default function DistributeInfo({
   serialize,
   catalogs,
   distribute,
-}: DistributeInfoProps) {
+}: DistributeConfirmProps) {
   const router = useRouter();
   const { loading, startLoading, stopLoading } = useContext(LoadingContext);
 
@@ -54,20 +54,15 @@ export default function DistributeInfo({
     e.preventDefault();
     startLoading();
     try {
+      // Get raw product and serial data
       const fch = customFetch();
       const [{ data: productData }, { data: serializeData }] =
         await Promise.all([
           await fch.get(`/products/${product}`),
           await fch.get(`/serials/${serialize}`),
         ]);
-      const [productHash, serializeHash, distributeHash, shipmentHash] =
-        await Promise.all([
-          hashMessage(JSON.stringify(productData)),
-          hashMessage(JSON.stringify(serializeData)),
-          hashMessage(JSON.stringify(distribute)),
-          hashMessage(JSON.stringify(distribute.shipment)),
-        ]);
-      console.log(productHash, serializeHash, distributeHash, shipmentHash);
+
+      // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
@@ -76,24 +71,54 @@ export default function DistributeInfo({
         const idx = parseInt(prompt('Input test account index')!);
         signer = await provider.getSigner(idx);
       }
-      const update = { ...catalogs, [signer.address]: distribute.shipment };
-      const { message }: IFormMessage = await fch.patch(`/distributes/${id}`, {
-        mode: MODE.CONFIRM,
-        updated: Date.now(),
-        update,
-      });
+
+      // Hash and update data in smart contract
+      const [productHash, serializeHash, distributeHash, shipmentHash] =
+        await Promise.all([
+          hashMessage(JSON.stringify(productData)),
+          hashMessage(JSON.stringify(serializeData)),
+          hashMessage(JSON.stringify(distribute)),
+          hashMessage(JSON.stringify(distribute.shipment)),
+        ]);
       const distribution = new Contract(contract, Traceability.abi, signer);
-      const shipment = await distribution.shipmentConfirm(
+      const transaction = await distribution.shipmentConfirm(
         productHash,
         serializeHash,
         distributeHash,
         shipmentHash,
         distribute.sender.address
       );
-      console.log(shipment);
+
+      console.log({
+        product: {
+          data: productData,
+          hash: productHash,
+        },
+        serialize: {
+          data: serializeData,
+          hash: serializeHash,
+        },
+        distribute: {
+          data: distribute,
+          hash: distributeHash,
+        },
+        shipment: {
+          data: distribute.shipment,
+          hash: shipmentHash,
+        },
+        transaction,
+      });
+
+      // Update distribute data in database
+      const update = { ...catalogs, [signer.address]: distribute.shipment };
+      const { message }: IFormMessage = await fch.patch(`/distributes/${id}`, {
+        mode: MODE.CONFIRM,
+        update,
+      });
       toaster.success(message);
       router.push(`/distribute/request/${id}?address=${signer.address}`);
     } catch (e) {
+      console.log(e);
       toaster.danger('An error occurred');
     }
     stopLoading();
