@@ -99,7 +99,11 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
 
   return (
     <BaseLayout>
-      <PageTitle title="All Items" link="/inventory/create" hasAddButton />
+      <PageTitle
+        title="All Items"
+        link="/inventory/create"
+        hasAddButton
+      />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head
@@ -127,7 +131,11 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -137,7 +145,11 @@ export default function InventoryPage({ data, total }: InventoryPageProps) {
                 <Table.TextCell>{name}</Table.TextCell>
                 <Table.TextCell>{note}</Table.TextCell>
                 <Table.TextCell>{renderType(type)}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
                   <IconButton
                     type="button"
                     name="delete"

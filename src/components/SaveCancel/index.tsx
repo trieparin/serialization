@@ -16,7 +16,11 @@ export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
       columnGap={majorScale(1)}
       marginBottom={majorScale(2)}
     >
-      <Button type="reset" name="reset" onClick={() => router.back()}>
+      <Button
+        type="reset"
+        name="reset"
+        onClick={() => router.back()}
+      >
         Cancel
       </Button>
       <Button

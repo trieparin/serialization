@@ -1,4 +1,6 @@
 import { admin, db } from '@/firebase/admin';
+import { MODE } from '@/models/distribute.model';
+import { FieldValue } from 'firebase-admin/firestore';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -16,7 +18,24 @@ export default async function handler(
         break;
       }
       case 'PATCH': {
-        await distributes.doc(id as string).update({ ...req.body });
+        const { mode } = req.body;
+        const now = Date.now();
+        if (mode === MODE.CONFIRM) {
+          const { update } = req.body;
+          await distributes
+            .doc(id as string)
+            .update({ catalogs: update, updated: now });
+        } else {
+          const { catalogs, info } = req.body;
+          const distribute = { ...info, date: new Date().toISOString() };
+          await distributes
+            .doc(id as string)
+            .update({
+              catalogs: catalogs,
+              distributes: FieldValue.arrayUnion(distribute),
+              updated: now,
+            });
+        }
         res.status(200).json({ message: 'Update distribution successfully' });
         break;
       }

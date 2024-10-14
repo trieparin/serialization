@@ -73,7 +73,11 @@ export default function UserInfo({ params, data }: UserInfoProps) {
   return (
     <BaseLayout>
       <PageTitle title="Edit User Info" />
-      <UserForm initForm={data} formSubmit={formSubmit} edit />
+      <UserForm
+        initForm={data}
+        formSubmit={formSubmit}
+        edit
+      />
     </BaseLayout>
   );
 }
@@ -87,7 +91,7 @@ export async function getServerSideProps({
     if (!role) return { redirect: { destination: '/' } };
 
     const doc = await db
-      .collection('/users')
+      .collection('users')
       .doc(params?.id as string)
       .get();
     const data = doc.data();

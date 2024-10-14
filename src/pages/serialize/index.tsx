@@ -11,7 +11,6 @@ import { UserContext } from '@/contexts/UserContext';
 import { admin, db } from '@/firebase/admin';
 import { convertQuery, downloadFile } from '@/helpers/convert.helper';
 import customFetch from '@/helpers/fetch.helper';
-import { checkWallet } from '@/helpers/form.helper';
 import { BaseLayout } from '@/layouts';
 import {
   DIALOG_ACTION,
@@ -36,7 +35,6 @@ import {
   Text,
   TrashIcon,
   majorScale,
-  toaster,
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import {
@@ -176,7 +174,11 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -186,8 +188,15 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                 <Table.TextCell>{serial.label}</Table.TextCell>
                 <Table.TextCell>{serial.serials.length}</Table.TextCell>
                 <Table.TextCell>{renderStatus(serial.status)}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
+                  <Pane
+                    display="flex"
+                    columnGap={majorScale(1)}
+                  >
                     <IconButton
                       type="button"
                       name="info"
@@ -258,18 +267,16 @@ export default function SerializePage({ data, total }: SerializePageProps) {
                         icon={BoxIcon}
                         disabled={serial.status !== SERIALIZE_STATUS.VERIFIED}
                         onClick={() => {
-                          checkWallet()
-                            ? setDistOption({
-                                action: DIALOG_ACTION.CREATE,
-                                open: true,
-                                path: `/distributes`,
-                                message: `Distribute "${serial.label}"?`,
-                                change: {
-                                  product: serial.product,
-                                  serial: serial.id,
-                                },
-                              })
-                            : toaster.warning('Please install MetaMask.');
+                          setDistOption({
+                            action: DIALOG_ACTION.CREATE,
+                            open: true,
+                            path: `/distributes`,
+                            message: `Distribute "${serial.label}"?`,
+                            change: {
+                              product: serial.product,
+                              serial: serial.id,
+                            },
+                          });
                         }}
                       />
                     )}
@@ -279,8 +286,15 @@ export default function SerializePage({ data, total }: SerializePageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Pane display="flex" alignItems="center" justifyContent="space-between">
-          <Pane display="flex" alignItems="center">
+        <Pane
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Pane
+            display="flex"
+            alignItems="center"
+          >
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
@@ -331,7 +345,10 @@ export default function SerializePage({ data, total }: SerializePageProps) {
           setSerialInfo({ open: false, label: '', serials: [''] });
         }}
       >
-        <SerialInfo label={serialInfo.label} serials={serialInfo.serials} />
+        <SerialInfo
+          label={serialInfo.label}
+          serials={serialInfo.serials}
+        />
       </Dialog>
     </BaseLayout>
   );

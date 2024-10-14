@@ -62,7 +62,11 @@ export default function Home() {
         minWidth="max-content"
         padding={majorScale(5)}
       >
-        <Pane is="fieldset" border="none" disabled={isSubmitting}>
+        <Pane
+          is="fieldset"
+          border="none"
+          disabled={isSubmitting}
+        >
           <Pane
             is="form"
             method="post"

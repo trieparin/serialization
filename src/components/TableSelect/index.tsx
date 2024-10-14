@@ -19,7 +19,10 @@ export const TableSelect = ({ options, dispatch }: TableSelectProps) => {
       >
         <option value="">Any</option>
         {Object.values(options).map((option) => (
-          <option key={option} value={option}>
+          <option
+            key={option}
+            value={option}
+          >
             {option}
           </option>
         ))}

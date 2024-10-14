@@ -109,7 +109,11 @@ export default function UserPage({ data, total }: UserPageProps) {
 
   return (
     <BaseLayout>
-      <PageTitle title="All Users" link="/user/create" hasAddButton />
+      <PageTitle
+        title="All Users"
+        link="/user/create"
+        hasAddButton
+      />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head
@@ -137,7 +141,11 @@ export default function UserPage({ data, total }: UserPageProps) {
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -147,8 +155,15 @@ export default function UserPage({ data, total }: UserPageProps) {
                 <Table.TextCell>{email}</Table.TextCell>
                 <Table.TextCell>{`${firstName} ${lastName}`}</Table.TextCell>
                 <Table.TextCell>{renderRole(role!)}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
+                  <Pane
+                    display="flex"
+                    columnGap={majorScale(1)}
+                  >
                     <IconButton
                       type="button"
                       name="edit"

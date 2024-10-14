@@ -25,7 +25,10 @@ export const ErrorPage = ({ title, message, path, back }: ErrorPageProps) => {
       minWidth="max-content"
       padding={majorScale(5)}
     >
-      <Heading is="h1" size={900}>
+      <Heading
+        is="h1"
+        size={900}
+      >
         {title}
       </Heading>
       <Paragraph marginY={majorScale(3)}>{message}</Paragraph>

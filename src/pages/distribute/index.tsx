@@ -135,7 +135,11 @@ export default function DistributePage({ data, total }: DistributePageProps) {
               />
             </Table.TextHeaderCell>
             <Table.TextHeaderCell>Contract</Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -144,8 +148,15 @@ export default function DistributePage({ data, total }: DistributePageProps) {
               <Table.Row key={dist.id}>
                 <Table.TextCell>{dist.label}</Table.TextCell>
                 <Table.TextCell>{dist.contract}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
+                  <Pane
+                    display="flex"
+                    columnGap={majorScale(1)}
+                  >
                     {profile.role === ROLE.SUPERVISOR && (
                       <IconButton
                         type="button"
@@ -175,8 +186,15 @@ export default function DistributePage({ data, total }: DistributePageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Pane display="flex" alignItems="center" justifyContent="space-between">
-          <Pane display="flex" alignItems="center">
+        <Pane
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Pane
+            display="flex"
+            alignItems="center"
+          >
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"
@@ -207,8 +225,14 @@ export default function DistributePage({ data, total }: DistributePageProps) {
         onConfirm={() => downloadQR(qrInfo.label)}
         onCloseComplete={() => setQRInfo({ open: false, id: '', label: '' })}
       >
-        <Pane textAlign="center" padding={majorScale(2)}>
-          <QRCode id="QRCode" value={`/distribute/${qrInfo.id}`} />
+        <Pane
+          textAlign="center"
+          padding={majorScale(2)}
+        >
+          <QRCode
+            id="QRCode"
+            value={qrInfo.id}
+          />
           <Heading is="h3">{qrInfo.label}</Heading>
         </Pane>
       </Dialog>

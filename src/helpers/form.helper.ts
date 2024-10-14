@@ -7,12 +7,6 @@ export const checkPassword = (password: string) => {
   return regEx.test(password);
 };
 
-export const checkWallet = () => {
-  if (process.env.NEXT_PUBLIC_WALLET_MODE === 'test') return true;
-  if (window.ethereum && window.ethereum.isMetaMask) return true;
-  return false;
-};
-
 export const formHasChange = (field: object) => {
   const changes = Object.values(field);
   return changes.some((change) => change);

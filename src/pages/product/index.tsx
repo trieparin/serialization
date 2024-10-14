@@ -175,7 +175,11 @@ export default function ProductPage({ data, total }: ProductPageProps) {
 
   return (
     <BaseLayout>
-      <PageTitle title="All Products" link="/product/create" hasAddButton />
+      <PageTitle
+        title="All Products"
+        link="/product/create"
+        hasAddButton
+      />
       <Pane overflowX="auto">
         <Table minWidth="max-content">
           <Table.Head
@@ -214,7 +218,11 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                 }}
               />
             </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+            <Table.TextHeaderCell
+              flexBasis={200}
+              flexShrink={0}
+              flexGrow={0}
+            >
               Actions
             </Table.TextHeaderCell>
           </Table.Head>
@@ -225,8 +233,15 @@ export default function ProductPage({ data, total }: ProductPageProps) {
                 <Table.TextCell>{product.name}</Table.TextCell>
                 <Table.TextCell>{`${product.size} (${product.pack})`}</Table.TextCell>
                 <Table.TextCell>{renderStatus(product.status)}</Table.TextCell>
-                <Table.Cell flexBasis={200} flexShrink={0} flexGrow={0}>
-                  <Pane display="flex" columnGap={majorScale(1)}>
+                <Table.Cell
+                  flexBasis={200}
+                  flexShrink={0}
+                  flexGrow={0}
+                >
+                  <Pane
+                    display="flex"
+                    columnGap={majorScale(1)}
+                  >
                     <IconButton
                       type="button"
                       name="edit"
@@ -313,8 +328,15 @@ export default function ProductPage({ data, total }: ProductPageProps) {
             ))}
           </Table.Body>
         </Table>
-        <Pane display="flex" alignItems="center" justifyContent="space-between">
-          <Pane display="flex" alignItems="center">
+        <Pane
+          display="flex"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Pane
+            display="flex"
+            alignItems="center"
+          >
             <Text size={300}>Sort by create date:&nbsp;</Text>
             <Switch
               name="sort"

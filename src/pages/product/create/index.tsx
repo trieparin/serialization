@@ -42,7 +42,10 @@ export default function ProductCreate() {
   return (
     <BaseLayout>
       <PageTitle title="Create New Product" />
-      <ProductForm initForm={initForm} formSubmit={formSubmit} />
+      <ProductForm
+        initForm={initForm}
+        formSubmit={formSubmit}
+      />
     </BaseLayout>
   );
 }

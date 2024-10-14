@@ -1,3 +1,8 @@
+export enum MODE {
+  CONFIRM,
+  REQUEST,
+}
+
 export enum ROLE {
   MANUFACTURER,
   DISTRIBUTOR,
@@ -11,8 +16,8 @@ export interface ICompanyInfo {
 }
 
 export interface IDistributeInfo {
-  from: ICompanyInfo;
-  to: ICompanyInfo;
+  sender: ICompanyInfo;
+  receiver: ICompanyInfo;
   shipment: string[];
   date: string;
 }

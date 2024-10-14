@@ -39,21 +39,18 @@ export default async function handler(
       res.status(200).json({ data, total });
     } else if (req.method === 'POST') {
       const now = Date.now();
-      const { label, contract, product, serialize, info } = req.body;
-      const { id } = await distributes.add({
+      const { label, contract, product, serialize, catalogs, info } = req.body;
+      await distributes.add({
         created: now,
         updated: now,
         distributes: [{ ...info, date: new Date().toISOString() }],
-        catalogs: { [info.sender.address]: [] },
+        catalogs,
         serialize,
         product,
         contract,
         label,
       });
-      res.status(201).json({
-        message: 'Create new distribution successfully',
-        data: { id },
-      });
+      res.status(201).json({ message: 'Create new distribution successfully' });
     } else {
       res.status(400).json({});
     }

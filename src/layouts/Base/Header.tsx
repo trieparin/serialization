@@ -20,34 +20,36 @@ export const Header = ({ profile }: { profile: IUser }) => {
         className="container"
       >
         <Logo />
-        <Pane
-          is="nav"
-          display="flex"
-          alignItems="center"
-          columnGap={majorScale(1)}
-        >
-          {profile.role === ROLE.ADMIN ? (
-            <>
-              <NavLink href="/inventory">Inventory</NavLink>
-              <Text color="muted">|</Text>
-              <NavLink href="/user">User</NavLink>
-            </>
-          ) : (
-            <>
-              <NavLink href="/product">Product</NavLink>
-              <Text color="muted">|</Text>
-              <NavLink href="/serialize">Serialize</NavLink>
-              <Text color="muted">|</Text>
-              <NavLink href="/distribute">Distribute</NavLink>
-              {profile.role === ROLE.SUPERVISOR && (
-                <>
-                  <Text color="muted">|</Text>
-                  <NavLink href="/summary">Summary</NavLink>
-                </>
-              )}
-            </>
-          )}
-        </Pane>
+        {profile.role && (
+          <Pane
+            is="nav"
+            display="flex"
+            alignItems="center"
+            columnGap={majorScale(1)}
+          >
+            {profile.role === ROLE.ADMIN ? (
+              <>
+                <NavLink href="/inventory">Inventory</NavLink>
+                <Text color="muted">|</Text>
+                <NavLink href="/user">User</NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink href="/product">Product</NavLink>
+                <Text color="muted">|</Text>
+                <NavLink href="/serialize">Serialize</NavLink>
+                <Text color="muted">|</Text>
+                <NavLink href="/distribute">Distribute</NavLink>
+                {profile.role === ROLE.SUPERVISOR && (
+                  <>
+                    <Text color="muted">|</Text>
+                    <NavLink href="/summary">Summary</NavLink>
+                  </>
+                )}
+              </>
+            )}
+          </Pane>
+        )}
       </Pane>
     </Pane>
   );
