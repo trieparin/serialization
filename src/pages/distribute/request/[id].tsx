@@ -23,7 +23,7 @@ import {
 } from 'evergreen-ui';
 import { GetServerSidePropsContext } from 'next';
 import { useRouter } from 'next/router';
-import { ChangeEvent, FocusEvent, useMemo, useState } from 'react';
+import { FocusEvent, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 interface DistributeRequestProps {
@@ -214,12 +214,7 @@ export default function DistributeRequest({
               id="role"
               required
               defaultValue={defaultValues?.role}
-              {...register('role', {
-                required: true,
-                onChange: (event: ChangeEvent<HTMLSelectElement>) => {
-                  setValue('role', parseInt(event.currentTarget.value));
-                },
-              })}
+              {...register('role', { required: true })}
             >
               <option
                 key={ROLE.DISTRIBUTOR}
@@ -298,8 +293,8 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
     const sender = getDistribute().receiver;
 
     if (
-      sender.role === ROLE.PHARMACY ||
-      !data?.catalogs[sender.address].length
+      sender.role !== ROLE.DISTRIBUTOR ||
+      !data?.catalogs[query.address as string].length
     ) {
       return { redirect: { destination: '/no-permission' } };
     }

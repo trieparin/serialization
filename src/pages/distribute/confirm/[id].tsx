@@ -213,6 +213,10 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
       )[0];
     };
 
+    if (data?.catalogs[query.address as string]) {
+      return { redirect: { destination: '/no-permission' } };
+    }
+
     return {
       props: {
         id: query.id,
