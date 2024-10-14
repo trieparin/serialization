@@ -32,8 +32,8 @@ interface DistributeRequestProps {
   contract: string;
   product: string;
   serialize: string;
-  sender: ICompanyInfo;
   catalogs: Record<string, string[]>;
+  sender: ICompanyInfo;
 }
 
 export default function DistributeRequest({
@@ -42,8 +42,8 @@ export default function DistributeRequest({
   contract,
   product,
   serialize,
-  sender,
   catalogs,
+  sender,
 }: DistributeRequestProps) {
   const catalog = catalogs[sender.address];
   const router = useRouter();
@@ -278,17 +278,26 @@ export default function DistributeRequest({
 export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
+
     const doc = await db
       .collection('distributes')
       .doc(query.id as string)
       .get();
     const data = doc.data();
 
-    const getSender = () => {
+    const getDistribute = () => {
       return data?.distributes.filter(
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
-      )[0].receiver;
+      )[0];
     };
+    const sender = getDistribute().receiver;
+
+    if (
+      sender.role === ROLE.PHARMACY ||
+      !data?.catalogs[sender.address].length
+    ) {
+      return { redirect: { destination: '/no-permission' } };
+    }
 
     return {
       props: {
@@ -297,8 +306,8 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
         product: data?.product,
         serialize: data?.serialize,
         contract: data?.contract,
-        sender: getSender(),
         catalogs: data?.catalogs,
+        sender,
       },
     };
   } catch (e) {
