@@ -6,12 +6,24 @@ import { useContext } from 'react';
 
 export default function NoPermission() {
   const { role } = useContext(UserContext);
+  const getPath = () => {
+    switch (role) {
+      case ROLE.ADMIN:
+        return '/user';
+      case ROLE.SUPERVISOR:
+        return '/product';
+      case ROLE.OPERATOR:
+        return '/product';
+      default:
+        return '/scan';
+    }
+  };
   return (
     <BlankLayout>
       <ErrorPage
         title="No Permission Access"
         message="You do not have permission to access this page."
-        path={role === ROLE.ADMIN ? '/user' : '/product'}
+        path={getPath()}
         back="Back to main page"
       />
     </BlankLayout>
