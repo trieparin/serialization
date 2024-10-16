@@ -105,7 +105,8 @@ export default function DistributePage({ data, total }: DistributePageProps) {
     img.onload = () => {
       const context = canvas.getContext('2d');
       context?.drawImage(img, 0, 0);
-      downloadFile(canvas.toDataURL('image/png'), `${label}.png`);
+      const name = label.replaceAll(' ', '');
+      downloadFile(canvas.toDataURL('image/png'), `${name}.png`);
     };
     img.src = `data:image/svg+xml;base64,${window.btoa(
       qrCode?.outerHTML as string

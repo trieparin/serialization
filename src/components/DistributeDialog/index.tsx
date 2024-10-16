@@ -1,6 +1,6 @@
 import { LoadingContext } from '@/contexts/LoadingContext';
 import customFetch from '@/helpers/fetch.helper';
-import { connectWallet } from '@/helpers/wallet.helpers';
+import { checkWallet, connectWallet } from '@/helpers/wallet.helpers';
 import { ROLE } from '@/models/distribute.model';
 import { IFormAction, IFormDialog, IFormMessage } from '@/models/form.model';
 import { SERIALIZE_STATUS } from '@/models/serialize.model';
@@ -71,7 +71,13 @@ export const DistributeDialog = ({
 
       // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
-      const signer = await provider.getSigner(0);
+      let signer;
+      if (checkWallet()) {
+        signer = await provider.getSigner();
+      } else {
+        const idx = parseInt(prompt('Signer account?')!);
+        signer = await provider.getSigner(idx);
+      }
 
       // Create and deploy smart contract
       const factory = new ContractFactory(

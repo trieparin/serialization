@@ -85,9 +85,9 @@ export default function DistributeRequest({
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
-        signer = await provider.getSigner(0);
+        signer = await provider.getSigner();
       } else {
-        const idx = parseInt(prompt('Input test account index')!);
+        const idx = parseInt(prompt('Signer account?')!);
         signer = await provider.getSigner(idx);
       }
 
@@ -153,7 +153,7 @@ export default function DistributeRequest({
         distribute
       );
       toaster.success(message);
-      router.reload();
+      router.push('/scan');
     } catch (e) {
       console.log(e);
       toaster.danger('An error occurred');
@@ -168,7 +168,7 @@ export default function DistributeRequest({
         size={600}
         marginBottom={majorScale(2)}
       >
-        {label}
+        Request Distribution {label}
       </Heading>
       <Pane
         is="form"
@@ -269,6 +269,7 @@ export default function DistributeRequest({
         <SaveCancel
           disabled={!isDirty || !isValid}
           loading={isSubmitting}
+          text="Confirm"
         />
       </Pane>
     </BaseLayout>

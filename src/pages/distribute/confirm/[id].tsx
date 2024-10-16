@@ -66,9 +66,9 @@ export default function DistributeConfirm({
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
-        signer = await provider.getSigner(0);
+        signer = await provider.getSigner();
       } else {
-        const idx = parseInt(prompt('Input test account index')!);
+        const idx = parseInt(prompt('Signer account?')!);
         signer = await provider.getSigner(idx);
       }
 
@@ -116,7 +116,7 @@ export default function DistributeConfirm({
         update,
       });
       toaster.success(message);
-      router.push(`/distribute/request/${id}?address=${signer.address}`);
+      router.push('/scan');
     } catch (e) {
       console.log(e);
       toaster.danger('An error occurred');
@@ -132,7 +132,7 @@ export default function DistributeConfirm({
         size={600}
         marginBottom={majorScale(2)}
       >
-        Save Information ({label})
+        Confirm Information {label}
       </Heading>
       <Pane
         is="form"
@@ -191,6 +191,7 @@ export default function DistributeConfirm({
         <SaveCancel
           disabled={false}
           loading={loading}
+          text="Confirm"
         />
       </Pane>
     </BaseLayout>
