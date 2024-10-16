@@ -17,7 +17,7 @@ export const TableSearch = ({
       onChange={(value: string) => dispatch(value)}
       padding={0}
       marginY={minorScale(1)}
-      display={hidden && 'none'}
+      display={hidden ? 'none' : 'flex'}
     />
   );
 };

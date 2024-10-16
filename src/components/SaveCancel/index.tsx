@@ -4,9 +4,14 @@ import { useRouter } from 'next/router';
 interface SaveCancelProps {
   disabled: boolean;
   loading: boolean;
+  text?: string;
 }
 
-export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
+export const SaveCancel = ({
+  disabled,
+  loading,
+  text = 'Save',
+}: SaveCancelProps) => {
   const router = useRouter();
   return (
     <Pane
@@ -30,7 +35,7 @@ export const SaveCancel = ({ disabled, loading }: SaveCancelProps) => {
         disabled={disabled}
         isLoading={loading}
       >
-        Save
+        {text}
       </Button>
     </Pane>
   );
