@@ -8,14 +8,7 @@ import { IDistribute, ROLE } from '@/models/distribute.model';
 import Traceability from '@/Traceability.json';
 import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
 import { Contract } from 'ethers';
-import {
-  Card,
-  Heading,
-  majorScale,
-  Pane,
-  Paragraph,
-  toaster,
-} from 'evergreen-ui';
+import { Card, Heading, majorScale, Pane, Paragraph } from 'evergreen-ui';
 import { signInAnonymously } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
@@ -26,20 +19,24 @@ export default function ScanPage() {
 
   const onScan = async (detected: IDetectedBarcode) => {
     try {
+      // Get raw distribute data
       const id = detected.rawValue;
       const fch = customFetch();
       const { data }: { data: IDistribute } = await fch.get(
         `/distributes/${id}`
       );
-      console.log(data);
+
+      // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
-        signer = await provider.getSigner(0);
+        signer = await provider.getSigner();
       } else {
-        const idx = parseInt(prompt('Input test account index')!);
+        const idx = parseInt(prompt('Signer account?')!);
         signer = await provider.getSigner(idx);
       }
+
+      // Check role in smart contract and redirect
       const contract = new Contract(data.contract, Traceability.abi, signer);
       const role = parseInt(await contract.checkRole());
       switch (role) {
@@ -58,10 +55,10 @@ export default function ScanPage() {
           }
           break;
         default:
-          router.push(`/distribute/info/${id}?address=${signer.address}`);
+          router.push(`/distribute/info/${id}`);
       }
-    } catch (error) {
-      toaster.danger('An error occurred');
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -98,7 +95,10 @@ export default function ScanPage() {
           marginX="auto"
           style={{ aspectRatio: 1 }}
         >
-          <Scanner onScan={(detected) => onScan(detected[0])} />
+          <Scanner
+            components={{ audio: false }}
+            onScan={(detected) => onScan(detected[0])}
+          />
         </Pane>
       </Card>
     </BlankLayout>

@@ -202,34 +202,35 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
 
-    const doc = await db
-      .collection('distributes')
-      .doc(query.id as string)
-      .get();
-    const data = doc.data();
+    const doc = (
+      await db
+        .collection('distributes')
+        .doc(query.id as string)
+        .get()
+    ).data();
 
     const getDistribute = () => {
-      return data?.distributes.filter(
+      return doc?.distributes.filter(
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
 
-    if (data?.catalogs[query.address as string]) {
+    if (doc?.catalogs[query.address as string]) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     return {
       props: {
         id: query.id,
-        label: data?.label,
-        product: data?.product,
-        serialize: data?.serialize,
-        contract: data?.contract,
-        catalogs: data?.catalogs,
+        label: doc?.label,
+        product: doc?.product,
+        serialize: doc?.serialize,
+        contract: doc?.contract,
+        catalogs: doc?.catalogs,
         distribute: getDistribute(),
       },
     };
   } catch (e) {
-    return { redirect: { destination: '/' } };
+    return { redirect: { destination: '/404' } };
   }
 }

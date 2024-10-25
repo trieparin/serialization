@@ -55,11 +55,12 @@ export async function getServerSideProps({
       return { redirect: { destination: '/no-permission' } };
     }
 
-    const doc = await db
-      .collection('products')
-      .doc(params?.id as string)
-      .get();
-    const data = doc.data();
+    const data = (
+      await db
+        .collection('products')
+        .doc(params?.id as string)
+        .get()
+    ).data();
 
     return {
       props: {

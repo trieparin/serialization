@@ -280,14 +280,15 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
 
-    const doc = await db
-      .collection('distributes')
-      .doc(query.id as string)
-      .get();
-    const data = doc.data();
+    const doc = (
+      await db
+        .collection('distributes')
+        .doc(query.id as string)
+        .get()
+    ).data();
 
     const getDistribute = () => {
-      return data?.distributes.filter(
+      return doc?.distributes.filter(
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
@@ -295,7 +296,7 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
 
     if (
       sender.role !== ROLE.DISTRIBUTOR ||
-      !data?.catalogs[query.address as string].length
+      !doc?.catalogs[query.address as string].length
     ) {
       return { redirect: { destination: '/no-permission' } };
     }
@@ -303,15 +304,15 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
     return {
       props: {
         id: query.id,
-        label: data?.label,
-        product: data?.product,
-        serialize: data?.serialize,
-        contract: data?.contract,
-        catalogs: data?.catalogs,
+        label: doc?.label,
+        product: doc?.product,
+        serialize: doc?.serialize,
+        contract: doc?.contract,
+        catalogs: doc?.catalogs,
         sender,
       },
     };
   } catch (e) {
-    return { redirect: { destination: '/' } };
+    return { redirect: { destination: '/404' } };
   }
 }
