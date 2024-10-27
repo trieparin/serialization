@@ -304,11 +304,11 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
     return {
       props: {
         id: query.id,
-        label: doc?.label,
-        product: doc?.product,
-        serialize: doc?.serialize,
-        contract: doc?.contract,
-        catalogs: doc?.catalogs,
+        label: doc.label,
+        product: doc.product,
+        serialize: doc.serialize,
+        contract: doc.contract,
+        catalogs: doc.catalogs,
         sender,
       },
     };

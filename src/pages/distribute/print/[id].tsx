@@ -139,8 +139,8 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
       props: {
         id: query.id,
         address: query.address,
-        label: doc?.label,
-        catalog: doc?.catalogs[query.address as string],
+        label: doc.label,
+        catalog: doc.catalogs[query.address as string],
       },
     };
   } catch (e) {
