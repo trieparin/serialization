@@ -20,7 +20,8 @@ export default function ScanPage() {
   const onScan = async (detected: IDetectedBarcode) => {
     try {
       // Get raw distribute data
-      const id = detected.rawValue;
+      const scan = detected.rawValue;
+      const id = scan.replace(/\?.*/, '');
       const fch = customFetch();
       const { data }: { data: IDistribute } = await fch.get(
         `/distributes/${id}`
@@ -55,7 +56,7 @@ export default function ScanPage() {
           }
           break;
         default:
-          router.push(`/distribute/info/${id}`);
+          router.push(`/distribute/info/${scan}`);
       }
     } catch (e) {
       console.log(e);
