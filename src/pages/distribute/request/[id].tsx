@@ -85,9 +85,9 @@ export default function DistributeRequest({
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
-        signer = await provider.getSigner(0);
+        signer = await provider.getSigner();
       } else {
-        const idx = parseInt(prompt('Input test account index')!);
+        const idx = parseInt(prompt('Signer account?')!);
         signer = await provider.getSigner(idx);
       }
 
@@ -153,7 +153,7 @@ export default function DistributeRequest({
         distribute
       );
       toaster.success(message);
-      router.reload();
+      router.push('/scan');
     } catch (e) {
       console.log(e);
       toaster.danger('An error occurred');
@@ -168,7 +168,7 @@ export default function DistributeRequest({
         size={600}
         marginBottom={majorScale(2)}
       >
-        {label}
+        Request Distribution {label}
       </Heading>
       <Pane
         is="form"
@@ -269,6 +269,7 @@ export default function DistributeRequest({
         <SaveCancel
           disabled={!isDirty || !isValid}
           loading={isSubmitting}
+          text="Confirm"
         />
       </Pane>
     </BaseLayout>
@@ -279,14 +280,15 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
 
-    const doc = await db
-      .collection('distributes')
-      .doc(query.id as string)
-      .get();
-    const data = doc.data();
+    const doc = (
+      await db
+        .collection('distributes')
+        .doc(query.id as string)
+        .get()
+    ).data();
 
     const getDistribute = () => {
-      return data?.distributes.filter(
+      return doc?.distributes.filter(
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
@@ -294,7 +296,7 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
 
     if (
       sender.role !== ROLE.DISTRIBUTOR ||
-      !data?.catalogs[query.address as string].length
+      !doc?.catalogs[query.address as string].length
     ) {
       return { redirect: { destination: '/no-permission' } };
     }
@@ -302,15 +304,15 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
     return {
       props: {
         id: query.id,
-        label: data?.label,
-        product: data?.product,
-        serialize: data?.serialize,
-        contract: data?.contract,
-        catalogs: data?.catalogs,
+        label: doc.label,
+        product: doc.product,
+        serialize: doc.serialize,
+        contract: doc.contract,
+        catalogs: doc.catalogs,
         sender,
       },
     };
   } catch (e) {
-    return { redirect: { destination: '/' } };
+    return { redirect: { destination: '/404' } };
   }
 }

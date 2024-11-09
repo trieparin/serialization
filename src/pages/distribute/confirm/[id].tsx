@@ -66,9 +66,9 @@ export default function DistributeConfirm({
       const provider = await connectWallet();
       let signer;
       if (checkWallet()) {
-        signer = await provider.getSigner(0);
+        signer = await provider.getSigner();
       } else {
-        const idx = parseInt(prompt('Input test account index')!);
+        const idx = parseInt(prompt('Signer account?')!);
         signer = await provider.getSigner(idx);
       }
 
@@ -116,7 +116,7 @@ export default function DistributeConfirm({
         update,
       });
       toaster.success(message);
-      router.push(`/distribute/request/${id}?address=${signer.address}`);
+      router.push('/scan');
     } catch (e) {
       console.log(e);
       toaster.danger('An error occurred');
@@ -132,7 +132,7 @@ export default function DistributeConfirm({
         size={600}
         marginBottom={majorScale(2)}
       >
-        Save Information ({label})
+        Confirm Information {label}
       </Heading>
       <Pane
         is="form"
@@ -191,6 +191,7 @@ export default function DistributeConfirm({
         <SaveCancel
           disabled={false}
           loading={loading}
+          text="Confirm"
         />
       </Pane>
     </BaseLayout>
@@ -201,34 +202,35 @@ export async function getServerSideProps({ query }: GetServerSidePropsContext) {
   try {
     if (!query.address) return { redirect: { destination: '/404' } };
 
-    const doc = await db
-      .collection('distributes')
-      .doc(query.id as string)
-      .get();
-    const data = doc.data();
+    const doc = (
+      await db
+        .collection('distributes')
+        .doc(query.id as string)
+        .get()
+    ).data();
 
     const getDistribute = () => {
-      return data?.distributes.filter(
+      return doc?.distributes.filter(
         ({ receiver }: IDistributeInfo) => receiver.address === query.address
       )[0];
     };
 
-    if (data?.catalogs[query.address as string]) {
+    if (doc?.catalogs[query.address as string]) {
       return { redirect: { destination: '/no-permission' } };
     }
 
     return {
       props: {
         id: query.id,
-        label: data?.label,
-        product: data?.product,
-        serialize: data?.serialize,
-        contract: data?.contract,
-        catalogs: data?.catalogs,
+        label: doc?.label,
+        product: doc?.product,
+        serialize: doc?.serialize,
+        contract: doc?.contract,
+        catalogs: doc?.catalogs,
         distribute: getDistribute(),
       },
     };
   } catch (e) {
-    return { redirect: { destination: '/' } };
+    return { redirect: { destination: '/404' } };
   }
 }

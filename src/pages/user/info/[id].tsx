@@ -90,11 +90,12 @@ export async function getServerSideProps({
     const { role } = await admin.verifyIdToken(req.cookies.token!);
     if (!role) return { redirect: { destination: '/' } };
 
-    const doc = await db
-      .collection('users')
-      .doc(params?.id as string)
-      .get();
-    const data = doc.data();
+    const data = (
+      await db
+        .collection('users')
+        .doc(params?.id as string)
+        .get()
+    ).data();
 
     return {
       props: {
