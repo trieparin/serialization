@@ -54,14 +54,6 @@ export default function DistributeConfirm({
     e.preventDefault();
     startLoading();
     try {
-      // Get raw product and serial data
-      const fch = customFetch();
-      const [{ data: productData }, { data: serializeData }] =
-        await Promise.all([
-          await fch.get(`/products/${product}`),
-          await fch.get(`/serials/${serialize}`),
-        ]);
-
       // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       let signer;
@@ -72,7 +64,19 @@ export default function DistributeConfirm({
         signer = await provider.getSigner(idx);
       }
 
+      // Get raw product and serial data
+      console.log('confirm shipment timer');
+      console.time('confirm shipment timer');
+      const fch = customFetch();
+      const [{ data: productData }, { data: serializeData }] =
+        await Promise.all([
+          await fch.get(`/products/${product}`),
+          await fch.get(`/serials/${serialize}`),
+        ]);
+
       // Hash and update data in smart contract
+      console.log('check and confirm shipment on smart contract timer');
+      console.time('check and confirm shipment on smart contract timer');
       const [productHash, serializeHash, distributeHash, shipmentHash] =
         await Promise.all([
           hashMessage(JSON.stringify(productData)),
@@ -88,8 +92,8 @@ export default function DistributeConfirm({
         shipmentHash,
         distribute.sender.address
       );
-
-      console.log({
+      console.timeEnd('check and confirm shipment on smart contract timer');
+      console.table({
         product: {
           data: productData,
           hash: productHash,
@@ -115,11 +119,11 @@ export default function DistributeConfirm({
         mode: MODE.CONFIRM,
         update,
       });
+      console.timeEnd('confirm shipment timer');
       toaster.success(message);
       router.push('/scan');
     } catch (e) {
-      console.log(e);
-      toaster.danger('An error occurred');
+      toaster.danger((e as Error).message);
     }
     stopLoading();
   };

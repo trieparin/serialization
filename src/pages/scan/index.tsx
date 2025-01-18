@@ -19,14 +19,6 @@ export default function ScanPage() {
 
   const onScan = async (detected: IDetectedBarcode) => {
     try {
-      // Get raw distribute data
-      const scan = detected.rawValue;
-      const id = scan.replace(/\?.*/, '');
-      const fch = customFetch();
-      const { data }: { data: IDistribute } = await fch.get(
-        `/distributes/${id}`
-      );
-
       // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       let signer;
@@ -37,7 +29,19 @@ export default function ScanPage() {
         signer = await provider.getSigner(idx);
       }
 
+      // Get raw distribute data
+      console.log('get distribution timer');
+      console.time('get distribution timer');
+      const scan = detected.rawValue;
+      const id = scan.replace(/\?.*/, '');
+      const fch = customFetch();
+      const { data }: { data: IDistribute } = await fch.get(
+        `/distributes/${id}`
+      );
+
       // Check role in smart contract and redirect
+      console.log('check role with smart contract timer');
+      console.time('check role with smart contract timer');
       const contract = new Contract(data.contract, Traceability.abi, signer);
       const role = parseInt(await contract.checkRole());
       switch (role) {
@@ -58,8 +62,10 @@ export default function ScanPage() {
         default:
           router.push(`/distribute/info/${scan}`);
       }
+      console.timeEnd('check role with smart contract timer');
+      console.timeEnd('get distribution timer');
     } catch (e) {
-      console.log(e);
+      throw e as Error;
     }
   };
 

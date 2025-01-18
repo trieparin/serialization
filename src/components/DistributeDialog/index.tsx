@@ -57,7 +57,19 @@ export const DistributeDialog = ({
   const handleAction = async (close: () => void) => {
     startLoading();
     try {
+      // Connect to wallet eg. MetaMask
+      const provider = await connectWallet();
+      let signer;
+      if (checkWallet()) {
+        signer = await provider.getSigner();
+      } else {
+        const idx = parseInt(prompt('Signer account?')!);
+        signer = await provider.getSigner(idx);
+      }
+
       // Get raw product and serial data
+      console.log('start distribution timer');
+      console.time('start distribution timer');
       const fch = customFetch();
       await fch.patch(`/serials/${change?.serial}`, {
         status: SERIALIZE_STATUS.DISTRIBUTED,
@@ -69,17 +81,9 @@ export const DistributeDialog = ({
         ]);
       const { manufacturer } = productData;
 
-      // Connect to wallet eg. MetaMask
-      const provider = await connectWallet();
-      let signer;
-      if (checkWallet()) {
-        signer = await provider.getSigner();
-      } else {
-        const idx = parseInt(prompt('Signer account?')!);
-        signer = await provider.getSigner(idx);
-      }
-
       // Create and deploy smart contract
+      console.log('create and deploy smart contract timer');
+      console.time('create and deploy smart contract timer');
       const factory = new ContractFactory(
         Traceability.abi,
         Traceability.data.bytecode,
@@ -97,8 +101,11 @@ export const DistributeDialog = ({
       );
       const address = await contract.getAddress();
       contract.waitForDeployment();
-
-      console.log({
+      console.timeLog(
+        'create and deploy smart contract timer',
+        'smart contract created'
+      );
+      console.table({
         product: {
           data: productData,
           hash: productHash,
@@ -125,8 +132,8 @@ export const DistributeDialog = ({
         state.address,
         ROLE.DISTRIBUTOR
       );
-
-      console.log({
+      console.timeEnd('create and deploy smart contract timer');
+      console.table({
         catalog: {
           data: [],
           hash: updateHash,
@@ -152,6 +159,7 @@ export const DistributeDialog = ({
         },
       };
       const { message }: IFormMessage = await fch.post(path, distribute);
+      console.timeEnd('start distribution timer');
       close();
       toaster.success(message);
       dispatch({ type: 'RESET', payload: '' });

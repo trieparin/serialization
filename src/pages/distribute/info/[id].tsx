@@ -47,16 +47,20 @@ export default function DistributeInfo({
   useEffect(() => {
     const checkDistribution = async () => {
       try {
+        // Connect to wallet eg. MetaMask
+        const provider = await connectWallet();
+
         // Get raw product and serial data
+        console.log('get serialize timer');
+        console.time('get serialize timer');
         const fch = customFetch();
         const { data }: { data: ISerialize } = await fch.get(
           `/serials/${serialId}`
         );
 
-        // Connect to wallet eg. MetaMask
-        const provider = await connectWallet();
-
         // Hash to check raw data
+        console.log('check serialize from smart contract timer');
+        console.time('check serialize from smart contract timer');
         const [productHash, serializeHash] = await Promise.all([
           hashMessage(JSON.stringify(product)),
           hashMessage(JSON.stringify(data)),
@@ -82,9 +86,11 @@ export default function DistributeInfo({
         });
         setCheckedDist(checkDist);
         setCheckedInfo(true);
-        console.log(checkDist);
+        console.timeEnd('check serialize from smart contract timer');
+        console.time('get serialize timer');
+        console.table(checkDist);
       } catch (e) {
-        console.log(e);
+        throw e as Error;
       }
     };
     checkDistribution();

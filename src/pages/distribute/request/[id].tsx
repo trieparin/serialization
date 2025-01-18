@@ -72,15 +72,6 @@ export default function DistributeRequest({
 
   const formSubmit = async () => {
     try {
-      // Get raw product and serial data
-      const fch = customFetch();
-      const values = getValues();
-      const [{ data: productData }, { data: serializeData }] =
-        await Promise.all([
-          await fch.get(`/products/${product}`),
-          await fch.get(`/serials/${serialize}`),
-        ]);
-
       // Connect to wallet eg. MetaMask
       const provider = await connectWallet();
       let signer;
@@ -91,7 +82,20 @@ export default function DistributeRequest({
         signer = await provider.getSigner(idx);
       }
 
+      // Get raw product and serial data
+      console.log('send shipment timer');
+      console.time('send shipment timer');
+      const fch = customFetch();
+      const values = getValues();
+      const [{ data: productData }, { data: serializeData }] =
+        await Promise.all([
+          await fch.get(`/products/${product}`),
+          await fch.get(`/serials/${serialize}`),
+        ]);
+
       // Hash and update data in smart contract
+      console.log('check and send shipment to smart contract timer');
+      console.time('check and send shipment to smart contract timer');
       const update = catalog.filter((item) => !values.shipment.includes(item));
       const [productHash, serializeHash, catalogHash, updateHash] =
         await Promise.all([
@@ -109,8 +113,8 @@ export default function DistributeRequest({
         values.address,
         values.role
       );
-
-      console.log({
+      console.timeEnd('check and send shipment to smart contract timer');
+      console.table({
         product: {
           data: productData,
           hash: productHash,
@@ -152,11 +156,11 @@ export default function DistributeRequest({
         `/distributes/${id}`,
         distribute
       );
+      console.timeEnd('send shipment timer');
       toaster.success(message);
       router.push('/scan');
     } catch (e) {
-      console.log(e);
-      toaster.danger('An error occurred');
+      toaster.danger((e as Error).message);
     }
   };
 
