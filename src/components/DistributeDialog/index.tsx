@@ -71,9 +71,6 @@ export const DistributeDialog = ({
       console.log('start distribution timer');
       console.time('start distribution timer');
       const fch = customFetch();
-      await fch.patch(`/serials/${change?.serial}`, {
-        status: SERIALIZE_STATUS.DISTRIBUTED,
-      });
       const [{ data: productData }, { data: serializeData }] =
         await Promise.all([
           await fch.get(`/products/${change?.product}`),
@@ -158,6 +155,9 @@ export const DistributeDialog = ({
           shipment: serializeData.serials,
         },
       };
+      await fch.patch(`/serials/${change?.serial}`, {
+        status: SERIALIZE_STATUS.DISTRIBUTED,
+      });
       const { message }: IFormMessage = await fch.post(path, distribute);
       console.timeEnd('start distribution timer');
       close();
