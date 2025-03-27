@@ -11,13 +11,13 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@yudiel/react-qr-scanner": "^2.1.0",
-    "chart.js": "^4.4.7",
-    "ethers": "^6.13.5",
+    "@yudiel/react-qr-scanner": "^2.2.1",
+    "chart.js": "^4.4.8",
+    "ethers": "6.13.5",
     "evergreen-ui": "^7.1.9",
     "firebase": "^10.14.1",
     "firebase-admin": "^12.7.0",
-    "next": "^14.2.23",
+    "next": "^14.2.26",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
@@ -26,16 +26,16 @@
     "react-qr-code": "^2.0.15"
   },
   "devDependencies": {
-    "@types/node": "^20.17.14",
-    "@types/react": "^18.3.18",
+    "@types/node": "^20.17.28",
+    "@types/react": "^18.3.20",
     "@types/react-dom": "^18.3.5",
     "@types/react-is": "^18.3.1",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.23",
-    "turbo": "^2.3.3",
+    "eslint-config-next": "^14.2.26",
+    "turbo": "^2.4.4",
     "typescript": "^5.7.3"
   },
-  "packageManager": "yarn@4.6.0"
+  "packageManager": "yarn@4.7.0"
 }
