@@ -103,8 +103,8 @@ export default function ScanPage() {
           style={{ aspectRatio: 1 }}
         >
           <Scanner
-            components={{ audio: false }}
             onScan={(detected) => onScan(detected[0])}
+            sound={false}
           />
         </Pane>
       </Card>
